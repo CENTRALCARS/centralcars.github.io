@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="./img/logo_a.png">
+    <link rel="stylesheet" href="./style.css">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Oswald&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <title>CENTRAL CARS - CONTACT</title>
+</head>
+
+<body>
+    
+  <section class="navbar">
+
+    <nav class="navigationWrapper">
+        <div class="logoWrapper" onclick="location.href='main.html';" style="cursor:pointer;">
+          <img src="./img/logo_a.png">
+          <p>Central Cars</p>
+        </div>
+        <ul class="navigation">
+          <li class="parent"><a class="link" href="main.html">Home</a></li>
+          <li class="parent"><a class="link" href="shop.html">Boutique</a></li>
+          <li class="parent"><a class="link" href="immat.html">Immatriculation</a></li>
+          <li class="parent"><a class="link" href="contact.html">Contact</a></li>
+        </ul>
+      </nav>
+
+</section>
+
+    <h1 class="center">276 rue Marcel Sembat 59690 Vieux Condé</h1>
+    <h2 class="center">06 98 97 94 63</h2>
+    <h2 class="center">contact@centralcars.fr</h2>
+
+    <section class="footer">
+        <p>&copy; 2024 CENTRAL CARS. Tous droits réservés.</p>
+    
+        <p>Ce site et son contenu sont protégés par les lois sur le droit d'auteur et les traités internationaux. 
+            Toute reproduction, distribution ou utilisation non autorisée du contenu est strictement interdite sans l'autorisation écrite préalable de l'auteur.</p>
+    </section>
+
+    <script>
+      const sections = document.querySelectorAll('.section');
+
+      const observer = new IntersectionObserver(entries => {
+          entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                  entry.target.classList.add('visible');
+              }
+          });
+      }, {
+          threshold: 0.1
+      });
+
+      sections.forEach(section => {
+          observer.observe(section);
+      });
+  </script>
+
+</body>

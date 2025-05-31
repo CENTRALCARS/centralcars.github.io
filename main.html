@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="https://placehold.co/32x32/1F2937/FFFFFF?text=CC&font=roboto"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald&family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+
+    <title>CENTRAL CARS - Accueil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif; /* Utilisation de Roboto car importé */
+        }
+        /* Directives @apply de Tailwind pour les classes de composants personnalisés */
+        /* Celles-ci seront traitées par le CDN Tailwind Play */
+        .table-input {
+            @apply w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+        }
+        .btn {
+            @apply px-4 py-2 rounded-md shadow-sm text-sm font-medium transition-colors duration-150 ease-in-out;
+        }
+        .btn-primary {
+            @apply text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+        }
+        .btn-secondary {
+            @apply text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500;
+        }
+        .btn-danger {
+            @apply text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500;
+        }
+        .modal {
+            @apply fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4;
+        }
+        .modal-content {
+            @apply bg-white p-5 rounded-lg shadow-xl w-full max-w-md mx-auto;
+        }
+        .card-img-top {
+            @apply w-full h-48 object-cover rounded-t-xl; /* Classe pour les images des cartes */
+        }
+    </style>
+</head>
+
+<body class="min-h-screen flex flex-col bg-gray-100">
+
+    <header class="bg-slate-800 text-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-4 py-3 flex items-center justify-between flex-wrap">
+            <div class="flex items-center cursor-pointer" onclick="location.href='main.html';">
+                <img src="https://placehold.co/40x40/ffffff/1F2937?text=CC&font=roboto" alt="Logo Central Cars" class="h-10 w-10 mr-3 rounded-full">
+                <span class="font-bold text-xl tracking-tight">Central Cars</span>
+            </div>
+
+            <div class="block md:hidden">
+                <button id="menu-toggle" class="flex items-center px-3 py-2 border rounded text-slate-200 border-slate-400 hover:text-white hover:border-white">
+                    <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
+                </button>
+            </div>
+
+            <ul id="menu-links" class="w-full md:flex md:items-center md:w-auto hidden md:space-x-6 mt-4 md:mt-0">
+                <li><a class="block md:inline-block py-2 md:py-0 text-slate-200 hover:text-white transition-colors" href="main.html">Home</a></li>
+                <li><a class="block md:inline-block py-2 md:py-0 text-slate-200 hover:text-white transition-colors" href="facturation.html">Facturation</a></li>
+                <li><a class="block md:inline-block py-2 md:py-0 text-slate-200 hover:text-white transition-colors" href="tools.html">ANTS</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="flex-grow container mx-auto px-4 py-8">
+        
+        <section class="text-center mb-12">
+            <h1 class="text-3xl sm:text-4xl font-bold text-red-600 mb-3">12 ans d'expérience professionnelle.</h1>
+            <h2 class="text-2xl sm:text-3xl font-semibold text-blue-700">Agréé et habilité par le Ministère de l'Intérieur.</h2>
+        </section>
+
+        <section class="mb-12 bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+            <div class="flex flex-col md:flex-row items-center md:space-x-8">
+                <div class="md:w-1/3 mb-6 md:mb-0">
+                    <img src="https://placehold.co/600x400/cccccc/333333?text=Garage+Central+Cars&font=roboto" alt="Image du garage Central Cars" class="rounded-lg shadow-md w-full h-auto object-cover">
+                </div>
+                <div class="md:w-2/3 text-slate-700 space-y-4">
+                    <p>Chez CENTRAL CARS, nous nous engageons à vous offrir une expérience exceptionnelle en matière d’achat de voitures. Nous mettons tout en œuvre pour vous proposer une gamme variée de véhicules, soigneusement sélectionnés pour répondre à vos attentes et garantir votre satisfaction. Notre équipe de professionnels passionnés et expérimentés est à votre disposition pour vous conseiller et vous accompagner tout au long de votre parcours d’achat.</p>
+                    <p>Notre savoir-faire et nos compétences, acquis au fil des années, ont fait de notre établissement une référence incontournable dans le domaine de l’automobile. Nous sommes fiers de notre réputation et nous nous efforçons chaque jour de maintenir les standards de qualité et de service qui font notre renommée. Que vous soyez à la recherche d’une voiture neuve ou d’occasion, nous avons le véhicule qu’il vous faut.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-12">
+            <h3 class="text-2xl sm:text-3xl font-bold text-slate-700 mb-8 text-center">Nos Services</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                    <img src="https://placehold.co/400x300/E2E8F0/4A5568?text=Vente+Occasions&font=roboto" alt="Véhicules d'occasions" class="card-img-top">
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h4 class="text-xl font-semibold text-slate-800 mb-2">Véhicules d'occasions</h4>
+                        <p class="text-slate-600 text-sm flex-grow">Nous achetons et revendons des véhicules d'occasion de qualité à des prix compétitifs. Le dernier entretien est effectué dans nos ateliers et tous nos véhicules sont garantis.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col">
+                    <img src="https://placehold.co/400x300/E2E8F0/4A5568?text=Atelier+Mécanique&font=roboto" alt="Atelier mécanique" class="card-img-top">
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h4 class="text-xl font-semibold text-slate-800 mb-2">Mécanique</h4>
+                        <p class="text-slate-600 text-sm flex-grow">Notre atelier vous propose les entretiens du quotidien sur votre véhicule. Vidange, freins, distribution,... votre véhicule passe dans des mains expertes.</p>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg overflow-hidden flex flex-col cursor-pointer hover:shadow-xl transition-shadow duration-300" onclick="location.href='immat.html';">
+                    <img src="https://placehold.co/400x300/E2E8F0/4A5568?text=Service+Immat.&font=roboto" alt="Service d'immatriculation" class="card-img-top">
+                    <div class="p-6 flex flex-col flex-grow">
+                        <h4 class="text-xl font-semibold text-slate-800 mb-2">Service d'immatriculation</h4>
+                        <p class="text-slate-600 text-sm flex-grow">Agréé et habilité par le Ministère de l'Intérieur, nous nous occupons de vos démarches administratives. Immatriculation provisoire, déclaration d'achat, cession d'un véhicule, changement d'adresse,...</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="bg-slate-800 text-slate-300 text-center p-6 text-sm">
+        <p class="mb-2">&copy; 2024 CENTRAL CARS. Tous droits réservés.</p>
+        <p class="max-w-2xl mx-auto text-xs text-slate-400">Ce site et son contenu sont protégés par les lois sur le droit d'auteur et les traités internationaux. Toute reproduction, distribution ou utilisation non autorisée du contenu est strictement interdite sans l'autorisation écrite préalable de l'auteur.</p>
+    </footer>
+    
+<script>
+    // JavaScript pour le Menu Hamburger
+    const menuToggle = document.getElementById('menu-toggle');
+    const menuLinks = document.getElementById('menu-links');
+
+    if (menuToggle && menuLinks) {
+        menuToggle.addEventListener('click', function() {
+            menuLinks.classList.toggle('hidden');
+            // Accessibilité : Mettre à jour aria-expanded
+            const isExpanded = menuLinks.classList.contains('hidden') ? 'false' : 'true';
+            menuToggle.setAttribute('aria-expanded', isExpanded);
+        });
+    }
+    // Initialiser aria-expanded
+    if (menuToggle && menuLinks) {
+         menuToggle.setAttribute('aria-expanded', menuLinks.classList.contains('hidden') ? 'false' : 'true');
+    }
+</script>
+
+</body>
+</html>
