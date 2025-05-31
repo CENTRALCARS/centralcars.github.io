@@ -39,7 +39,8 @@
         .modal.active .modal-content {
             @apply scale-100 opacity-100;
         }
-        .hidden { display: none !important; }
+        /* La classe .hidden personnalisée avec !important a été supprimée. 
+           Nous utilisons maintenant la classe 'hidden' de Tailwind par défaut. */
         fieldset { @apply border border-gray-300 p-4 rounded-md; }
         legend { @apply text-sm font-semibold text-indigo-600 px-2; }
         .status-message {
@@ -53,21 +54,21 @@
 
 <body class="min-h-screen flex flex-col bg-gray-100">
 
-     <header class="bg-slate-800 text-white shadow-md">
+    <header class="bg-slate-800 text-white shadow-md sticky top-0 z-[1000]">
         <nav class="container mx-auto px-4 py-3 flex items-center justify-between flex-wrap">
-            <div class="flex items-center cursor-pointer" onclick="location.href='index.html';">
-                <img src="https://placehold.co/40x40/ffffff/1F2937?text=CC&font=roboto" alt="Central Cars Logo" class="h-10 w-10 mr-3 rounded-full">
+            <div class="flex items-center cursor-pointer" onclick="location.href='main.html';">
+                <img src="https://placehold.co/40x40/ffffff/1F2937?text=CC&font=roboto" alt="Logo Central Cars" class="h-10 w-10 mr-3 rounded-full">
                 <span class="font-bold text-xl tracking-tight">Central Cars</span>
             </div>
-
-            <div class="block md:hidden">
-                <button id="menu-toggle" class="flex items-center px-3 py-2 border rounded text-slate-200 border-slate-400 hover:text-white hover:border-white">
+            <div class="block md:hidden"> {/* Ce div s'affiche sur mobile, se cache sur md et plus */}
+                <button id="menu-toggle" class="flex items-center px-3 py-2 border rounded text-slate-200 border-slate-400 hover:text-white hover:border-white" aria-controls="menu-links" aria-expanded="false">
                     <svg class="fill-current h-3 w-3" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><title>Menu</title><path d="M0 3h20v2H0V3zm0 6h20v2H0V9zm0 6h20v2H0v-2z"/></svg>
                 </button>
             </div>
-
+            {/* La classe 'hidden' de Tailwind est utilisée ici. 
+                'md:flex' la surchargera sur les écrans moyens et plus grands. */}
             <ul id="menu-links" class="w-full md:flex md:items-center md:w-auto hidden md:space-x-6 mt-4 md:mt-0">
-                <li><a class="block md:inline-block py-2 md:py-0 text-slate-200 hover:text-white transition-colors" href="index.html">Home</a></li>
+                <li><a class="block md:inline-block py-2 md:py-0 text-slate-200 hover:text-white transition-colors" href="main.html">Home</a></li>
                 <li><a class="block md:inline-block py-2 md:py-0 text-slate-200 hover:text-white transition-colors" href="facturation.html">Facturation</a></li>
                 <li><a class="block md:inline-block py-2 md:py-0 text-slate-200 hover:text-white transition-colors" href="tools.html">ANTS</a></li>
                 <li><a class="block md:inline-block py-2 md:py-0 text-slate-200 hover:text-white transition-colors" href="dossiers.html">Dossiers Clients</a></li>
@@ -101,10 +102,10 @@
             </div>
              <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
                 <p class="font-bold">Important - Mise à jour des données sur GitHub :</p>
-                <p>Pour que vos modifications soient prises en compte sur <code class="text-xs bg-yellow-200 p-1 rounded">https://centralcars.github.io/dossiers_clients.json</code>, vous devez :</p>
+                <p>Pour que vos modifications soient prises en compte sur <code class="text-xs bg-yellow-200 p-1 rounded">https://centralcars.github.io/dossiers_client.json</code>, vous devez :</p>
                 <ol class="list-decimal list-inside ml-4 mt-1">
                     <li>Cliquer sur "Télécharger JSON".</li>
-                    <li>Remplacer le fichier <code class="text-xs bg-yellow-200 p-1 rounded">dossiers_clients.json</code> existant dans votre dépôt GitHub par celui que vous venez de télécharger.</li>
+                    <li>Remplacer le fichier <code class="text-xs bg-yellow-200 p-1 rounded">dossiers_client.json</code> existant dans votre dépôt GitHub par celui que vous venez de télécharger.</li>
                     <li>Effectuer un "commit" et un "push" de vos modifications sur GitHub.</li>
                 </ol>
                 <p class="mt-2 text-sm">La sauvegarde directe vers cette URL depuis cette page n'est pas possible.</p>
@@ -197,7 +198,7 @@
         </div>
     </main>
 
-    <div id="new-dossier-modal" class="modal hidden">
+    <div id="new-dossier-modal" class="modal hidden"> {/* 'hidden' de Tailwind est utilisé ici */}
         <div class="modal-content">
             <h3 class="text-lg font-medium leading-6 text-gray-900 mb-4">Créer un Nouveau Dossier</h3>
             <div class="space-y-4">
@@ -239,7 +240,7 @@
         </div>
     </div>
     
-    <div id="confirm-delete-modal" class="modal hidden">
+    <div id="confirm-delete-modal" class="modal hidden"> {/* 'hidden' de Tailwind est utilisé ici */}
         <div class="modal-content">
             <h3 class="text-lg font-medium leading-6 text-gray-900 mb-2">Confirmer la suppression</h3>
             <p id="confirm-delete-message" class="text-sm text-gray-600 mb-4">Êtes-vous sûr de vouloir supprimer ce dossier ? Cette action est irréversible.</p>
@@ -257,7 +258,7 @@
     
 <script>
     // URLs and Config
-    const GITHUB_JSON_URL = 'https://centralcars.github.io/dossiers_clients.json';
+    const GITHUB_JSON_URL = 'https://centralcars.github.io/dossiers_client.json';
 
     // JavaScript pour le Menu Hamburger
     const menuToggle = document.getElementById('menu-toggle');
@@ -265,10 +266,12 @@
 
     if (menuToggle && menuLinks) {
         menuToggle.addEventListener('click', function() {
-            const isExpanded = menuLinks.classList.toggle('hidden');
-            menuToggle.setAttribute('aria-expanded', !isExpanded);
+            menuLinks.classList.toggle('hidden'); // Utilise la classe 'hidden' de Tailwind
+            const isCurrentlyHidden = menuLinks.classList.contains('hidden');
+            menuToggle.setAttribute('aria-expanded', !isCurrentlyHidden);
         });
-        menuToggle.setAttribute('aria-expanded', menuLinks.classList.contains('hidden') ? 'false' : 'true');
+        const initialIsHidden = menuLinks.classList.contains('hidden');
+        menuToggle.setAttribute('aria-expanded', !initialIsHidden);
     }
 
     // Logique de gestion des dossiers clients
@@ -335,14 +338,9 @@
     
     function displayLoadingStatus(message, type = 'info') {
         loadingStatusMessageDiv.textContent = message;
-        loadingStatusMessageDiv.className = `status-message status-${type}`; // Reset classes
+        loadingStatusMessageDiv.className = `status-message status-${type}`; 
         loadingStatusMessageDiv.classList.remove('hidden');
     }
-
-    function hideLoadingStatus() {
-        loadingStatusMessageDiv.classList.add('hidden');
-    }
-
 
     function openModal(modalElement) {
         modalElement.classList.remove('hidden');
@@ -357,7 +355,7 @@
         modalElement.querySelector('.modal-content').classList.remove('scale-100', 'opacity-100');
         modalElement.querySelector('.modal-content').classList.add('scale-95', 'opacity-0');
         setTimeout(() => {
-            modalElement.classList.add('hidden');
+            modalElement.classList.add('hidden'); // Utilise la classe 'hidden' de Tailwind
             modalElement.classList.remove('active');
         }, 300); 
     }
@@ -385,8 +383,8 @@
     function displayDossierDetails(dossierId) {
         const dossier = dossiers.find(d => d.id === dossierId);
         if (dossier) {
-            dossierDetailsSection.classList.remove('hidden');
-            noDossierSelectedDiv.classList.add('hidden');
+            dossierDetailsSection.classList.remove('hidden'); // Utilise la classe 'hidden' de Tailwind
+            noDossierSelectedDiv.classList.add('hidden'); // Utilise la classe 'hidden' de Tailwind
 
             dossierIdDisplay.textContent = `(N° ${dossier.id})`;
             editDossierOriginalIdInput.value = dossier.id; 
@@ -402,8 +400,8 @@
     }
 
     function clearDossierDetailsForm() {
-        dossierDetailsSection.classList.add('hidden');
-        noDossierSelectedDiv.classList.remove('hidden');
+        dossierDetailsSection.classList.add('hidden'); // Utilise la classe 'hidden' de Tailwind
+        noDossierSelectedDiv.classList.remove('hidden'); // Utilise la classe 'hidden' de Tailwind
         dossierIdDisplay.textContent = '';
         editDossierOriginalIdInput.value = '';
     }
@@ -420,8 +418,8 @@
             dossiers[dossierIndex].numeroFacture = editNumeroFactureInput.value.trim();
             dossiers[dossierIndex].statut = editStatutDossierSelect.value;
             
-            populateDossierDropdown(); // Rafraîchir au cas où le nom client change
-            selectDossierDropdown.value = originalId; // Garder la sélection
+            populateDossierDropdown(); 
+            selectDossierDropdown.value = originalId; 
             return true;
         }
         return false;
@@ -430,13 +428,11 @@
     async function autoLoadJSON() {
         displayLoadingStatus("Chargement des dossiers depuis GitHub...", "info");
         try {
-            // Ajout d'un cache buster pour forcer le rechargement si nécessaire en développement/test
-            // Pour la production, GitHub Pages a son propre cache.
             const response = await fetch(GITHUB_JSON_URL + '?t=' + new Date().getTime()); 
             if (!response.ok) {
                 if (response.status === 404) {
-                    displayLoadingStatus("Aucun fichier 'dossiers_clients.json' trouvé sur GitHub. Vous pouvez commencer à créer des dossiers.", "info");
-                    dossiers = []; // Initialiser avec un tableau vide
+                    displayLoadingStatus("Aucun fichier 'dossiers_client.json' trouvé sur GitHub. Vous pouvez commencer à créer des dossiers.", "info");
+                    dossiers = []; 
                 } else {
                     throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
                 }
@@ -446,28 +442,25 @@
                     dossiers = jsonData;
                     displayLoadingStatus(`Données chargées avec succès depuis GitHub (${dossiers.length} dossiers).`, "success");
                 } else {
-                     dossiers = []; // En cas de format incorrect, partir d'un tableau vide pour éviter des erreurs
+                     dossiers = []; 
                     throw new Error("Format JSON invalide ou 'id' manquant dans certains objets.");
                 }
             }
         } catch (error) {
             console.error("Erreur lors du chargement automatique du JSON:", error);
             displayLoadingStatus(`Erreur lors du chargement: ${error.message}. Utilisation d'une liste de dossiers vide.`, "error");
-            dossiers = []; // Initialiser avec un tableau vide en cas d'erreur
+            dossiers = []; 
         } finally {
             populateDossierDropdown();
             clearDossierDetailsForm();
             selectDossierDropdown.value = "";
              if (dossiers.length === 0) {
-                noDossierSelectedDiv.classList.remove('hidden');
+                noDossierSelectedDiv.classList.remove('hidden'); // Utilise la classe 'hidden' de Tailwind
             } else {
-                noDossierSelectedDiv.classList.add('hidden');
+                noDossierSelectedDiv.classList.add('hidden'); // Utilise la classe 'hidden' de Tailwind
             }
-            // On pourrait masquer le message après un délai si succès
-            // setTimeout(hideLoadingStatus, 5000); 
         }
     }
-
 
     saveJsonButton.addEventListener('click', () => {
         if (dossiers.length === 0) {
@@ -584,10 +577,13 @@
     });
     
     updateCurrentDossierBtn.addEventListener('click', () => {
-        if (updateDossierInMemory()) {
+        if (editDossierOriginalIdInput.value && updateDossierInMemory()) { // Vérifier si un dossier est sélectionné
             showAppAlert("Modifications appliquées en mémoire pour le dossier actuel.", "success");
-        } else {
-            showAppAlert("Aucun dossier sélectionné ou erreur lors de la mise à jour.", "info");
+        } else if (!editDossierOriginalIdInput.value) {
+             showAppAlert("Aucun dossier n'est sélectionné pour la mise à jour.", "info");
+        }
+         else {
+            showAppAlert("Erreur lors de la mise à jour du dossier en mémoire.", "error");
         }
     });
 
@@ -620,7 +616,6 @@
         }
     });
 
-    // Initialisation au chargement de la page
     document.addEventListener('DOMContentLoaded', () => {
         autoLoadJSON();
     });
