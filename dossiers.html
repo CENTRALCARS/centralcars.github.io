@@ -101,10 +101,10 @@
             </div>
              <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
                 <p class="font-bold">Important - Mise à jour des données sur GitHub :</p>
-                <p>Pour que vos modifications soient prises en compte sur <code class="text-xs bg-yellow-200 p-1 rounded">https://centralcars.github.io/dossiers_client.json</code>, vous devez :</p>
+                <p>Pour que vos modifications soient prises en compte sur <code class="text-xs bg-yellow-200 p-1 rounded">https://centralcars.github.io/dossiers_clients.json</code>, vous devez :</p>
                 <ol class="list-decimal list-inside ml-4 mt-1">
                     <li>Cliquer sur "Télécharger JSON".</li>
-                    <li>Remplacer le fichier <code class="text-xs bg-yellow-200 p-1 rounded">dossiers_client.json</code> existant dans votre dépôt GitHub par celui que vous venez de télécharger.</li>
+                    <li>Remplacer le fichier <code class="text-xs bg-yellow-200 p-1 rounded">dossiers_clients.json</code> existant dans votre dépôt GitHub par celui que vous venez de télécharger.</li>
                     <li>Effectuer un "commit" et un "push" de vos modifications sur GitHub.</li>
                 </ol>
                 <p class="mt-2 text-sm">La sauvegarde directe vers cette URL depuis cette page n'est pas possible.</p>
@@ -257,7 +257,7 @@
     
 <script>
     // URLs and Config
-    const GITHUB_JSON_URL = 'https://centralcars.github.io/dossiers_client.json';
+    const GITHUB_JSON_URL = 'https://centralcars.github.io/dossiers_clients.json';
 
     // JavaScript pour le Menu Hamburger
     const menuToggle = document.getElementById('menu-toggle');
@@ -435,7 +435,7 @@
             const response = await fetch(GITHUB_JSON_URL + '?t=' + new Date().getTime()); 
             if (!response.ok) {
                 if (response.status === 404) {
-                    displayLoadingStatus("Aucun fichier 'dossiers_client.json' trouvé sur GitHub. Vous pouvez commencer à créer des dossiers.", "info");
+                    displayLoadingStatus("Aucun fichier 'dossiers_clients.json' trouvé sur GitHub. Vous pouvez commencer à créer des dossiers.", "info");
                     dossiers = []; // Initialiser avec un tableau vide
                 } else {
                     throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
