@@ -39,16 +39,15 @@
         .modal.active .modal-content {
             @apply scale-100 opacity-100;
         }
-        /* Style pour cacher les éléments */
-        .hidden {
-            display: none !important;
+        .hidden { display: none !important; }
+        fieldset { @apply border border-gray-300 p-4 rounded-md; }
+        legend { @apply text-sm font-semibold text-indigo-600 px-2; }
+        .status-message {
+            @apply p-3 mb-4 text-sm rounded-md;
         }
-        fieldset {
-            @apply border border-gray-300 p-4 rounded-md;
-        }
-        legend {
-            @apply text-sm font-semibold text-indigo-600 px-2;
-        }
+        .status-success { @apply bg-green-100 text-green-700; }
+        .status-error { @apply bg-red-100 text-red-700; }
+        .status-info { @apply bg-blue-100 text-blue-700; }
     </style>
 </head>
 
@@ -79,23 +78,16 @@
             <header class="mb-6 md:mb-8 text-center">
                 <h1 class="text-2xl sm:text-3xl font-bold text-indigo-700">Gestion des Dossiers Clients</h1>
             </header>
+            
+            <div id="loading-status-message" class="status-message status-info hidden"></div>
 
             <div class="bg-white p-4 sm:p-6 rounded-xl shadow-lg mb-6 flex flex-col sm:flex-row justify-between items-center gap-4">
                 <div class="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                    <div>
-                        <label for="load-json-file" class="btn btn-secondary cursor-pointer w-full sm:w-auto text-center">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
-                            </svg>
-                            Charger JSON
-                        </label>
-                        <input type="file" id="load-json-file" class="hidden" accept=".json">
-                    </div>
                     <button id="save-json-file" class="btn btn-secondary w-full sm:w-auto">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 inline-block mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                             <path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                         </svg>
-                        Sauvegarder JSON
+                        Télécharger JSON (pour mise à jour manuelle sur GitHub)
                     </button>
                 </div>
                 <button id="create-new-dossier-btn" class="btn btn-primary w-full sm:w-auto">
@@ -104,6 +96,16 @@
                     </svg>
                     Nouveau Dossier
                 </button>
+            </div>
+             <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-6" role="alert">
+                <p class="font-bold">Important - Mise à jour des données sur GitHub :</p>
+                <p>Pour que vos modifications soient prises en compte sur <code class="text-xs bg-yellow-200 p-1 rounded">https://centralcars.github.io/dossiers_client.json</code>, vous devez :</p>
+                <ol class="list-decimal list-inside ml-4 mt-1">
+                    <li>Cliquer sur "Télécharger JSON".</li>
+                    <li>Remplacer le fichier <code class="text-xs bg-yellow-200 p-1 rounded">dossiers_client.json</code> existant dans votre dépôt GitHub par celui que vous venez de télécharger.</li>
+                    <li>Effectuer un "commit" et un "push" de vos modifications sur GitHub.</li>
+                </ol>
+                <p class="mt-2 text-sm">La sauvegarde directe vers cette URL depuis cette page n'est pas possible.</p>
             </div>
             
             <div class="bg-white p-4 sm:p-6 rounded-xl shadow-lg mb-6">
@@ -124,7 +126,6 @@
             <div id="dossier-details-section" class="bg-white p-4 sm:p-6 rounded-xl shadow-lg hidden">
                 <h2 class="text-xl font-semibold text-gray-800 mb-6 text-center">Détails du Dossier <span id="dossier-id-display" class="text-indigo-600"></span></h2>
                 <input type="hidden" id="edit-dossier-original-id">
-                
                 <div class="space-y-6">
                     <fieldset>
                         <legend>Identification du Dossier</legend>
@@ -133,7 +134,6 @@
                             <input type="text" id="edit-dossier-id" class="form-input mt-1 bg-gray-100 cursor-not-allowed" readonly placeholder="N° unique du dossier">
                         </div>
                     </fieldset>
-
                     <fieldset>
                         <legend>Informations Client & Véhicule</legend>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-2">
@@ -151,7 +151,6 @@
                             </div>
                         </div>
                     </fieldset>
-
                     <fieldset>
                         <legend>Gestion & Suivi</legend>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 mt-2">
@@ -172,7 +171,6 @@
                         </div>
                     </fieldset>
                 </div>
-
                 <div class="mt-8 pt-6 border-t border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-3">
                     <button id="delete-dossier-btn" class="btn btn-danger w-full sm:w-auto">
                          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block mr-1.5 align-text-bottom" viewBox="0 0 20 20" fill="currentColor">
@@ -188,13 +186,11 @@
                             </svg>
                             Mettre à jour ce dossier (en mémoire)
                         </button>
-                        <p class="text-xs text-gray-500 sm:text-right mt-2 sm:mt-0">Puis "Sauvegarder JSON" pour persister les données.</p>
                     </div>
                 </div>
             </div>
              <div id="no-dossier-selected" class="bg-white p-6 rounded-xl shadow-lg text-center text-gray-500">
-                <p>Veuillez charger un fichier JSON ou créer un nouveau dossier.</p>
-                <p>Sélectionnez un dossier pour afficher ses détails.</p>
+                <p>Chargement des dossiers en cours ou aucun dossier chargé. <br>Vous pouvez créer un nouveau dossier.</p>
             </div>
         </div>
     </main>
@@ -252,13 +248,15 @@
         </div>
     </div>
 
-
     <footer class="bg-slate-800 text-slate-300 text-center p-6 text-sm">
         <p class="mb-2">&copy; 2024 CENTRAL CARS. Tous droits réservés.</p>
         <p class="max-w-2xl mx-auto text-xs text-slate-400">Ce site et son contenu sont protégés par les lois sur le droit d'auteur et les traités internationaux. Toute reproduction, distribution ou utilisation non autorisée du contenu est strictement interdite sans l'autorisation écrite préalable de l'auteur.</p>
     </footer>
     
 <script>
+    // URLs and Config
+    const GITHUB_JSON_URL = 'https://centralcars.github.io/dossiers_client.json';
+
     // JavaScript pour le Menu Hamburger
     const menuToggle = document.getElementById('menu-toggle');
     const menuLinks = document.getElementById('menu-links');
@@ -272,7 +270,6 @@
     }
 
     // Logique de gestion des dossiers clients
-    const loadJsonButton = document.getElementById('load-json-file');
     const saveJsonButton = document.getElementById('save-json-file');
     const createNewDossierBtn = document.getElementById('create-new-dossier-btn');
     const searchDossierInput = document.getElementById('search-dossier');
@@ -290,6 +287,7 @@
     const editStatutDossierSelect = document.getElementById('edit-statut-dossier');
     const deleteDossierBtn = document.getElementById('delete-dossier-btn');
     const updateCurrentDossierBtn = document.getElementById('update-current-dossier-btn');
+    const loadingStatusMessageDiv = document.getElementById('loading-status-message');
 
 
     const newDossierModal = document.getElementById('new-dossier-modal');
@@ -310,11 +308,7 @@
     let dossiers = []; 
     let currentDossierToDeleteId = null;
 
-    function showAlert(message, type = 'info') {
-        // Pour une meilleure UI, un vrai composant modal/toast serait mieux.
-        // Ici, une simple alerte pour la démo.
-        // Pour une version plus "production", envisagez une librairie de notifications
-        // ou un composant modal de message dédié.
+    function showAppAlert(message, type = 'info') {
         const alertColors = {
             info: 'bg-blue-500',
             success: 'bg-green-500',
@@ -322,17 +316,34 @@
         };
         const tempAlertDiv = document.createElement('div');
         tempAlertDiv.textContent = message;
-        tempAlertDiv.className = `fixed top-5 right-5 p-4 rounded-md text-white shadow-lg z-[2000] ${alertColors[type] || 'bg-gray-500'}`;
+        tempAlertDiv.className = `fixed top-5 right-5 p-4 rounded-md text-white shadow-lg z-[2000] ${alertColors[type] || 'bg-gray-500'} transform transition-all duration-300 ease-out opacity-0 translate-x-full`;
         document.body.appendChild(tempAlertDiv);
+        
+        requestAnimationFrame(() => {
+            tempAlertDiv.classList.remove('opacity-0', 'translate-x-full');
+            tempAlertDiv.classList.add('opacity-100', 'translate-x-0');
+        });
+
         setTimeout(() => {
-            tempAlertDiv.remove();
+            tempAlertDiv.classList.remove('opacity-100', 'translate-x-0');
+            tempAlertDiv.classList.add('opacity-0', 'translate-x-full');
+            setTimeout(() => tempAlertDiv.remove(), 300);
         }, 3000);
+    }
+    
+    function displayLoadingStatus(message, type = 'info') {
+        loadingStatusMessageDiv.textContent = message;
+        loadingStatusMessageDiv.className = `status-message status-${type}`; // Reset classes
+        loadingStatusMessageDiv.classList.remove('hidden');
+    }
+
+    function hideLoadingStatus() {
+        loadingStatusMessageDiv.classList.add('hidden');
     }
 
 
     function openModal(modalElement) {
         modalElement.classList.remove('hidden');
-        // Délai minimal pour s'assurer que 'hidden' est retiré avant d'appliquer les classes de transition
         requestAnimationFrame(() => {
             modalElement.classList.add('active');
             modalElement.querySelector('.modal-content').classList.add('scale-100', 'opacity-100');
@@ -364,7 +375,6 @@
             option.textContent = `${dossier.id} - ${dossier.nomClient || 'N/A'}`;
             selectDossierDropdown.appendChild(option);
         });
-        // Essayer de restaurer la sélection précédente si elle existe toujours dans la liste
         if (dossiersToDisplay.some(d => d.id === currentSelectedValue)) {
             selectDossierDropdown.value = currentSelectedValue;
         }
@@ -394,7 +404,6 @@
         noDossierSelectedDiv.classList.remove('hidden');
         dossierIdDisplay.textContent = '';
         editDossierOriginalIdInput.value = '';
-        // Ne pas vider selectDossierDropdown.value ici, car cela pourrait déclencher un 'change' non désiré
     }
     
     function updateDossierInMemory() {
@@ -409,41 +418,58 @@
             dossiers[dossierIndex].numeroFacture = editNumeroFactureInput.value.trim();
             dossiers[dossierIndex].statut = editStatutDossierSelect.value;
             
-            populateDossierDropdown();
-            selectDossierDropdown.value = originalId;
+            populateDossierDropdown(); // Rafraîchir au cas où le nom client change
+            selectDossierDropdown.value = originalId; // Garder la sélection
             return true;
         }
         return false;
     }
 
-    loadJsonButton.addEventListener('change', (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const jsonData = JSON.parse(e.target.result);
-                    if (Array.isArray(jsonData) && jsonData.every(item => typeof item.id !== 'undefined')) {
-                        dossiers = jsonData;
-                        populateDossierDropdown();
-                        clearDossierDetailsForm();
-                         selectDossierDropdown.value = ""; // Réinitialiser la sélection
-                        showAlert("Fichier JSON chargé avec succès.", "success");
-                    } else {
-                        showAlert("Le JSON doit être un tableau d'objets, chaque objet devant avoir une propriété 'id'.", "error");
-                    }
-                } catch (error) {
-                    showAlert("Erreur lors de la lecture du fichier JSON: " + error.message, "error");
+    async function autoLoadJSON() {
+        displayLoadingStatus("Chargement des dossiers depuis GitHub...", "info");
+        try {
+            // Ajout d'un cache buster pour forcer le rechargement si nécessaire en développement/test
+            // Pour la production, GitHub Pages a son propre cache.
+            const response = await fetch(GITHUB_JSON_URL + '?t=' + new Date().getTime()); 
+            if (!response.ok) {
+                if (response.status === 404) {
+                    displayLoadingStatus("Aucun fichier 'dossiers_client.json' trouvé sur GitHub. Vous pouvez commencer à créer des dossiers.", "info");
+                    dossiers = []; // Initialiser avec un tableau vide
+                } else {
+                    throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
                 }
-            };
-            reader.readAsText(file);
-            event.target.value = null; 
+            } else {
+                const jsonData = await response.json();
+                if (Array.isArray(jsonData) && (jsonData.length === 0 || jsonData.every(item => typeof item.id !== 'undefined')) ) {
+                    dossiers = jsonData;
+                    displayLoadingStatus(`Données chargées avec succès depuis GitHub (${dossiers.length} dossiers).`, "success");
+                } else {
+                     dossiers = []; // En cas de format incorrect, partir d'un tableau vide pour éviter des erreurs
+                    throw new Error("Format JSON invalide ou 'id' manquant dans certains objets.");
+                }
+            }
+        } catch (error) {
+            console.error("Erreur lors du chargement automatique du JSON:", error);
+            displayLoadingStatus(`Erreur lors du chargement: ${error.message}. Utilisation d'une liste de dossiers vide.`, "error");
+            dossiers = []; // Initialiser avec un tableau vide en cas d'erreur
+        } finally {
+            populateDossierDropdown();
+            clearDossierDetailsForm();
+            selectDossierDropdown.value = "";
+             if (dossiers.length === 0) {
+                noDossierSelectedDiv.classList.remove('hidden');
+            } else {
+                noDossierSelectedDiv.classList.add('hidden');
+            }
+            // On pourrait masquer le message après un délai si succès
+            // setTimeout(hideLoadingStatus, 5000); 
         }
-    });
+    }
+
 
     saveJsonButton.addEventListener('click', () => {
         if (dossiers.length === 0) {
-            showAlert("Aucun dossier à sauvegarder.", "info");
+            showAppAlert("Aucun dossier à sauvegarder.", "info");
             return;
         }
         const jsonData = JSON.stringify(dossiers, null, 2); 
@@ -456,7 +482,7 @@
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        showAlert("Données sauvegardées dans 'dossiers_clients.json'.", "success");
+        showAppAlert("Fichier 'dossiers_clients.json' téléchargé. Pensez à le mettre à jour sur GitHub manuellement.", "success");
     });
 
     createNewDossierBtn.addEventListener('click', () => {
@@ -482,13 +508,13 @@
         
         newDossierIdInput.classList.remove('border-red-500');
         if (!newId) {
-            showAlert("Le numéro de dossier est obligatoire.", "error");
+            showAppAlert("Le numéro de dossier est obligatoire.", "error");
             newDossierIdInput.classList.add('border-red-500');
             newDossierIdInput.focus();
             return;
         }
         if (dossiers.some(d => d.id === newId)) {
-            showAlert("Ce numéro de dossier existe déjà. Veuillez en choisir un autre.", "error");
+            showAppAlert("Ce numéro de dossier existe déjà. Veuillez en choisir un autre.", "error");
             newDossierIdInput.classList.add('border-red-500');
             newDossierIdInput.focus();
             return;
@@ -507,7 +533,7 @@
         selectDossierDropdown.value = newId; 
         displayDossierDetails(newId); 
         closeModal(newDossierModal);
-        showAlert(`Dossier "${newId}" créé. N'oubliez pas de "Sauvegarder JSON" pour persister.`, "success");
+        showAppAlert(`Dossier "${newId}" créé. Pensez à "Télécharger JSON" et à le mettre à jour sur GitHub.`, "success");
     });
 
     searchDossierInput.addEventListener('input', () => {
@@ -516,11 +542,10 @@
 
         if (!searchTerm) {
             populateDossierDropdown(dossiers);
-             // Restaurer la sélection si elle est toujours valide
             if (dossiers.some(d => d.id === currentSelectedIdBeforeFilter)) {
                 selectDossierDropdown.value = currentSelectedIdBeforeFilter;
             } else {
-                selectDossierDropdown.value = ""; // Ou la première option valide
+                selectDossierDropdown.value = ""; 
                 clearDossierDetailsForm();
             }
             return;
@@ -531,16 +556,14 @@
         );
         populateDossierDropdown(filteredDossiers);
         
-        // Gérer l'affichage des détails après le filtrage
         if (filteredDossiers.length === 1) {
             selectDossierDropdown.value = filteredDossiers[0].id;
             displayDossierDetails(filteredDossiers[0].id);
         } else if (filteredDossiers.some(d => d.id === currentSelectedIdBeforeFilter)) {
-            // Si la sélection actuelle est toujours dans les résultats filtrés, la maintenir
             selectDossierDropdown.value = currentSelectedIdBeforeFilter;
             displayDossierDetails(currentSelectedIdBeforeFilter);
         } else {
-             selectDossierDropdown.value = ""; // Aucune sélection valide ou plusieurs résultats
+             selectDossierDropdown.value = ""; 
             clearDossierDetailsForm();
         }
     });
@@ -555,28 +578,21 @@
     });
     
     [editNomClientInput, editMarqueVehiculeInput, editModeleVehiculeInput, editNumeroFactureInput, editStatutDossierSelect].forEach(input => {
-        input.addEventListener('input', () => { // 'input' pour une màj instantanée
-           // L'appel direct à updateDossierInMemory ici rend le bouton "Mettre à jour" un peu redondant,
-           // mais on le garde pour une action explicite si l'utilisateur préfère.
-           // On pourrait aussi retirer cet écouteur et ne se fier qu'au bouton.
-           // Pour l'instant, gardons les deux. La fonction est idempotente.
-            updateDossierInMemory();
-        });
+        input.addEventListener('input', updateDossierInMemory);
     });
     
     updateCurrentDossierBtn.addEventListener('click', () => {
         if (updateDossierInMemory()) {
-            showAlert("Modifications appliquées en mémoire pour le dossier actuel.", "success");
+            showAppAlert("Modifications appliquées en mémoire pour le dossier actuel.", "success");
         } else {
-            showAlert("Aucun dossier sélectionné ou erreur lors de la mise à jour.", "info");
+            showAppAlert("Aucun dossier sélectionné ou erreur lors de la mise à jour.", "info");
         }
     });
-
 
     deleteDossierBtn.addEventListener('click', () => {
         const dossierId = editDossierOriginalIdInput.value;
         if (!dossierId) {
-            showAlert("Aucun dossier sélectionné pour la suppression.", "info");
+            showAppAlert("Aucun dossier sélectionné pour la suppression.", "info");
             return;
         }
         currentDossierToDeleteId = dossierId;
@@ -595,19 +611,17 @@
             dossiers = dossiers.filter(d => d.id !== currentDossierToDeleteId);
             populateDossierDropdown();
             clearDossierDetailsForm();
-            selectDossierDropdown.value = ""; // Réinitialiser le dropdown
+            selectDossierDropdown.value = ""; 
             closeModal(confirmDeleteModal);
-            showAlert(`Dossier N° ${currentDossierToDeleteId} supprimé. N'oubliez pas de "Sauvegarder JSON".`, "success");
+            showAppAlert(`Dossier N° ${currentDossierToDeleteId} supprimé. Pensez à "Télécharger JSON" et à le mettre à jour sur GitHub.`, "success");
             currentDossierToDeleteId = null;
         }
     });
 
-    // Initialisation
-    populateDossierDropdown();
-    if (dossiers.length === 0) {
-        noDossierSelectedDiv.classList.remove('hidden');
-        dossierDetailsSection.classList.add('hidden');
-    }
+    // Initialisation au chargement de la page
+    document.addEventListener('DOMContentLoaded', () => {
+        autoLoadJSON();
+    });
 
 </script>
 </body>
