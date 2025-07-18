@@ -138,24 +138,6 @@
         <img id="fullscreen-image" src="" alt="Image en plein écran" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
     </div>
 
-     <script>
-    // Ces variables sont normalement injectées par l'environnement Canvas.
-    // Pour le développement local, vous pouvez les définir manuellement.
-    // REMPLACER LES VALEURS PAR CELLES DE VOTRE firebaseConfig
-    const __app_id = 'central-cars-a37ae'; // Exemple: 'my-project-12345'
-     const firebaseConfig = {
-            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
-            authDomain: "central-cars-a37ae.firebaseapp.com",
-            projectId: "central-cars-a37ae",
-            storageBucket: "central-cars-a37ae.firebasestorage.app",
-            messagingSenderId: "297273470734",
-            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
-            measurementId: "G-4LXQG2VWP2"
-        };
-    // Le jeton d'authentification initial est également injecté par Canvas.
-    // Pour le développement local, vous pouvez le laisser vide pour une connexion anonyme.
-    const __initial_auth_token = '';
-</script>
 
     <!-- Firebase SDKs -->
     <script type="module">
@@ -171,6 +153,20 @@
         let selectedVehicle = null;
         let currentImageIndex = 0;
         let authMode = 'login'; // 'login' or 'register'
+
+         const __app_id = 'central-cars-a37ae'; // Exemple: 'my-project-12345'
+     const firebaseConfig = {
+            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
+            authDomain: "central-cars-a37ae.firebaseapp.com",
+            projectId: "central-cars-a37ae",
+            storageBucket: "central-cars-a37ae.firebasestorage.app",
+            messagingSenderId: "297273470734",
+            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
+            measurementId: "G-4LXQG2VWP2"
+        };
+    // Le jeton d'authentification initial est également injecté par Canvas.
+    // Pour le développement local, vous pouvez le laisser vide pour une connexion anonyme.
+     const __initial_auth_token = '';
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
