@@ -131,27 +131,26 @@
 
     <!-- Firebase SDKs -->
     <script type="module">
-        // Ces variables sont normalement injectées par l'environnement Canvas.
-        // Pour le développement local, vous DEVEZ les définir manuellement ICI.
-        // REMPLACEZ LES VALEURS PAR CELLES DE VOTRE firebaseConfig
-        const __app_id = 'central-cars-a37ae'; // EXEMPLE : 'my-project-12345'
+        // IMPORTANT: REMPLACEZ LES VALEURS CI-DESSOUS PAR CELLES DE VOTRE firebaseConfig
+        // Vous les trouverez dans les paramètres de votre projet Firebase (icône roue dentée -> Paramètres du projet -> Vos applications -> Web app)
+        const __app_id = 'central-cars-a37ae'; // Ex: '1:1234567890:web:abcdef1234567890abcdef12'
         const __firebase_config = JSON.stringify({
-            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
-          authDomain: "central-cars-a37ae.firebaseapp.com",
-             projectId: "central-cars-a37ae",
+           apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
+            authDomain: "central-cars-a37ae.firebaseapp.com",
+            projectId: "central-cars-a37ae",
             storageBucket: "central-cars-a37ae.firebasestorage.app",
-             messagingSenderId: "297273470734",     
-          appId: "1:297273470734:web:7d35e6619b28dc569d715f",
-             measurementId: "G-4LXQG2VWP2"
+            messagingSenderId: "297273470734",
+            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
+            measurementId: "G-4LXQG2VWP2"
         });
-        // Le jeton d'authentification initial est également injecté par Canvas.
-        // Pour le développement local, vous pouvez le laisser vide pour une connexion anonyme.
+        // __initial_auth_token n'est plus utilisé car l'authentification Firebase est désactivée.
         const __initial_auth_token = '';
 
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // Seuls les modules Firestore sont nécessaires maintenant
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Seuls les modules Firestore et Storage sont nécessaires maintenant
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Global variables for app state
         let currentPage = 'home';
@@ -161,21 +160,12 @@
         let currentImageIndex = 0;
 
         // Firebase configuration and initialization
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'central-cars-a37ae';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
-            authDomain: "central-cars-a37ae.firebaseapp.com",
-            projectId: "central-cars-a37ae",
-            storageBucket: "central-cars-a37ae.firebasestorage.app",
-            messagingSenderId: "297273470734",
-            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
-            measurementId: "G-4LXQG2VWP2"
-        };
-  
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-central-cars-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        // L'authentification Firebase est supprimée, donc 'auth' n'est plus nécessaire.
+        const storage = getStorage(app); // Initialisation de Firebase Storage
 
         // DOM Elements
         const appContent = document.getElementById('app-content');
@@ -212,6 +202,11 @@
         const fullscreenImageModal = document.getElementById('fullscreen-image-modal');
         const fullscreenCloseButton = document.getElementById('fullscreen-close-button');
         const fullscreenImage = document.getElementById('fullscreen-image');
+
+        // Nouvel élément pour le téléversement d'images
+        let adminImageUploadInput; // Déclaré ici pour être accessible globalement après le rendu de la page admin
+        let adminUploadStatus; // Déclaré ici pour être accessible globalement après le rendu de la page admin
+
 
         // --- Page Content Templates ---
 
@@ -296,20 +291,20 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div>
                         <h2 class="text-2xl font-semibold mb-4">Informations de Contact</h2>
-                        <p class="mb-2"><strong class="text-blue-600">Adresse:</strong> 123 Rue du Garage, 59264 Onnaing, France</p>
-                        <p class="mb-2"><strong class="text-blue-600">Téléphone:</strong> +33 3 27 XX XX XX</p>
+                        <p class="mb-2"><strong class="text-blue-600">Adresse:</strong> 576 rue Marcel Sembat, 59690 Vieux Condé, France</p>
+                        <p class="mb-2"><strong class="text-blue-600">Téléphone:</strong> 0698979463</p>
                         <p class="mb-2"><strong class="text-blue-600">Email:</strong> contact@centralcars.fr</p>
                         <p class="mb-2"><strong class="text-blue-600">Horaires:</strong></p>
                         <ul class="list-disc list-inside ml-4">
-                            <li>Lundi - Vendredi: 9h00 - 18h00</li>
-                            <li>Samedi: 9h00 - 13h00</li>
+                            <li>Lundi - Vendredi: 09h00 - 12h00 et 14h00 - 17h30</li>
+                            <li>Samedi: 09h00 - 12h00</li>
                             <li>Dimanche: Fermé</li>
                         </ul>
                         <div class="mt-6">
                             <h3 class="text-xl font-semibold mb-3">Retrouvez-nous sur la carte :</h3>
                             <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md">
                                 <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2537.4916892601716!2d3.5959088!3d50.3705051!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c2b3f1a0e1b5f1%3A0x6d7e2e3f4a5b6c7d!2sOnnaing!5e0!3m2!1sfr!2sfr!4v1700000000000!5m2!1sfr!2sfr"
+                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2535.8080000000003!2d3.5786483!3d50.4005083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c2b3f1a0e1b5f1%3A0x6d7e2e3f4a5b6c7d!2s576%20Rue%20Marcel%20Sembat%2C%2059690%20Vieux-Cond%C3%A9%2C%20France!5e0!3m2!1sen!2sfr!4v1700000000000!5m2!1sfr!2sfr"
                                     width="100%"
                                     height="300"
                                     style="border:0;"
@@ -445,12 +440,18 @@
                             <textarea id="admin-options" name="options" rows="2" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: GPS, Climatisation, Toit ouvrant"></textarea>
                         </div>
                         <div class="md:col-span-2">
-                            <label for="admin-description" class="block text-gray-700 font-medium mb-1">Description</label>
-                            <textarea id="admin-description" name="description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                            <label for="admin-image-upload" class="block text-gray-700 font-medium mb-1">Téléverser des Images</label>
+                            <input type="file" id="admin-image-upload" name="imageUpload" multiple accept="image/*" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            <p id="admin-upload-status" class="text-sm text-gray-600 mt-2 hidden"></p>
                         </div>
                         <div class="md:col-span-2">
-                            <label for="admin-imageUrls" class="block text-gray-700 font-medium mb-1">URLs des Images (séparées par des virgules)</label>
+                            <label for="admin-imageUrls" class="block text-gray-700 font-medium mb-1">URLs des Images existantes (séparées par des virgules)</label>
                             <textarea id="admin-imageUrls" name="imageUrls" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: https://example.com/img1.jpg, https://example.com/img2.jpg"></textarea>
+                            <p class="text-sm text-gray-500 mt-1">Les images téléversées ci-dessus seront ajoutées à cette liste.</p>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="admin-description" class="block text-gray-700 font-medium mb-1">Description</label>
+                            <textarea id="admin-description" name="description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
                         </div>
                         <div class="md:col-span-2 flex justify-end space-x-4 mt-4">
                             <button type="button" id="admin-cancel-edit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-md transition duration-300 ease-in-out transform hover:scale-105 hidden">Annuler l'édition</button>
@@ -493,12 +494,13 @@
                 case 'shop':
                     appContent.innerHTML = shopPageContent;
                     // Attach event listener for the new admin access icon on the shop page
-                    document.addEventListener('DOMContentLoaded', () => { // Ensure DOM is loaded
+                    // Use setTimeout to ensure the element is in the DOM after innerHTML update
+                    setTimeout(() => {
                         const shopAdminAccessIcon = document.getElementById('shop-admin-access-icon');
                         if (shopAdminAccessIcon) {
                             shopAdminAccessIcon.addEventListener('click', showAdminPasswordModal);
                         }
-                    });
+                    }, 0); // Small delay
                     loadShopVehicles();
                     break;
                 case 'services':
@@ -511,6 +513,9 @@
                 case 'admin':
                     if (isAdmin) {
                         appContent.innerHTML = adminPageContent;
+                        // Assign the DOM elements after rendering the admin page content
+                        adminImageUploadInput = document.getElementById('admin-image-upload');
+                        adminUploadStatus = document.getElementById('admin-upload-status');
                         setupAdminPage();
                         loadAdminVehicles();
                     } else {
@@ -609,11 +614,10 @@
                     if (noVehiclesMessage) noVehiclesMessage.classList.add('hidden');
                     shopVehiclesContainer.innerHTML = ''; // Clear before re-rendering
                     vehicles.forEach(vehicle => {
+                        const imageUrl = vehicle.imageUrls && vehicle.imageUrls.length > 0 ? vehicle.imageUrls[0] : `https://placehold.co/400x250/ADD8E6/000000?text=${vehicle.make}+${vehicle.model}`;
                         const vehicleCard = document.createElement('div');
                         vehicleCard.className = "border border-gray-200 rounded-lg shadow-md overflow-hidden transform hover:scale-105 transition duration-300 ease-in-out cursor-pointer";
                         vehicleCard.dataset.vehicleId = vehicle.id; // Store ID for click handler
-
-                        const imageUrl = vehicle.imageUrls && vehicle.imageUrls.length > 0 ? vehicle.imageUrls[0] : `https://placehold.co/400x250/ADD8E6/000000?text=${vehicle.make}+${vehicle.model}`;
 
                         vehicleCard.innerHTML = `
                             <img src="${imageUrl}" alt="${vehicle.make} ${vehicle.model}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x250/ADD8E6/000000?text=Image+non+disponible';" />
@@ -835,13 +839,38 @@
         async function handleAdminSubmit(e) {
             e.preventDefault();
             const formElements = e.target.elements;
+            
+            adminUploadStatus.textContent = 'Téléchargement des images...';
+            adminUploadStatus.classList.remove('hidden');
+
+            const uploadedImageUrls = [];
+            const files = adminImageUploadInput.files; // Récupère les fichiers du nouvel input
+            for (const file of files) {
+                const storageRef = ref(storage, `artifacts/${appId}/vehicle_images/${file.name}-${Date.now()}`);
+                try {
+                    await uploadBytes(storageRef, file);
+                    const downloadURL = await getDownloadURL(storageRef);
+                    uploadedImageUrls.push(downloadURL);
+                } catch (uploadError) {
+                    console.error("Erreur lors du téléversement de l'image:", file.name, uploadError);
+                    adminUploadStatus.textContent = `Erreur de téléversement pour ${file.name}. Vérifiez les règles de Storage.`;
+                    adminUploadStatus.classList.remove('hidden');
+                    // Continue with other files or stop, depending on desired behavior
+                }
+            }
+            adminUploadStatus.classList.add('hidden'); // Hide status after upload attempts
+
+            // Combine existing URLs from textarea with newly uploaded URLs
+            const existingImageUrls = formElements.imageUrls.value.split(',').map(url => url.trim()).filter(url => url !== '');
+            const finalImageUrls = [...existingImageUrls, ...uploadedImageUrls];
+
             const vehicleData = {
                 make: formElements.make.value,
                 model: formElements.model.value,
                 year: parseInt(formElements.year.value),
                 price: parseFloat(formElements.price.value),
                 description: formElements.description.value,
-                imageUrls: formElements.imageUrls.value.split(',').map(url => url.trim()).filter(url => url !== ''),
+                imageUrls: finalImageUrls, // Utilise les URLs combinées
                 mileage: parseInt(formElements.mileage.value) || 0,
                 engineType: formElements.engineType.value,
                 gearboxType: formElements.gearboxType.value,
@@ -863,7 +892,7 @@
                 resetAdminForm();
             } catch (err) {
                 console.error("Erreur lors de la soumission du véhicule:", err);
-                alert("Erreur lors de l'enregistrement du véhicule."); // Using alert for simplicity
+                alert("Erreur lors de l'enregistrement du véhicule. Vérifiez la console pour plus de détails."); // Using alert for simplicity
             }
         }
 
@@ -880,6 +909,7 @@
                 document.getElementById('admin-year').value = vehicle.year || '';
                 document.getElementById('admin-price').value = vehicle.price || '';
                 document.getElementById('admin-description').value = vehicle.description || '';
+                // Populate existing image URLs into the textarea
                 document.getElementById('admin-imageUrls').value = Array.isArray(vehicle.imageUrls) ? vehicle.imageUrls.join(', ') : (vehicle.imageUrls || '');
                 document.getElementById('admin-mileage').value = vehicle.mileage || '';
                 document.getElementById('admin-engineType').value = vehicle.engineType || '';
@@ -888,6 +918,10 @@
                 document.getElementById('admin-options').value = Array.isArray(vehicle.options) ? vehicle.options.join(', ') : (vehicle.options || '');
                 document.getElementById('admin-taxHorsepower').value = vehicle.taxHorsepower || '';
                 document.getElementById('admin-steamHorsepower').value = vehicle.steamHorsepower || '';
+
+                // Clear the file input when editing, so user only uploads new files if needed
+                if (adminImageUploadInput) adminImageUploadInput.value = '';
+                if (adminUploadStatus) adminUploadStatus.classList.add('hidden');
 
                 document.getElementById('admin-form-section').scrollIntoView({ behavior: 'smooth' });
             }
@@ -912,6 +946,9 @@
             document.getElementById('admin-submit-button').textContent = 'Ajouter le Véhicule';
             document.getElementById('admin-cancel-edit').classList.add('hidden');
             document.getElementById('admin-vehicle-form').reset();
+            // Clear file input and status
+            if (adminImageUploadInput) adminImageUploadInput.value = '';
+            if (adminUploadStatus) adminUploadStatus.classList.add('hidden');
         }
 
         // --- ANTS Page Logic ---
