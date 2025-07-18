@@ -53,13 +53,6 @@
                 <button id="nav-shop" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Boutique</button>
                 <button id="nav-services" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Nos Services</button>
                 <button id="nav-contact" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Contact</button>
-                <!-- Bouton Admin/Auth avec icône -->
-                <button id="nav-auth" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700 flex items-center justify-center" aria-label="Admin Login">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
-                <button id="nav-logout" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700 hidden">Déconnexion</button>
             </div>
         </div>
     </nav>
@@ -75,21 +68,19 @@
     <!-- Footer -->
     <footer class="bg-gray-800 text-white p-4 text-center mt-8">
         <p>&copy; 2025 CENTRAL CARS. Tous droits réservés.</p>
-        <p id="user-id-display" class="text-sm mt-1"></p>
+        <p id="user-id-display" class="text-sm mt-1">ID Utilisateur: Non connecté (Authentification désactivée)</p>
     </footer>
 
-    <!-- Auth Modal (Login/Register) -->
-    <div id="auth-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 p-4 modal-hidden">
+    <!-- Admin Password Modal -->
+    <div id="admin-password-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 p-4 modal-hidden">
         <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
-            <h2 id="auth-modal-title" class="text-2xl font-bold mb-6 text-gray-800 text-center">Connexion</h2>
-            <input type="email" id="auth-email" placeholder="Email" class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <input type="password" id="auth-password" placeholder="Mot de passe" class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <p id="auth-error-message" class="text-red-500 text-sm mb-4 hidden"></p>
+            <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Accès Administrateur</h2>
+            <input type="password" id="admin-password-input" placeholder="Mot de passe administrateur" class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <p id="admin-password-error" class="text-red-500 text-sm mb-4 hidden"></p>
             <div class="flex justify-end space-x-4">
-                <button id="auth-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105">Annuler</button>
-                <button id="auth-submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105">Se connecter</button>
+                <button id="admin-password-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105">Annuler</button>
+                <button id="admin-password-submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105">Accéder</button>
             </div>
-            <button id="auth-toggle-mode" class="w-full mt-4 text-blue-600 hover:underline text-sm">Pas de compte ? S'inscrire</button>
         </div>
     </div>
 
@@ -138,24 +129,39 @@
         <img id="fullscreen-image" src="" alt="Image en plein écran" class="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl" />
     </div>
 
-
     <!-- Firebase SDKs -->
     <script type="module">
+        // Ces variables sont normalement injectées par l'environnement Canvas.
+        // Pour le développement local, vous DEVEZ les définir manuellement ICI.
+        // REMPLACEZ LES VALEURS PAR CELLES DE VOTRE firebaseConfig
+        const __app_id = 'default-central-cars-app-id'; // EXEMPLE : 'my-project-12345'
+        const __firebase_config = JSON.stringify({
+          apiKey: "YOUR_API_KEY", // Remplacez par votre clé API
+          authDomain: "YOUR_PROJECT_ID.firebaseapp.com", // Remplacez YOUR_PROJECT_ID
+          projectId: "YOUR_PROJECT_ID", // Remplacez par votre Project ID
+          storageBucket: "YOUR_PROJECT_ID.appspot.com", // Remplacez YOUR_PROJECT_ID
+          messagingSenderId: "YOUR_MESSAGING_SENDER_ID", // Remplacez par votre Sender ID
+          appId: "YOUR_APP_ID" // Remplacez par votre App ID
+        });
+        // Le jeton d'authentification initial est également injecté par Canvas.
+        // Pour le développement local, vous pouvez le laisser vide pour une connexion anonyme.
+        const __initial_auth_token = '';
+
+
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        // Seuls les modules Firestore sont nécessaires maintenant
         import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Global variables for app state
         let currentPage = 'home';
-        let user = null;
-        let isAdmin = false; // Determined by Firestore role
+        let isAdmin = false; // Géré par mot de passe simple
         let vehicles = [];
         let selectedVehicle = null;
         let currentImageIndex = 0;
-        let authMode = 'login'; // 'login' or 'register'
 
-         const __app_id = 'central-cars-a37ae'; // Exemple: 'my-project-12345'
-     const firebaseConfig = {
+        // Firebase configuration and initialization
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'central-cars-a37ae';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
             apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
             authDomain: "central-cars-a37ae.firebaseapp.com",
             projectId: "central-cars-a37ae",
@@ -164,27 +170,22 @@
             appId: "1:297273470734:web:7d35e6619b28dc569d715f",
             measurementId: "G-4LXQG2VWP2"
         };
-    // Le jeton d'authentification initial est également injecté par Canvas.
-    // Pour le développement local, vous pouvez le laisser vide pour une connexion anonyme.
-     const __initial_auth_token = '';
+  
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
+        // L'authentification Firebase est supprimée, donc 'auth' n'est plus nécessaire.
 
         // DOM Elements
         const appContent = document.getElementById('app-content');
-        const userIdDisplay = document.getElementById('user-id-display');
-        const authModal = document.getElementById('auth-modal');
-        const authModalTitle = document.getElementById('auth-modal-title');
-        const authEmailInput = document.getElementById('auth-email');
-        const authPasswordInput = document.getElementById('auth-password');
-        const authErrorMessage = document.getElementById('auth-error-message');
-        const authCancelButton = document.getElementById('auth-cancel');
-        const authSubmitButton = document.getElementById('auth-submit');
-        const authToggleModeButton = document.getElementById('auth-toggle-mode');
-        const navLogoutButton = document.getElementById('nav-logout');
-
+        const userIdDisplay = document.getElementById('user-id-display'); // Sera mis à jour pour refléter l'absence d'authentification
+        
+        // Nouveaux éléments pour la modale Admin
+        const adminPasswordModal = document.getElementById('admin-password-modal');
+        const adminPasswordInput = document.getElementById('admin-password-input');
+        const adminPasswordError = document.getElementById('admin-password-error');
+        const adminPasswordCancelButton = document.getElementById('admin-password-cancel');
+        const adminPasswordSubmitButton = document.getElementById('admin-password-submit');
 
         const vehicleDetailModal = document.getElementById('vehicle-detail-modal');
         const detailCloseButton = document.getElementById('detail-close-button');
@@ -343,9 +344,16 @@
             </div>
         `;
 
+        // Updated Shop Page Content with Admin Access Icon
         const shopPageContent = `
-            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
+            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8 relative">
                 <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Notre Boutique</h1>
+                <!-- Admin Access Icon -->
+                <button id="shop-admin-access-icon" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition-colors duration-200" aria-label="Accès Administrateur">
+                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M11.49 4.09A10.023 10.023 0 0010 2C4.477 2 0 6.477 0 12s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zM9 14a1 1 0 00-1 1v1a1 1 0 102 0v-1a1 1 0 00-1-1zm0-6a1 1 0 00-1 1v3a1 1 0 102 0V9a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
                 <div id="shop-vehicles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Vehicles will be loaded here -->
                 </div>
@@ -379,6 +387,11 @@
                     <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                         <button id="admin-access-ants-button" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
                             Accéder aux Outils ANTS
+                        </button>
+                    </div>
+                    <div class="mt-6 text-center">
+                        <button id="admin-logout-button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
+                            Quitter le mode Admin
                         </button>
                     </div>
                 </div>
@@ -478,6 +491,13 @@
                     break;
                 case 'shop':
                     appContent.innerHTML = shopPageContent;
+                    // Attach event listener for the new admin access icon on the shop page
+                    document.addEventListener('DOMContentLoaded', () => { // Ensure DOM is loaded
+                        const shopAdminAccessIcon = document.getElementById('shop-admin-access-icon');
+                        if (shopAdminAccessIcon) {
+                            shopAdminAccessIcon.addEventListener('click', showAdminPasswordModal);
+                        }
+                    });
                     loadShopVehicles();
                     break;
                 case 'services':
@@ -493,14 +513,10 @@
                         setupAdminPage();
                         loadAdminVehicles();
                     } else {
-                        appContent.innerHTML = `
-                            <div class="flex flex-col items-center justify-center h-screen bg-gray-100 p-4">
-                                <h2 class="text-3xl font-bold text-gray-800 mb-4">Accès Refusé</h2>
-                                <p class="text-lg text-gray-600 mb-6 text-center">Vous devez être connecté en tant qu'administrateur pour accéder à cette page.</p>
-                                <button id="admin-access-auth-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Se connecter</button>
-                            </div>
-                        `;
-                        document.getElementById('admin-access-auth-button').addEventListener('click', () => showAuthModal('login'));
+                        // If not admin, redirect to home or show access denied message
+                        currentPage = 'home'; // Redirect to home if not authorized
+                        renderPage(); // Re-render home page
+                        alert("Accès refusé. Vous n'êtes pas autorisé à accéder au panneau d'administration.");
                     }
                     break;
                 case 'ants': // New case for ANTS page
@@ -508,8 +524,8 @@
                         appContent.innerHTML = antsPageContent;
                         setupAntsPage(); // Setup ANTS specific event listeners
                     } else {
-                        // Redirect to admin login if not admin
-                        currentPage = 'admin';
+                        // Redirect to admin if not admin
+                        currentPage = 'admin'; // Redirect to admin page, which will then redirect to home
                         renderPage();
                     }
                     break;
@@ -517,7 +533,6 @@
                     appContent.innerHTML = homePageContent;
             }
             updateNavbarActiveState();
-            updateAuthButtonsVisibility(); // Update visibility after rendering page
         }
 
         // Update Navbar active state
@@ -532,137 +547,32 @@
             });
         }
 
-        // Update Auth/Logout button visibility
-        function updateAuthButtonsVisibility() {
-            const navAuthButton = document.getElementById('nav-auth');
-            const navLogoutButton = document.getElementById('nav-logout');
+        // --- Admin Password Modal Logic ---
+        const ADMIN_PASSWORD = 'Sofian59690'; // Le mot de passe administrateur
 
-            if (user) {
-                navAuthButton.classList.add('hidden');
-                navLogoutButton.classList.remove('hidden');
-            } else {
-                navAuthButton.classList.remove('hidden');
-                navLogoutButton.classList.add('hidden');
-            }
+        function showAdminPasswordModal() {
+            adminPasswordModal.classList.remove('modal-hidden');
+            adminPasswordModal.classList.add('modal-visible');
+            adminPasswordInput.value = ''; // Clear password field
+            adminPasswordError.classList.add('hidden'); // Hide any previous errors
         }
 
-
-        // --- Authentication Logic ---
-        let isAuthReady = false;
-        onAuthStateChanged(auth, async (currentUser) => {
-            user = currentUser;
-            if (user) {
-                userIdDisplay.textContent = `ID Utilisateur: ${user.uid}`;
-                // Fetch user role from Firestore
-                const userProfileRef = doc(db, `artifacts/${appId}/users/${user.uid}/profile`);
-                try {
-                    const docSnap = await getDoc(userProfileRef);
-                    if (docSnap.exists()) {
-                        isAdmin = docSnap.data().role === 'admin';
-                    } else {
-                        // If profile doesn't exist (e.g., user signed up before role creation), create it as client
-                        await setDoc(userProfileRef, { role: 'client' });
-                        isAdmin = false;
-                    }
-                } catch (error) {
-                    console.error("Error fetching user role:", error);
-                    isAdmin = false; // Default to client on error
-                }
-            } else {
-                userIdDisplay.textContent = `ID Utilisateur: Non connecté`;
-                isAdmin = false; // Not logged in, not admin
-                // Attempt anonymous sign-in if no user and no custom token
-                if (typeof __initial_auth_token === 'undefined' || !__initial_auth_token) {
-                    try {
-                        await signInAnonymously(auth);
-                    } catch (error) {
-                        console.error("Error signing in anonymously:", error);
-                    }
-                }
-            }
-            isAuthReady = true;
-            renderPage(); // Render page after auth is ready and role is determined
-        });
-
-        // Handle Login/Register
-        async function handleAuthSubmit() {
-            const email = authEmailInput.value;
-            const password = authPasswordInput.value;
-            authErrorMessage.classList.add('hidden'); // Hide previous errors
-
-            if (!email || !password) {
-                authErrorMessage.textContent = "Veuillez entrer un email et un mot de passe.";
-                authErrorMessage.classList.remove('hidden');
-                return;
-            }
-
-            try {
-                if (authMode === 'login') {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    console.log("Connecté avec succès !");
-                } else { // authMode === 'register'
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    // Create user profile in Firestore with 'client' role
-                    const userProfileRef = doc(db, `artifacts/${appId}/users/${userCredential.user.uid}/profile`);
-                    await setDoc(userProfileRef, { role: 'client' });
-                    console.log("Compte créé avec succès !");
-                }
-                hideAuthModal();
-                // onAuthStateChanged will handle re-rendering and role check
-            } catch (error) {
-                console.error("Erreur d'authentification:", error);
-                let errorMessage = "Une erreur est survenue lors de l'authentification.";
-                switch (error.code) {
-                    case 'auth/invalid-email':
-                        errorMessage = "L'adresse email est mal formatée.";
-                        break;
-                    case 'auth/user-disabled':
-                        errorMessage = "Ce compte a été désactivé.";
-                        break;
-                    case 'auth/user-not-found':
-                    case 'auth/wrong-password':
-                        errorMessage = "Email ou mot de passe incorrect.";
-                        break;
-                    case 'auth/email-already-in-use':
-                        errorMessage = "Cette adresse email est déjà utilisée.";
-                        break;
-                    case 'auth/weak-password':
-                        errorMessage = "Le mot de passe doit contenir au moins 6 caractères.";
-                        break;
-                }
-                authErrorMessage.textContent = errorMessage;
-                authErrorMessage.classList.remove('hidden');
-            }
+        function hideAdminPasswordModal() {
+            adminPasswordModal.classList.remove('modal-visible');
+            adminPasswordModal.classList.add('modal-hidden');
         }
 
-        // Handle Logout
-        async function handleLogout() {
-            try {
-                await signOut(auth);
-                console.log("Déconnecté avec succès !");
-                currentPage = 'home'; // Redirect to home after logout
+        function handleAdminPasswordSubmit() {
+            const enteredPassword = adminPasswordInput.value;
+            if (enteredPassword === ADMIN_PASSWORD) {
+                isAdmin = true;
+                hideAdminPasswordModal();
+                currentPage = 'admin';
                 renderPage();
-            } catch (error) {
-                console.error("Erreur de déconnexion:", error);
-                alert("Erreur lors de la déconnexion."); // Using alert for simplicity
+            } else {
+                adminPasswordError.textContent = "Mot de passe incorrect.";
+                adminPasswordError.classList.remove('hidden');
             }
-        }
-
-        function showAuthModal(mode) {
-            authMode = mode;
-            authModalTitle.textContent = mode === 'login' ? 'Connexion' : 'S\'inscrire';
-            authSubmitButton.textContent = mode === 'login' ? 'Se connecter' : 'S\'inscrire';
-            authToggleModeButton.textContent = mode === 'login' ? 'Pas de compte ? S\'inscrire' : 'Déjà un compte ? Se connecter';
-            authErrorMessage.classList.add('hidden'); // Hide errors
-            authEmailInput.value = ''; // Clear fields
-            authPasswordInput.value = '';
-            authModal.classList.remove('modal-hidden');
-            authModal.classList.add('modal-visible');
-        }
-
-        function hideAuthModal() {
-            authModal.classList.remove('modal-visible');
-            authModal.classList.add('modal-hidden');
         }
 
         // --- Shop Page Logic ---
@@ -672,13 +582,20 @@
             const shopError = document.getElementById('shop-error');
             const noVehiclesMessage = document.getElementById('no-vehicles-message');
 
+            // Re-attach event listener for the admin access icon if it exists in the current DOM
+            const shopAdminAccessIcon = document.getElementById('shop-admin-access-icon');
+            if (shopAdminAccessIcon) {
+                shopAdminAccessIcon.removeEventListener('click', showAdminPasswordModal); // Prevent multiple listeners
+                shopAdminAccessIcon.addEventListener('click', showAdminPasswordModal);
+            }
+
             if (shopLoading) shopLoading.classList.remove('hidden');
             if (shopError) shopError.classList.add('hidden');
             if (noVehiclesMessage) noVehiclesMessage.classList.add('hidden');
             if (shopVehiclesContainer) shopVehiclesContainer.innerHTML = ''; // Clear previous vehicles
 
-            // No longer checking for user.uid here, as anonymous users can view
-            // The Firestore rules will handle read permissions for authenticated users.
+            // User ID display is now static as there's no Firebase Auth
+            userIdDisplay.textContent = `ID Utilisateur: Non connecté (Authentification désactivée)`;
 
             const vehiclesCollectionRef = collection(db, `artifacts/${appId}/public/data/vehicles`);
             onSnapshot(vehiclesCollectionRef, (snapshot) => {
@@ -836,6 +753,7 @@
             const adminCancelEditButton = document.getElementById('admin-cancel-edit');
             const adminFormTitle = document.getElementById('admin-form-title');
             const adminAccessAntsButton = document.getElementById('admin-access-ants-button');
+            const adminLogoutButton = document.getElementById('admin-logout-button'); // Nouveau bouton de déconnexion admin
 
             if (adminVehicleForm) {
                 adminVehicleForm.addEventListener('submit', handleAdminSubmit);
@@ -849,6 +767,14 @@
                     renderPage();
                 });
             }
+            if (adminLogoutButton) {
+                adminLogoutButton.addEventListener('click', () => {
+                    isAdmin = false; // Quitter le mode admin
+                    currentPage = 'home'; // Retour à l'accueil
+                    renderPage();
+                    alert("Vous avez quitté le mode administrateur.");
+                });
+            }
         }
 
         async function loadAdminVehicles() {
@@ -860,15 +786,16 @@
             if (adminNoVehiclesMessage) adminNoVehiclesMessage.classList.add('hidden');
             if (adminError) adminError.classList.add('hidden');
 
-            if (!user || !user.uid) { // Admin page requires a logged-in user
-                if (adminError) adminError.textContent = "Veuillez vous connecter pour gérer les véhicules.";
-                if (adminError) adminError.classList.remove('hidden');
-                return;
-            }
-
             const vehiclesCollectionRef = collection(db, `artifacts/${appId}/public/data/vehicles`);
             onSnapshot(vehiclesCollectionRef, (snapshot) => {
                 vehicles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort vehicles by make and then model for consistent display
+                vehicles.sort((a, b) => {
+                    const makeCompare = (a.make || '').localeCompare(b.make || '');
+                    if (makeCompare !== 0) return makeCompare;
+                    return (a.model || '').localeCompare(b.model || '');
+                });
+
                 if (adminVehiclesTableBody) adminVehiclesTableBody.innerHTML = ''; // Clear before re-rendering
 
                 if (vehicles.length === 0) {
@@ -878,10 +805,10 @@
                     vehicles.forEach(vehicle => {
                         const row = adminVehiclesTableBody.insertRow();
                         row.innerHTML = `
-                            <td class="py-3 px-4 text-gray-800">${vehicle.make}</td>
-                            <td class="py-3 px-4 text-gray-800">${vehicle.model}</td>
-                            <td class="py-3 px-4 text-gray-800">${vehicle.year}</td>
-                            <td class="py-3 px-4 text-gray-800">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price)}</td>
+                            <td class="py-3 px-4 text-gray-800">${vehicle.make || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${vehicle.model || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${vehicle.year || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price || 0)}</td>
                             <td class="py-3 px-4 flex space-x-2">
                                 <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-300 ease-in-out transform hover:scale-105 edit-btn" data-id="${vehicle.id}">Modifier</button>
                                 <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-300 ease-in-out transform hover:scale-105 delete-btn" data-id="${vehicle.id}">Supprimer</button>
@@ -1021,15 +948,10 @@
         document.getElementById('nav-shop').addEventListener('click', () => { currentPage = 'shop'; renderPage(); });
         document.getElementById('nav-services').addEventListener('click', () => { currentPage = 'services'; renderPage(); });
         document.getElementById('nav-contact').addEventListener('click', () => { currentPage = 'contact'; renderPage(); });
-        document.getElementById('nav-auth').addEventListener('click', () => showAuthModal('login')); // Now opens auth modal
-        navLogoutButton.addEventListener('click', handleLogout);
-
-        authCancelButton.addEventListener('click', hideAuthModal);
-        authSubmitButton.addEventListener('click', handleAuthSubmit);
-        authToggleModeButton.addEventListener('click', () => {
-            authMode = authMode === 'login' ? 'register' : 'login';
-            showAuthModal(authMode);
-        });
+        
+        // Admin password modal event listeners
+        adminPasswordCancelButton.addEventListener('click', hideAdminPasswordModal);
+        adminPasswordSubmitButton.addEventListener('click', handleAdminPasswordSubmit);
 
         detailCloseButton.addEventListener('click', hideVehicleDetailModal);
         detailCloseButtonBottom.addEventListener('click', hideVehicleDetailModal);
@@ -1049,8 +971,8 @@
 
         fullscreenCloseButton.addEventListener('click', hideFullscreenImage);
 
-        // Initial render when script loads and Firebase auth is ready
-        // The onAuthStateChanged listener will call renderPage() once auth is ready.
+        // Initial render when script loads
+        document.addEventListener('DOMContentLoaded', renderPage);
     </script>
 </body>
 </html>
