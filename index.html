@@ -40,6 +40,97 @@
         .modal-content {
             @apply bg-white p-5 rounded-lg shadow-xl w-full max-w-md mx-auto;
         }
+
+        /* Styles pour le filigrane "VENDU" */
+        .sold-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 0, 0, 0.6); /* Rouge semi-transparent */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 2.5rem; /* Taille du texte */
+            font-weight: bold;
+            text-transform: uppercase;
+            transform: rotate(-25deg); /* Rotation diagonale */
+            pointer-events: none; /* Permet de cliquer à travers l'overlay */
+            z-index: 10; /* Au-dessus de l'image */
+            opacity: 0.9;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* Styles pour les cartes de véhicules */
+        .vehicle-card {
+            /* Re-applying previous styles for a more stylized look */
+            @apply relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl bg-white flex flex-col border border-gray-200; /* Added border */
+        }
+
+        .vehicle-card-image-container {
+            @apply w-full h-48 overflow-hidden relative; /* Fixed height for consistent image size */
+        }
+
+        .vehicle-card-image {
+            @apply w-full h-full object-cover transition-transform duration-300 ease-in-out; /* object-cover to maintain aspect ratio and fill container */
+        }
+
+        .vehicle-card:hover .vehicle-card-image {
+            transform: scale(1.05);
+        }
+
+        .vehicle-card-content {
+            @apply p-5 flex-grow flex flex-col;
+        }
+
+        .vehicle-card-title {
+            @apply text-2xl font-bold text-gray-900 mb-2 leading-tight uppercase; /* Uppercase and bold */
+        }
+
+        .vehicle-card-price {
+            @apply text-3xl font-extrabold text-blue-700 mb-3;
+        }
+
+        .vehicle-card-detail {
+            @apply text-gray-700 text-base mb-1;
+        }
+
+        .vehicle-card-description {
+            @apply text-gray-600 text-sm line-clamp-3 mt-2;
+        }
+
+        .vehicle-card-logo {
+            @apply absolute top-3 left-3 h-10 w-auto object-contain;
+        }
+
+        /* Style pour les véhicules en vedette sur la page d'accueil */
+        .featured-vehicle-card {
+            /* Re-applying previous styles for a more stylized look */
+            @apply relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl bg-white flex flex-col cursor-pointer border border-gray-200; /* Added border */
+        }
+        .featured-vehicle-card .featured-image-container {
+            @apply w-full h-48 overflow-hidden; /* Fixed height for consistent image size */
+        }
+        .featured-vehicle-card .featured-image {
+            @apply w-full h-full object-cover transition-transform duration-300 ease-in-out; /* object-cover to maintain aspect ratio and fill container */
+        }
+        .featured-vehicle-card:hover .featured-image {
+            transform: scale(1.05);
+        }
+        .featured-vehicle-card-content {
+            @apply p-4 flex-grow flex flex-col;
+        }
+        .featured-vehicle-card-title {
+            @apply text-xl font-bold text-gray-900 mb-1 leading-tight uppercase; /* Uppercase and bold */
+        }
+        .featured-vehicle-card-price {
+            @apply text-2xl font-extrabold text-blue-700 mb-2;
+        }
+        .featured-vehicle-card-detail {
+            @apply text-gray-700 text-sm;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-gray-100">
@@ -48,11 +139,17 @@
     <nav class="bg-gray-800 p-4 shadow-lg">
         <div class="container mx-auto flex justify-between items-center flex-wrap">
             <div class="text-white text-3xl font-bold font-inter rounded-md p-2">CENTRAL CARS</div>
-            <div class="flex space-x-4 flex-wrap justify-center sm:justify-start mt-2 sm:mt-0">
-                <button id="nav-home" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Accueil</button>
-                <button id="nav-shop" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Boutique</button>
-                <button id="nav-services" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Nos Services</button>
-                <button id="nav-contact" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Contact</button>
+            <div class="flex items-center flex-wrap justify-center sm:justify-start mt-2 sm:mt-0">
+                <div class="flex space-x-4 mr-4"> <!-- Group main navigation buttons -->
+                    <button id="nav-home" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Accueil</button>
+                    <button id="nav-shop" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Boutique</button>
+                    <button id="nav-about" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">À propos</button>
+                    <button id="nav-contact" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Contact</button>
+                    <button id="nav-dossier" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700 hidden">Dossier</button>
+                </div>
+                <!-- Separated "Se connecter" button with distinct style -->
+                <button id="nav-espace-pro" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-md">Se connecter</button>
+                <button id="nav-logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-md ml-4 hidden">Déconnexion</button>
             </div>
         </div>
     </nav>
@@ -68,19 +165,33 @@
     <!-- Footer -->
     <footer class="bg-gray-800 text-white p-4 text-center mt-8">
         <p>&copy; 2025 CENTRAL CARS. Tous droits réservés.</p>
-        <p id="user-id-display" class="text-sm mt-1">ID Utilisateur: Non connecté (Authentification désactivée)</p>
+        <p id="user-info-display" class="text-sm mt-1">Non connecté</p>
     </footer>
 
-    <!-- Admin Password Modal -->
-    <div id="admin-password-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 p-4 modal-hidden">
+    <!-- Auth Modal (Login/Signup) -->
+    <div id="auth-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 p-4 modal-hidden">
         <div class="bg-white p-8 rounded-lg shadow-2xl w-full max-w-md">
-            <h2 class="text-2xl font-bold mb-6 text-gray-800 text-center">Accès Administrateur</h2>
-            <input type="password" id="admin-password-input" placeholder="Mot de passe administrateur" class="w-full p-3 mb-4 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-            <p id="admin-password-error" class="text-red-500 text-sm mb-4 hidden"></p>
-            <div class="flex justify-end space-x-4">
-                <button id="admin-password-cancel" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105">Annuler</button>
-                <button id="admin-password-submit" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-md transition duration-300 ease-in-out transform hover:scale-105">Accéder</button>
-            </div>
+            <h2 id="auth-modal-title" class="text-2xl font-bold mb-6 text-gray-800 text-center">Connexion</h2>
+            <form id="auth-form" class="space-y-4">
+                <div id="auth-name-group" class="hidden">
+                    <label for="auth-name" class="block text-gray-700 font-medium mb-1">Nom</label>
+                    <input type="text" id="auth-name" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Votre nom" />
+                </div>
+                <div>
+                    <label for="auth-email" class="block text-gray-700 font-medium mb-1">Email</label>
+                    <input type="email" id="auth-email" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="votre@email.com" required />
+                </div>
+                <div>
+                    <label for="auth-password" class="block text-gray-700 font-medium mb-1">Mot de passe</label>
+                    <input type="password" id="auth-password" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="********" required />
+                </div>
+                <p id="auth-error-message" class="text-red-500 text-sm hidden"></p>
+                <div class="flex justify-between items-center">
+                    <button type="submit" id="auth-submit-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Se connecter</button>
+                    <button type="button" id="auth-toggle-mode" class="text-blue-600 hover:underline text-sm">Pas encore de compte ? S'inscrire</button>
+                </div>
+            </form>
+            <button id="auth-close-button" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-3xl font-bold">&times;</button>
         </div>
     </div>
 
@@ -118,7 +229,7 @@
             </div>
             <div class="mt-6 flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
                 <button id="detail-close-button-bottom" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Fermer</button>
-                <a id="call-garage-button" href="tel:+33327XXXXXXX" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-center">Appeler le garage</a>
+                <a id="call-garage-button" href="tel:0698979463" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-center">Appeler le garage</a>
             </div>
         </div>
     </div>
@@ -143,41 +254,73 @@
             appId: "1:297273470734:web:7d35e6619b28dc569d715f",
             measurementId: "G-4LXQG2VWP2"
         });
-        // __initial_auth_token n'est plus utilisé car l'authentification Firebase est désactivée.
+        // __initial_auth_token n'est plus utilisé car l'authentification Firebase est désormais gérée par email/mot de passe.
         const __initial_auth_token = '';
 
 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // Seuls les modules Firestore et Storage sont nécessaires maintenant
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
 
         // Global variables for app state
         let currentPage = 'home';
-        let isAdmin = false; // Géré par mot de passe simple
+        let currentAdminTool = 'shop-management'; // Default admin tool view
         let vehicles = [];
+        let clientDossiers = []; // New array for client dossiers
+        let reviews = []; // New array for reviews
         let selectedVehicle = null;
+        let selectedClientDossier = null; // New variable for selected client dossier
         let currentImageIndex = 0;
 
+        // Auth state
+        let currentUser = null;
+        let userName = 'Non connecté';
+        let userRole = 'guest'; // 'guest', 'client', 'admin'
+        let isLoggedIn = false;
+        let isAdmin = false;
+        let isClient = false;
+
         // Firebase configuration and initialization
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-central-cars-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'central-cars-a37ae';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
+            authDomain: "central-cars-a37ae.firebaseapp.com",
+            projectId: "central-cars-a37ae",
+            storageBucket: "central-cars-a37ae.firebasestorage.app",
+            messagingSenderId: "297273470734",
+            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
+            measurementId: "G-4LXQG2VWP2"
+        };
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const storage = getStorage(app); // Initialisation de Firebase Storage
+        const storage = getStorage(app);
+        const auth = getAuth(app); // Initialize Firebase Auth
 
         // DOM Elements
         const appContent = document.getElementById('app-content');
-        const userIdDisplay = document.getElementById('user-id-display'); // Sera mis à jour pour refléter l'absence d'authentification
+        const userInfoDisplay = document.getElementById('user-info-display'); // Updated ID for user info display
+        const navDossierButton = document.getElementById('nav-dossier');
+        const navEspaceProButton = document.getElementById('nav-espace-pro');
+        const navLogoutButton = document.getElementById('nav-logout');
         
-        // Nouveaux éléments pour la modale Admin
-        const adminPasswordModal = document.getElementById('admin-password-modal');
-        const adminPasswordInput = document.getElementById('admin-password-input');
-        const adminPasswordError = document.getElementById('admin-password-error');
-        const adminPasswordCancelButton = document.getElementById('admin-password-cancel');
-        const adminPasswordSubmitButton = document.getElementById('admin-password-submit');
+        // Auth Modal elements
+        const authModal = document.getElementById('auth-modal');
+        const authModalTitle = document.getElementById('auth-modal-title');
+        const authForm = document.getElementById('auth-form');
+        const authNameGroup = document.getElementById('auth-name-group');
+        const authNameInput = document.getElementById('auth-name');
+        const authEmailInput = document.getElementById('auth-email');
+        const authPasswordInput = document.getElementById('auth-password');
+        const authErrorMessage = document.getElementById('auth-error-message');
+        const authSubmitButton = document.getElementById('auth-submit-button');
+        const authToggleModeButton = document.getElementById('auth-toggle-mode');
+        const authCloseButton = document.getElementById('auth-close-button');
 
+        let isLoginMode = true; // State for Auth Modal: true for login, false for signup
+
+        // Vehicle Detail Modal elements
         const vehicleDetailModal = document.getElementById('vehicle-detail-modal');
         const detailCloseButton = document.getElementById('detail-close-button');
         const detailCloseButtonBottom = document.getElementById('detail-close-button-bottom');
@@ -199,22 +342,160 @@
         const detailOptionsList = document.getElementById('detail-options');
         const callGarageButton = document.getElementById('call-garage-button');
 
+        // Fullscreen Image Modal elements
         const fullscreenImageModal = document.getElementById('fullscreen-image-modal');
         const fullscreenCloseButton = document.getElementById('fullscreen-close-button');
         const fullscreenImage = document.getElementById('fullscreen-image');
 
-        // Nouvel élément pour le téléversement d'images
-        let adminImageUploadInput; // Déclaré ici pour être accessible globalement après le rendu de la page admin
-        let adminUploadStatus; // Déclaré ici pour être accessible globalement après le rendu de la page admin
+        // Admin Tool specific elements (declared globally for access after content render)
+        let adminToolContentArea; // The div where specific admin tool content will be loaded
+
+        // Shop Management Tool elements
+        let adminImageUploadInput;
+        let adminUploadStatus;
+        let adminOptionsCheckboxesContainer;
+        let adminImageUrlsContainer;
+        let adminCustomOptionInput;
+        let adminAddCustomOptionButton;
+        let shopManagementForm;
+        let shopManagementSubmitButton;
+        let shopManagementCancelEditButton;
+        let shopManagementFormTitle;
+        let adminMakeSelect;
+        let adminFuelTypeSelect;
+        let adminGearboxTypeSelect;
+        let adminAddImageUrlButton;
+        let adminIsSoldCheckbox;
+
+        // ANTS Tool elements
+        let antsMaVariableInput;
+        let antsAccessDossierButton;
+
+        // Client Dossier Tool elements
+        let clientDossierForm;
+        let clientDossierSubmitButton;
+        let clientDossierCancelEditButton;
+        let clientDossierFormTitle;
+        let clientDossiersTableBody;
+        let clientDossiersNoDataMessage;
+        let clientDossiersError;
+        let dossierSearchInput;
+        let dossierDetailsDisplay;
+
+        // Review Form elements (on homepage)
+        let reviewForm;
+        let reviewRatingInput;
+        let reviewCommentInput;
+        let reviewSubmitButton;
+        let reviewStatusMessage;
+        let googleReviewsContainer;
 
 
         // --- Page Content Templates ---
+
+        // Helper function to generate vehicle card HTML (reused for shop and home)
+        function generateVehicleCardHtml(vehicle, isFeatured = false) {
+            const imageUrl = vehicle.imageUrls && vehicle.imageUrls.length > 0 ? vehicle.imageUrls[0] : `https://placehold.co/400x250/ADD8E6/000000?text=${vehicle.make}+${vehicle.model}`;
+            const cardClass = isFeatured ? 'featured-vehicle-card' : 'vehicle-card';
+            const imageContainerClass = isFeatured ? 'featured-image-container' : 'vehicle-card-image-container';
+            const imageClass = isFeatured ? 'featured-image' : 'vehicle-card-image';
+            const contentClass = isFeatured ? 'featured-vehicle-card-content' : 'vehicle-card-content';
+            const titleClass = isFeatured ? 'featured-vehicle-card-title' : 'vehicle-card-title';
+            const priceClass = isFeatured ? 'featured-vehicle-card-price' : 'vehicle-card-price';
+            const detailClass = isFeatured ? 'featured-vehicle-card-detail' : 'vehicle-card-detail';
+            const descriptionClass = 'hidden'; // Description is always hidden on cards
+
+            const soldOverlay = vehicle.isSold ? `<div class="sold-overlay">VENDU</div>` : '';
+
+            return `
+                <div class="${cardClass}" data-vehicle-id="${vehicle.id}">
+                    <div class="${imageContainerClass}">
+                        <img src="${imageUrl}" alt="${vehicle.make} ${vehicle.model}" class="${imageClass}" onerror="this.onerror=null;this.src='https://placehold.co/400x250/ADD8E6/000000?text=Image+non+disponible';" />
+                        ${soldOverlay} <!-- Sold overlay directly on the image container -->
+                    </div>
+                    <div class="${contentClass}">
+                        <h2 class="${titleClass}">${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()} <span class="${priceClass.replace('mb-3', '')}">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price)}</span></h2>
+                        <p class="${detailClass}">Année: ${vehicle.year}</p>
+                        ${vehicle.engineType ? `<p class="${detailClass}">Motorisation: ${vehicle.engineType}</p>` : ''}
+                        ${vehicle.steamHorsepower ? `<p class="${detailClass}">Puissance: ${vehicle.steamHorsepower} ch</p>` : ''}
+                        <p class="${descriptionClass}">${vehicle.description || ''}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper to generate star ratings
+        function generateStars(rating) {
+            let stars = '';
+            for (let i = 0; i < 5; i++) {
+                stars += `<span class="text-yellow-500 text-xl">${i < rating ? '&#9733;' : '&#9734;'}</span>`;
+            }
+            return stars;
+        }
+
 
         const homePageContent = `
             <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
                 <h1 class="text-5xl font-extrabold text-center text-blue-700 mb-8">Bienvenue chez CENTRAL CARS</h1>
                 <p class="text-lg leading-relaxed mb-6 text-center max-w-3xl mx-auto">
-                    Votre destination de confiance pour l'achat, la vente et l'entretien de véhicules de qualité. Chez CENTRAL CARS, nous nous engageons à vous offrir une expérience client exceptionnelle et des services automobiles fiables.
+                    Notre équipe de professionnels expérimentés et passionnés vous viendra en aide chaleureusement et avec transparence à des prix compétitifs. Un garage automobile où qualité et service vont de pair.
+                </p>
+                
+                <div class="mt-12 p-6 bg-blue-50 rounded-lg shadow-md">
+                    <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">Véhicules en Vedette</h2>
+                    <div id="featured-vehicles-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Featured vehicles will be loaded here -->
+                    </div>
+                    <p id="no-featured-vehicles-message" class="text-center text-xl text-gray-600 mt-8 hidden">Aucun véhicule en vedette pour le moment.</p>
+                </div>
+
+                <div class="mt-12 text-center">
+                    <img
+                        src="https://placehold.co/800x400/ADD8E6/000000?text=Garage+CENTRAL+CARS"
+                        alt="Image du garage CENTRAL CARS"
+                        class="rounded-lg shadow-md mx-auto w-full max-w-4xl"
+                        onerror="this.onerror=null;this.src='https://placehold.co/800x400/ADD8E6/000000?text=Image+non+disponible';"
+                    />
+                </div>
+
+                <!-- New Google Reviews Section -->
+                <div class="mt-12 p-6 bg-yellow-50 rounded-lg shadow-md">
+                    <h2 class="text-3xl font-bold text-center text-yellow-800 mb-6">Ce que nos clients disent de nous</h2>
+                    <div id="google-reviews-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Reviews will be loaded here -->
+                    </div>
+                    <p class="text-center text-gray-600 text-sm mt-6">
+                        Ces avis sont des exemples. Pour une intégration en temps réel des avis Google, une API dédiée ou un service tiers serait nécessaire.
+                    </p>
+                    <div class="text-center mt-4">
+                        <a href="https://g.co/kgs/rCYbWHK" target="_blank" class="text-blue-600 hover:underline font-medium">Voir tous les avis Google</a>
+                    </div>
+                </div>
+
+                <!-- Add Review Section (visible only when logged in) -->
+                <div id="add-review-section" class="mt-12 p-6 bg-green-50 rounded-lg shadow-md hidden">
+                    <h2 class="text-3xl font-bold text-center text-green-800 mb-6">Ajouter un avis</h2>
+                    <form id="review-form" class="space-y-4">
+                        <div>
+                            <label for="review-rating" class="block text-gray-700 font-medium mb-1">Note (1-5 étoiles)</label>
+                            <input type="number" id="review-rating" min="1" max="5" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required />
+                        </div>
+                        <div>
+                            <label for="review-comment" class="block text-gray-700 font-medium mb-1">Votre commentaire</label>
+                            <textarea id="review-comment" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required></textarea>
+                        </div>
+                        <button type="submit" id="review-submit-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Soumettre l'avis</button>
+                        <p id="review-status-message" class="mt-4 text-center text-green-600 font-semibold"></p>
+                    </form>
+                </div>
+            </div>
+        `;
+
+        const aboutPageContent = `
+            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
+                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">À propos de CENTRAL CARS</h1>
+                <p class="text-lg leading-relaxed mb-6 text-center max-w-3xl mx-auto">
+                    Chez CENTRAL CARS, nous sommes fiers de notre engagement envers l'excellence et la satisfaction client. Forts de nombreuses années d'expérience dans l'industrie automobile, nous nous efforçons de fournir des services de qualité supérieure et une sélection de véhicules d'occasion fiables.
                 </p>
                 <div class="grid md:grid-cols-2 gap-8 mt-10">
                     <div class="flex flex-col items-center text-center">
@@ -233,39 +514,14 @@
                         <p class="text-gray-700">Devenir le leader reconnu de l'industrie automobile locale, en bâtissant des relations durables basées sur la confiance et l'excellence.</p>
                     </div>
                 </div>
-                <div class="mt-12 text-center">
-                    <img
-                        src="https://placehold.co/800x400/ADD8E6/000000?text=Garage+CENTRAL+CARS"
-                        alt="Image du garage CENTRAL CARS"
-                        class="rounded-lg shadow-md mx-auto w-full max-w-4xl"
-                        onerror="this.onerror=null;this.src='https://placehold.co/800x400/ADD8E6/000000?text=Image+non+disponible';"
-                    />
-                </div>
-            </div>
-        `;
-
-        const servicesPageContent = `
-            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
-                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Nos Services</h1>
-                <p class="text-lg leading-relaxed mb-6 text-center max-w-3xl mx-auto">
-                    Chez CENTRAL CARS, nous offrons une gamme complète de services pour répondre à tous vos besoins automobiles.
-                </p>
-                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mt-10">
-                    <div class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition duration-300 ease-in-out flex flex-col items-center text-center">
-                        <svg class="w-12 h-12 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8.707 9.293a1 1 0 00-1.414 1.414L8.586 12l-1.293 1.293a1 1 0 101.414 1.414L10 13.414l1.293 1.293a1 1 0 001.414-1.414L11.414 12l1.293-1.293a1 1 0 00-1.414-1.414L10 10.586 8.707 9.293z"></path></svg>
-                        <h3 class="text-2xl font-semibold text-gray-900 mb-3">Entretien et Réparation</h3>
-                        <p class="text-gray-700">Vidange, freins, pneus, diagnostic électronique, et toutes réparations mécaniques.</p>
-                    </div>
-                    <div class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition duration-300 ease-in-out flex flex-col items-center text-center">
-                        <svg class="w-12 h-12 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20"><path d="M7 3a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1V4a1 1 0 00-1-1H7zM7 7a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1V8a1 1 0 00-1-1H7zM7 11a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1v-1a1 1 0 00-1-1H7zM4 4a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1V5a1 1 0 00-1-1H4zM4 8a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1V9a1 1 0 00-1-1H4zM4 12a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1v-1a1 1 0 00-1-1H4zM11 4a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1V5a1 1 0 00-1-1h-2zM11 8a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1V9a1 1 0 00-1-1h-2zM11 12a1 1 0 00-1 1v1a1 1 0 001 1h2a1 1 0 001-1v-1a1 1 0 00-1-1h-2z"></path></svg>
-                        <h3 class="text-2xl font-semibold text-gray-900 mb-3">Vente de Véhicules d'Occasion</h3>
-                        <p class="text-gray-700">Large sélection de véhicules d'occasion inspectés et garantis, adaptés à tous les budgets.</p>
-                    </div>
-                    <div class="bg-gray-50 p-6 rounded-lg shadow-md hover:shadow-lg transform hover:-translate-y-1 transition duration-300 ease-in-out flex flex-col items-center text-center">
-                        <svg class="w-12 h-12 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l3 3a1 1 0 001.414-1.414L11 10.586V6z"></path></svg>
-                        <h3 class="text-2xl font-semibold text-gray-900 mb-3">Contrôle Technique</h3>
-                        <p class="text-gray-700">Préparation et présentation de votre véhicule au contrôle technique pour assurer sa conformité.</p>
-                    </div>
+                <div class="mt-10 text-center">
+                    <h2 class="text-3xl font-bold text-blue-700 mb-6">Nos Engagements</h2>
+                    <ul class="list-disc list-inside text-lg text-gray-700 max-w-2xl mx-auto space-y-2">
+                        <li>Transparence totale sur l'historique et l'état des véhicules.</li>
+                        <li>Conseils personnalisés pour trouver le véhicule adapté à vos besoins.</li>
+                        <li>Services d'entretien et de réparation effectués par des techniciens qualifiés.</li>
+                        <li>Un service après-vente réactif et à votre écoute.</li>
+                    </ul>
                 </div>
             </div>
         `;
@@ -325,16 +581,11 @@
             </div>
         `;
 
-        // Updated Shop Page Content with Admin Access Icon
+        // Shop Page Content (no changes to this content itself)
         const shopPageContent = `
             <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8 relative">
                 <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Notre Boutique</h1>
-                <!-- Admin Access Icon -->
-                <button id="shop-admin-access-icon" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 transition-colors duration-200" aria-label="Accès Administrateur">
-                    <svg class="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M11.49 4.09A10.023 10.023 0 0010 2C4.477 2 0 6.477 0 12s4.477 10 10 10 10-4.477 10-10-4.477-10-10-10zM9 14a1 1 0 00-1 1v1a1 1 0 102 0v-1a1 1 0 00-1-1zm0-6a1 1 0 00-1 1v3a1 1 0 102 0V9a1 1 0 00-1-1z" clip-rule="evenodd"></path>
-                    </svg>
-                </button>
+                <!-- Admin Access Icon - Removed from here, now in main nav -->
                 <div id="shop-vehicles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     <!-- Vehicles will be loaded here -->
                 </div>
@@ -347,42 +598,37 @@
             </div>
         `;
 
-        const antsPageContent = `
-            <div class="flex-grow container mx-auto px-4 py-8 flex flex-col items-center justify-center text-center">
-                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md">
-                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-700 mb-6">Accès Dossier ANTS</h1>
-                    <input type="text" id="maVariable" onkeypress="handleKeyPress(event)" maxlength="8" placeholder="Entrer numéro dossier" class="w-full p-3 mb-4 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-center text-lg">
-                    <button id="access-dossier-button" class="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150 ease-in-out text-lg">
-                        Accéder au dossier
-                    </button>
+        // New Admin Tools Main Page Content
+        const adminToolsPageContent = `
+            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
+                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Panneau d'Administration</h1>
+
+                <!-- Sub-navigation for Admin Tools -->
+                <div class="flex flex-wrap justify-center gap-4 mb-8 border-b-2 border-gray-200 pb-4">
+                    <button id="subnav-shop-management" class="btn btn-secondary">Gestion Boutique</button>
+                    <button id="subnav-ants-tool" class="btn btn-secondary">Outil ANTS</button>
+                    <button id="subnav-client-dossiers" class="btn btn-secondary">Dossiers Clients</button>
+                    <button id="admin-logout-button" class="btn btn-danger">Quitter le mode Admin</button>
+                </div>
+
+                <!-- Content area for selected admin tool -->
+                <div id="admin-tool-content-area">
+                    <!-- Specific tool content will be loaded here by renderAdminToolContent -->
                 </div>
             </div>
         `;
 
-        const adminPageContent = `
-            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
-                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Panneau d'Administration</h1>
-
-                <div class="mb-12 p-6 border border-blue-200 rounded-lg shadow-md bg-blue-50">
-                    <h2 class="text-3xl font-semibold text-blue-800 mb-6 text-center">Outils Administrateur</h2>
-                    <div class="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-4">
-                        <button id="admin-access-ants-button" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
-                            Accéder aux Outils ANTS
-                        </button>
-                    </div>
-                    <div class="mt-6 text-center">
-                        <button id="admin-logout-button" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">
-                            Quitter le mode Admin
-                        </button>
-                    </div>
-                </div>
-
+        // Renamed existing adminPageContent to shopManagementToolContent
+        const shopManagementToolContent = `
+            <div id="shop-management-tool-container">
                 <div id="admin-form-section" class="mb-12 p-6 border border-blue-200 rounded-lg shadow-md bg-blue-50">
                     <h2 id="admin-form-title" class="text-3xl font-semibold text-blue-800 mb-6 text-center">Ajouter un Nouveau Véhicule</h2>
                     <form id="admin-vehicle-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
                             <label for="admin-make" class="block text-gray-700 font-medium mb-1">Marque</label>
-                            <input type="text" id="admin-make" name="make" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                            <select id="admin-make" name="make" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                <!-- Options will be dynamically loaded -->
+                            </select>
                         </div>
                         <div>
                             <label for="admin-model" class="block text-gray-700 font-medium mb-1">Modèle</label>
@@ -406,11 +652,15 @@
                         </div>
                         <div>
                             <label for="admin-gearboxType" class="block text-gray-700 font-medium mb-1">Type de boîte de vitesse</label>
-                            <input type="text" id="admin-gearboxType" name="gearboxType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            <select id="admin-gearboxType" name="gearboxType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <!-- Options will be dynamically loaded -->
+                            </select>
                         </div>
                         <div>
                             <label for="admin-fuelType" class="block text-gray-700 font-medium mb-1">Carburant</label>
-                            <input type="text" id="admin-fuelType" name="fuelType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            <select id="admin-fuelType" name="fuelType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <!-- Options will be dynamically loaded -->
+                            </select>
                         </div>
                         <div>
                             <label for="admin-taxHorsepower" class="block text-gray-700 font-medium mb-1">Puissance fiscale (CV)</label>
@@ -421,8 +671,14 @@
                             <input type="number" id="admin-steamHorsepower" name="steamHorsepower" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                         </div>
                         <div class="md:col-span-2">
-                            <label for="admin-options" class="block text-gray-700 font-medium mb-1">Options (séparées par des virgules)</label>
-                            <textarea id="admin-options" name="options" rows="2" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: GPS, Climatisation, Toit ouvrant"></textarea>
+                            <label class="block text-gray-700 font-medium mb-1">Options</label>
+                            <div id="admin-options-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-3 border border-gray-300 rounded-md bg-white">
+                                <!-- Checkboxes will be dynamically loaded here -->
+                            </div>
+                            <div class="flex items-center mt-3">
+                                <input type="text" id="admin-custom-option-input" placeholder="Ajouter une option personnalisée" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                <button type="button" id="admin-add-custom-option-btn" class="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">Ajouter</button>
+                            </div>
                         </div>
                         <div class="md:col-span-2">
                             <label for="admin-image-upload" class="block text-gray-700 font-medium mb-1">Téléverser des Images</label>
@@ -430,12 +686,18 @@
                             <p id="admin-upload-status" class="text-sm text-gray-600 mt-2 hidden"></p>
                         </div>
                         <div class="md:col-span-2">
-                            <label for="admin-imageUrls" class="block text-gray-700 font-medium mb-1">URLs des Images existantes (séparées par des virgules)</label>
-                            <textarea id="admin-imageUrls" name="imageUrls" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: https://example.com/img1.jpg, https://example.com/img2.jpg"></textarea>
-                            <p class="text-sm text-gray-500 mt-1">Les images téléversées ci-dessus seront ajoutées à cette liste.</p>
+                            <label class="block text-gray-700 font-medium mb-1">URLs des Images existantes</label>
+                            <div id="admin-image-urls-container" class="space-y-2 p-3 border border-gray-300 rounded-md bg-white">
+                                <!-- Dynamic image URL inputs will be loaded here -->
+                            </div>
+                            <button type="button" id="admin-add-image-url-btn" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Ajouter une URL</button>
+                        </div>
+                        <div class="md:col-span-2 flex items-center">
+                            <input type="checkbox" id="admin-is-sold" name="isSold" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                            <label for="admin-is-sold" class="ml-2 block text-gray-700 font-medium">Véhicule Vendu</label>
                         </div>
                         <div class="md:col-span-2">
-                            <label for="admin-description" class="block text-gray-700 font-medium mb-1">Description</label>
+                            <label for="admin-description" class="block text-gray-700 font-medium mb-1">Description (sera complétée automatiquement)</label>
                             <textarea id="admin-description" name="description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
                         </div>
                         <div class="md:col-span-2 flex justify-end space-x-4 mt-4">
@@ -467,6 +729,102 @@
             </div>
         `;
 
+        // Renamed existing antsPageContent to antsToolContent
+        const antsToolContent = `
+            <div id="ants-tool-container" class="flex-grow px-4 py-8 flex flex-col items-center justify-center text-center">
+                <div class="bg-white p-6 sm:p-8 rounded-xl shadow-lg w-full max-w-md">
+                    <h1 class="text-2xl sm:text-3xl font-bold text-slate-700 mb-6">Accès Dossier ANTS</h1>
+                    <input type="text" id="maVariable" maxlength="8" placeholder="Entrer numéro dossier" class="w-full p-3 mb-4 border border-gray-300 rounded-lg shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-center text-lg">
+                    <button id="access-dossier-button" class="w-full px-6 py-3 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-150 ease-in-out text-lg">
+                        Accéder au dossier
+                    </button>
+                </div>
+            </div>
+        `;
+
+        // Client Dossier Page Content
+        const dossierPageContent = `
+            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
+                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Mon Dossier Client</h1>
+                <div class="max-w-md mx-auto p-6 border border-blue-200 rounded-lg shadow-md bg-blue-50">
+                    <label for="dossier-search-input" class="block text-gray-700 font-medium mb-1">Rechercher par numéro de dossier</label>
+                    <div class="flex space-x-2 mb-4">
+                        <input type="text" id="dossier-search-input" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Entrez le numéro de dossier" />
+                        <button id="dossier-search-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Rechercher</button>
+                    </div>
+                    <div id="dossier-details-display" class="mt-6 p-4 border border-gray-300 rounded-md bg-white hidden">
+                        <!-- Dossier details will be displayed here -->
+                    </div>
+                    <p id="dossier-error-message" class="text-red-500 text-sm mt-4 hidden"></p>
+                </div>
+            </div>
+        `;
+
+        // Client Dossier Tool Content (for Admin Panel)
+        const clientDossierToolContent = `
+            <div id="client-dossier-tool-container">
+                <div class="p-6 border border-blue-200 rounded-lg shadow-md bg-blue-50 mb-8">
+                    <h2 id="client-dossier-form-title" class="text-3xl font-semibold text-blue-800 mb-6 text-center">Ajouter un Nouveau Dossier Client</h2>
+                    <form id="client-dossier-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="client-name" class="block text-gray-700 font-medium mb-1">Nom du Client</label>
+                            <input type="text" id="client-name" name="clientName" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                        </div>
+                        <div>
+                            <label for="client-vehicle" class="block text-gray-700 font-medium mb-1">Véhicule</label>
+                            <input type="text" id="client-vehicle" name="vehicle" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label for="client-vin" class="block text-gray-700 font-medium mb-1">VIN (Numéro d'identification du véhicule)</label>
+                            <input type="text" id="client-vin" name="vin" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label for="client-invoice-number" class="block text-gray-700 font-medium mb-1">Numéro de Facture</label>
+                            <input type="text" id="client-invoice-number" name="invoiceNumber" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label for="client-status" class="block text-gray-700 font-medium mb-1">Statut du Dossier</label>
+                            <select id="client-status" name="status" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <option value="En cours">En cours</option>
+                                <option value="Terminé">Terminé</option>
+                                <option value="En attente">En attente</option>
+                            </select>
+                        </div>
+                        <div class="md:col-span-2">
+                            <label for="client-notes" class="block text-gray-700 font-medium mb-1">Notes</label>
+                            <textarea id="client-notes" name="notes" rows="3" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                        </div>
+                        <div class="md:col-span-2 flex justify-end space-x-4 mt-4">
+                            <button type="button" id="client-dossier-cancel-edit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-md transition duration-300 ease-in-out transform hover:scale-105 hidden">Annuler l'édition</button>
+                            <button type="submit" id="client-dossier-submit-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Ajouter le Dossier</button>
+                        </div>
+                    </form>
+                </div>
+
+                <h2 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Dossiers Clients Actuels</h2>
+                <div id="client-dossiers-table-container" class="overflow-x-auto rounded-lg shadow-md border border-gray-200">
+                    <table class="min-w-full bg-white">
+                        <thead class="bg-gray-200">
+                            <tr>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Client</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Véhicule</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">VIN</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Facture</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Statut</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="client-dossiers-table-body">
+                            <!-- Client dossiers will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+                <p id="client-dossiers-no-data-message" class="text-center text-xl text-gray-600 mt-8 hidden"></p>
+                <p id="client-dossiers-error" class="text-center text-xl text-red-600 mt-8 hidden"></p>
+            </div>
+        `;
+
+
         // --- Core Application Logic ---
 
         // Function to render content based on current page
@@ -475,49 +833,48 @@
             switch (currentPage) {
                 case 'home':
                     appContent.innerHTML = homePageContent;
+                    loadFeaturedVehicles(); // Load featured vehicles on home page
+                    loadReviews(); // Load reviews on home page
+                    setupReviewForm(); // Setup review form
+                    // Show/hide add review section based on login status
+                    if (isLoggedIn) {
+                        document.getElementById('add-review-section').classList.remove('hidden');
+                    } else {
+                        document.getElementById('add-review-section').classList.add('hidden');
+                    }
                     break;
                 case 'shop':
                     appContent.innerHTML = shopPageContent;
-                    // Attach event listener for the new admin access icon on the shop page
-                    // Use setTimeout to ensure the element is in the DOM after innerHTML update
-                    setTimeout(() => {
-                        const shopAdminAccessIcon = document.getElementById('shop-admin-access-icon');
-                        if (shopAdminAccessIcon) {
-                            shopAdminAccessIcon.addEventListener('click', showAdminPasswordModal);
-                        }
-                    }, 0); // Small delay
                     loadShopVehicles();
                     break;
-                case 'services':
-                    appContent.innerHTML = servicesPageContent;
+                case 'about': // Changed from 'services'
+                    appContent.innerHTML = aboutPageContent;
                     break;
                 case 'contact':
                     appContent.innerHTML = contactPageContent;
                     setupContactForm();
                     break;
-                case 'admin':
+                case 'dossier': // New page for client dossiers
+                    if (isLoggedIn) {
+                        appContent.innerHTML = dossierPageContent;
+                        setupDossierPage();
+                    } else {
+                        currentPage = 'home';
+                        renderPage();
+                        alert("Veuillez vous connecter pour accéder à votre dossier.");
+                    }
+                    break;
+                case 'admin-tools': // New case for admin tools main page
                     if (isAdmin) {
-                        appContent.innerHTML = adminPageContent;
-                        // Assign the DOM elements after rendering the admin page content
-                        adminImageUploadInput = document.getElementById('admin-image-upload');
-                        adminUploadStatus = document.getElementById('admin-upload-status');
-                        setupAdminPage();
-                        loadAdminVehicles();
+                        appContent.innerHTML = adminToolsPageContent;
+                        adminToolContentArea = document.getElementById('admin-tool-content-area');
+                        setupAdminToolsPage(); // Setup sub-navigation and initial tool
+                        renderAdminToolContent(currentAdminTool); // Render the default or last selected admin tool
                     } else {
                         // If not admin, redirect to home or show access denied message
                         currentPage = 'home'; // Redirect to home if not authorized
                         renderPage(); // Re-render home page
                         alert("Accès refusé. Vous n'êtes pas autorisé à accéder au panneau d'administration.");
-                    }
-                    break;
-                case 'ants': // New case for ANTS page
-                    if (isAdmin) {
-                        appContent.innerHTML = antsPageContent;
-                        setupAntsPage(); // Setup ANTS specific event listeners
-                    } else {
-                        // Redirect to admin if not admin
-                        currentPage = 'admin'; // Redirect to admin page, which will then redirect to home
-                        renderPage();
                     }
                     break;
                 default:
@@ -526,9 +883,14 @@
             updateNavbarActiveState();
         }
 
-        // Update Navbar active state
+        // Update Navbar active state and visibility of auth-related buttons
         function updateNavbarActiveState() {
             document.querySelectorAll('nav button').forEach(button => {
+                // Exclude "Se connecter" and "Déconnexion" from regular active state logic
+                if (button.id === 'nav-espace-pro' || button.id === 'nav-logout') {
+                    return;
+                }
+
                 const page = button.id.replace('nav-', '');
                 if (page === currentPage) {
                     button.classList.add('bg-gray-700');
@@ -536,33 +898,181 @@
                     button.classList.remove('bg-gray-700');
                 }
             });
-        }
 
-        // --- Admin Password Modal Logic ---
-        const ADMIN_PASSWORD = 'Sofian59690'; // Le mot de passe administrateur
-
-        function showAdminPasswordModal() {
-            adminPasswordModal.classList.remove('modal-hidden');
-            adminPasswordModal.classList.add('modal-visible');
-            adminPasswordInput.value = ''; // Clear password field
-            adminPasswordError.classList.add('hidden'); // Hide any previous errors
-        }
-
-        function hideAdminPasswordModal() {
-            adminPasswordModal.classList.remove('modal-visible');
-            adminPasswordModal.classList.add('modal-hidden');
-        }
-
-        function handleAdminPasswordSubmit() {
-            const enteredPassword = adminPasswordInput.value;
-            if (enteredPassword === ADMIN_PASSWORD) {
-                isAdmin = true;
-                hideAdminPasswordModal();
-                currentPage = 'admin';
-                renderPage();
+            // Update visibility of "Dossier", "Se connecter", "Déconnexion" buttons
+            if (isLoggedIn) {
+                navLogoutButton.classList.remove('hidden');
+                navEspaceProButton.classList.add('hidden'); // Hide "Se connecter" if logged in
+                if (isClient) {
+                    navDossierButton.classList.remove('hidden');
+                } else {
+                    navDossierButton.classList.add('hidden');
+                }
+                if (isAdmin) {
+                    navEspaceProButton.classList.remove('hidden'); // Show "Se connecter" if admin (it leads to admin panel)
+                    navDossierButton.classList.add('hidden'); // Admins don't need client dossier page
+                }
             } else {
-                adminPasswordError.textContent = "Mot de passe incorrect.";
-                adminPasswordError.classList.remove('hidden');
+                navLogoutButton.classList.add('hidden');
+                navEspaceProButton.classList.remove('hidden'); // Show "Se connecter" if not logged in
+                navDossierButton.classList.add('hidden');
+            }
+
+            // Update footer user info
+            if (isLoggedIn) {
+                userInfoDisplay.textContent = `Connecté en tant que: ${userName} (${userRole})`;
+            } else {
+                userInfoDisplay.textContent = `Non connecté`;
+            }
+        }
+
+        // --- Firebase Auth Logic ---
+        function setupAuth() {
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUser = user;
+                    isLoggedIn = true;
+                    // Fetch user role from Firestore
+                    try {
+                        const userDocRef = doc(db, `artifacts/${appId}/public/data/users`, user.uid);
+                        const userDocSnap = await getDoc(userDocRef);
+                        if (userDocSnap.exists()) {
+                            const userData = userDocSnap.data();
+                            userName = userData.name || user.email;
+                            userRole = userData.role || 'client'; // Default to client if role not set
+                            isAdmin = (userRole === 'admin');
+                            isClient = (userRole === 'client');
+                        } else {
+                            // User exists in Auth but not in Firestore 'users' collection (e.g., old user or manual creation)
+                            // Create a basic user profile in Firestore if it doesn't exist
+                            await setDoc(userDocRef, {
+                                name: user.displayName || user.email,
+                                email: user.email,
+                                role: 'client', // Default role for new Firestore user profiles
+                                createdAt: new Date()
+                            }, { merge: true }); // Use merge to avoid overwriting if partial data exists
+                            userName = user.displayName || user.email;
+                            userRole = 'client';
+                            isAdmin = false;
+                            isClient = true;
+                        }
+                    } catch (error) {
+                        console.error("Erreur lors de la récupération/création du profil utilisateur Firestore:", error);
+                        userName = user.displayName || user.email; // Fallback
+                        userRole = 'client'; // Assume client role on error
+                        isAdmin = false;
+                        isClient = true;
+                    }
+                    console.log(`Utilisateur connecté: ${userName} (Rôle: ${userRole})`);
+                } else {
+                    currentUser = null;
+                    userName = 'Non connecté';
+                    userRole = 'guest';
+                    isLoggedIn = false;
+                    isAdmin = false;
+                    isClient = false;
+                    console.log("Utilisateur déconnecté.");
+                }
+                renderPage(); // Re-render the page to update UI based on auth state
+            });
+        }
+
+        function showAuthModal(mode = 'login') {
+            isLoginMode = (mode === 'login');
+            authErrorMessage.classList.add('hidden');
+            authEmailInput.value = '';
+            authPasswordInput.value = '';
+            authNameInput.value = '';
+
+            if (isLoginMode) {
+                authModalTitle.textContent = 'Connexion';
+                authSubmitButton.textContent = 'Se connecter';
+                authToggleModeButton.textContent = 'Pas encore de compte ? S\'inscrire';
+                authNameGroup.classList.add('hidden');
+                authNameInput.removeAttribute('required');
+            } else {
+                authModalTitle.textContent = 'Créer un compte';
+                authSubmitButton.textContent = 'S\'inscrire';
+                authToggleModeButton.textContent = 'Déjà un compte ? Se connecter';
+                authNameGroup.classList.remove('hidden');
+                authNameInput.setAttribute('required', 'required');
+            }
+            authModal.classList.remove('modal-hidden');
+            authModal.classList.add('modal-visible');
+        }
+
+        function hideAuthModal() {
+            authModal.classList.remove('modal-visible');
+            authModal.classList.add('modal-hidden');
+        }
+
+        async function handleAuthFormSubmit(e) {
+            e.preventDefault();
+            authErrorMessage.classList.add('hidden'); // Hide previous errors
+
+            const email = authEmailInput.value;
+            const password = authPasswordInput.value;
+            const name = authNameInput.value;
+
+            if (isLoginMode) {
+                try {
+                    await signInWithEmailAndPassword(auth, email, password);
+                    hideAuthModal();
+                    // onAuthStateChanged will handle UI update
+                } catch (error) {
+                    console.error("Erreur de connexion:", error);
+                    let message = "Erreur de connexion. Veuillez vérifier votre email et mot de passe.";
+                    if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+                        message = "Email ou mot de passe incorrect.";
+                    } else if (error.code === 'auth/invalid-email') {
+                        message = "Format d'email invalide.";
+                    }
+                    authErrorMessage.textContent = message;
+                    authErrorMessage.classList.remove('hidden');
+                }
+            } else { // Signup mode
+                if (!name.trim()) {
+                    authErrorMessage.textContent = "Veuillez entrer votre nom.";
+                    authErrorMessage.classList.remove('hidden');
+                    return;
+                }
+                try {
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    // Store user's name and role in Firestore
+                    await setDoc(doc(db, `artifacts/${appId}/public/data/users`, userCredential.user.uid), {
+                        name: name,
+                        email: email,
+                        role: 'client', // Default role for new users
+                        createdAt: new Date()
+                    });
+                    hideAuthModal();
+                    alert("Compte créé avec succès ! Vous êtes maintenant connecté.");
+                    // onAuthStateChanged will handle UI update
+                } catch (error) {
+                    console.error("Erreur d'inscription:", error);
+                    let message = "Erreur lors de la création du compte.";
+                    if (error.code === 'auth/email-already-in-use') {
+                        message = "Cet email est déjà utilisé.";
+                    } else if (error.code === 'auth/weak-password') {
+                        message = "Le mot de passe doit contenir au moins 6 caractères.";
+                    } else if (error.code === 'auth/invalid-email') {
+                        message = "Format d'email invalide.";
+                    }
+                    authErrorMessage.textContent = message;
+                    authErrorMessage.classList.remove('hidden');
+                }
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await signOut(auth);
+                // onAuthStateChanged will handle UI update
+                currentPage = 'home'; // Redirect to home after logout
+                renderPage();
+            } catch (error) {
+                console.error("Erreur de déconnexion:", error);
+                alert("Erreur lors de la déconnexion.");
             }
         }
 
@@ -573,20 +1083,10 @@
             const shopError = document.getElementById('shop-error');
             const noVehiclesMessage = document.getElementById('no-vehicles-message');
 
-            // Re-attach event listener for the admin access icon if it exists in the current DOM
-            const shopAdminAccessIcon = document.getElementById('shop-admin-access-icon');
-            if (shopAdminAccessIcon) {
-                shopAdminAccessIcon.removeEventListener('click', showAdminPasswordModal); // Prevent multiple listeners
-                shopAdminAccessIcon.addEventListener('click', showAdminPasswordModal);
-            }
-
             if (shopLoading) shopLoading.classList.remove('hidden');
             if (shopError) shopError.classList.add('hidden');
             if (noVehiclesMessage) noVehiclesMessage.classList.add('hidden');
             if (shopVehiclesContainer) shopVehiclesContainer.innerHTML = ''; // Clear previous vehicles
-
-            // User ID display is now static as there's no Firebase Auth
-            userIdDisplay.textContent = `ID Utilisateur: Non connecté (Authentification désactivée)`;
 
             const vehiclesCollectionRef = collection(db, `artifacts/${appId}/public/data/vehicles`);
             onSnapshot(vehiclesCollectionRef, (snapshot) => {
@@ -599,22 +1099,10 @@
                     if (noVehiclesMessage) noVehiclesMessage.classList.add('hidden');
                     shopVehiclesContainer.innerHTML = ''; // Clear before re-rendering
                     vehicles.forEach(vehicle => {
-                        const imageUrl = vehicle.imageUrls && vehicle.imageUrls.length > 0 ? vehicle.imageUrls[0] : `https://placehold.co/400x250/ADD8E6/000000?text=${vehicle.make}+${vehicle.model}`;
-                        const vehicleCard = document.createElement('div');
-                        vehicleCard.className = "border border-gray-200 rounded-lg shadow-md overflow-hidden transform hover:scale-105 transition duration-300 ease-in-out cursor-pointer";
-                        vehicleCard.dataset.vehicleId = vehicle.id; // Store ID for click handler
-
-                        vehicleCard.innerHTML = `
-                            <img src="${imageUrl}" alt="${vehicle.make} ${vehicle.model}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x250/ADD8E6/000000?text=Image+non+disponible';" />
-                            <div class="p-4">
-                                <h2 class="text-2xl font-semibold text-gray-900 mb-2">${vehicle.make} ${vehicle.model}</h2>
-                                <p class="text-gray-700 mb-1">Année: ${vehicle.year}</p>
-                                <p class="text-gray-700 mb-3">Prix: ${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price)}</p>
-                                ${vehicle.engineType ? `<p class="text-gray-700 mb-1">Motorisation: ${vehicle.engineType}</p>` : ''}
-                                ${vehicle.steamHorsepower ? `<p class="text-gray-700 mb-3">Puissance: ${vehicle.steamHorsepower} ch</p>` : ''}
-                                <p class="text-gray-600 text-sm line-clamp-3">${vehicle.description || ''}</p>
-                            </div>
-                        `;
+                        const vehicleCardHtml = generateVehicleCardHtml(vehicle); // Use the helper function
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = vehicleCardHtml;
+                        const vehicleCard = tempDiv.firstElementChild;
                         vehicleCard.addEventListener('click', () => showVehicleDetailModal(vehicle.id));
                         shopVehiclesContainer.appendChild(vehicleCard);
                     });
@@ -734,40 +1222,253 @@
             }
         }
 
-        // --- Admin Page Logic ---
-        let editingVehicleId = null; // Stores the ID of the vehicle being edited
+        // --- Admin Tools Main Page Logic ---
+        function setupAdminToolsPage() {
+            // Get sub-navigation buttons
+            const subnavShopManagement = document.getElementById('subnav-shop-management');
+            const subnavAntsTool = document.getElementById('subnav-ants-tool');
+            const subnavClientDossiers = document.getElementById('subnav-client-dossiers');
+            const adminLogoutButton = document.getElementById('admin-logout-button');
 
-        function setupAdminPage() {
-            const adminVehicleForm = document.getElementById('admin-vehicle-form');
-            const adminSubmitButton = document.getElementById('admin-submit-button');
-            const adminCancelEditButton = document.getElementById('admin-cancel-edit');
-            const adminFormTitle = document.getElementById('admin-form-title');
-            const adminAccessAntsButton = document.getElementById('admin-access-ants-button');
-            const adminLogoutButton = document.getElementById('admin-logout-button'); // Nouveau bouton de déconnexion admin
-
-            if (adminVehicleForm) {
-                adminVehicleForm.addEventListener('submit', handleAdminSubmit);
+            // Add event listeners for sub-navigation
+            if (subnavShopManagement) {
+                subnavShopManagement.addEventListener('click', () => renderAdminToolContent('shop-management'));
             }
-            if (adminCancelEditButton) {
-                adminCancelEditButton.addEventListener('click', resetAdminForm);
+            if (subnavAntsTool) {
+                subnavAntsTool.addEventListener('click', () => renderAdminToolContent('ants-tool'));
             }
-            if (adminAccessAntsButton) {
-                adminAccessAntsButton.addEventListener('click', () => {
-                    currentPage = 'ants';
-                    renderPage();
-                });
+            if (subnavClientDossiers) {
+                subnavClientDossiers.addEventListener('click', () => renderAdminToolContent('client-dossiers'));
             }
             if (adminLogoutButton) {
                 adminLogoutButton.addEventListener('click', () => {
-                    isAdmin = false; // Quitter le mode admin
-                    currentPage = 'home'; // Retour à l'accueil
-                    renderPage();
-                    alert("Vous avez quitté le mode administrateur.");
+                    handleLogout(); // Use the general logout function
                 });
+            }
+            updateAdminSubnavActiveState();
+        }
+
+        function updateAdminSubnavActiveState() {
+            document.querySelectorAll('.flex.flex-wrap.justify-center.gap-4 button').forEach(button => {
+                const toolName = button.id.replace('subnav-', '');
+                if (toolName === currentAdminTool) {
+                    button.classList.remove('btn-secondary');
+                    button.classList.add('btn-primary');
+                } else {
+                    button.classList.remove('btn-primary');
+                    button.classList.add('btn-secondary');
+                }
+            });
+        }
+
+        function renderAdminToolContent(toolName) {
+            currentAdminTool = toolName; // Update the current tool
+            if (!adminToolContentArea) {
+                console.error("Admin tool content area not found.");
+                return;
+            }
+            adminToolContentArea.innerHTML = ''; // Clear previous tool content
+
+            switch (toolName) {
+                case 'shop-management':
+                    adminToolContentArea.innerHTML = shopManagementToolContent;
+                    setupShopManagementTool();
+                    loadShopManagementVehicles();
+                    break;
+                case 'ants-tool':
+                    adminToolContentArea.innerHTML = antsToolContent;
+                    setupAntsTool();
+                    break;
+                case 'client-dossiers':
+                    adminToolContentArea.innerHTML = clientDossierToolContent;
+                    setupClientDossierTool();
+                    loadClientDossiers();
+                    break;
+                default:
+                    adminToolContentArea.innerHTML = `<p class="text-center text-xl text-gray-600">Sélectionnez un outil d'administration.</p>`;
+            }
+            updateAdminSubnavActiveState(); // Update active state of sub-navigation buttons
+        }
+
+
+        // --- Shop Management Tool Logic ---
+        let editingVehicleId = null; // Stores the ID of the vehicle being edited
+
+        // Predefined lists for dropdowns and checkboxes
+        const predefinedMakes = ["", "Renault", "Peugeot", "Citroën", "Volkswagen", "Audi", "BMW", "Mercedes-Benz", "Ford", "Opel", "Toyota", "Nissan", "Hyundai", "Kia", "Fiat", "Skoda", "Volvo", "Mazda", "Honda", "Suzuki", "Jeep", "Tesla", "Porsche", "Ferrari", "Lamborghini"];
+        const predefinedFuelTypes = ["", "Essence", "Diesel", "Électrique", "Hybride", "GPL", "Éthanol"];
+        const predefinedGearboxTypes = ["", "Manuelle", "Automatique"];
+
+        // Predefined list of options for checkboxes
+        const predefinedOptions = [
+            "Limiteur de vitesse", "Régulateur de vitesse", "GPS", "Feu automatique", "Balais essuie-glace automatique",
+            "Climatisation", "Caméra de recul", "Radar de recul avant et arrière", "Jantes aluminium", "Rétroviseur électriques",
+            "Ventilation banquette arrière", "Phares LED", "Vitres électriques", "Bluetooth", "Prise Auxiliaire",
+            "USB", "Radio commande au volant", "ISOFIX", "Ouverture/fermeture centralisée", "Allume cigare",
+            "Ordinateur de bord", "Phares antibrouillard arrière", "Phares antibrouillard avant", "Vendu avec deux clés",
+            "Commande console centrale", "ABS", "Feu de brouillard arrière", "Airbags frontaux, latéraux",
+            "Volant réglable en hauteur et en profondeur", "Toit ouvrant panoramique", "Sièges chauffants", "Démarrage sans clé",
+            "Aide au stationnement", "Alerte franchissement de ligne", "Système Start & Stop", "Frein de parking électrique",
+            "Accoudoir central", "Volant multifonctions", "Détecteur de pluie", "Roue de secours",
+            "Aide au démarrage en côte", "Avertisseur d'angle mort", "Clé mains libres", "Régulateur de vitesse adaptatif",
+            "Affichage tête haute", "Sièges en cuir", "Hayon électrique", "Recharge sans fil pour smartphone",
+            "Android Auto", "Apple CarPlay", "Phares Xénon", "Aide au freinage d'urgence",
+            "Avertisseur de collision", "Reconnaissance des panneaux de signalisation", "Sièges ventilés",
+            "Volant chauffant", "Suspension adaptative", "Système audio premium", "Éclairage d'ambiance",
+            "Attelage remorque", "Barres de toit", "Peinture métallisée"
+        ];
+
+        // Standard description text to append
+        const standardDescriptionText = `
+Tarif hors carte grise.
+
+🧑🏼‍🔧 Garantie moteur et boîte 6 mois (extension de garantie possible).
+
+🇫🇷🇫🇷HABILITÉE SERVICE CARTE GRISE 🇫🇷🇫🇷
+
+Habilité par le Agence Nationale des Titres Sécurisés.
+
+Nous nous occupons de toutes les démarches administratives d'immatriculation !
+
+Pour faciliter les démarches administratives pensez a vous munir des pièces suivantes lors de votre visite :
+🔸Pièce d'identité en cours de validité.
+🔸Permis de conduire en cours de validité.
+🔸Justificatif de domicile moins de 3 mois (facture ou avis d'imposition).
+🔸En cas d'hébergement : une attestation d'hébergement et la copie de la carte d'identité de l'hébergeur.
+`;
+
+        function renderShopManagementOptionsCheckboxes(selectedOptions = []) {
+            if (!adminOptionsCheckboxesContainer) return; // Ensure element exists
+
+            adminOptionsCheckboxesContainer.innerHTML = ''; // Clear previous checkboxes
+            predefinedOptions.forEach(option => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center';
+                const checkboxId = `option-${option.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase()}`; // Sanitize ID
+                div.innerHTML = `
+                    <input type="checkbox" id="${checkboxId}" name="options" value="${option}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="${checkboxId}" class="ml-2 block text-sm text-gray-900">${option}</label>
+                `;
+                const checkbox = div.querySelector(`#${checkboxId}`);
+                if (selectedOptions.includes(option)) {
+                    checkbox.checked = true;
+                }
+                adminOptionsCheckboxesContainer.appendChild(div);
+            });
+        }
+
+        // Function to render dynamic image URL inputs for shop management
+        function renderShopManagementImageUrlsInputs(urls = []) {
+            if (!adminImageUrlsContainer) return;
+
+            adminImageUrlsContainer.innerHTML = ''; // Clear existing inputs
+
+            // Ensure there's at least one empty input if no URLs are provided and not editing
+            if (urls.length === 0 && editingVehicleId === null) {
+                urls.push('');
+            }
+
+            urls.forEach((url, index) => {
+                const div = document.createElement('div');
+                div.className = 'flex items-center space-x-2';
+                div.innerHTML = `
+                    <input type="url" class="image-url-input w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="URL de l'image" value="${url}">
+                    <button type="button" class="remove-image-url-btn px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition">X</button>
+                `;
+                adminImageUrlsContainer.appendChild(div);
+            });
+
+            // Add event listeners for remove buttons
+            adminImageUrlsContainer.querySelectorAll('.remove-image-url-btn').forEach(button => {
+                button.addEventListener('click', (e) => {
+                    e.target.closest('div').remove(); // Remove the parent div (input + button)
+                });
+            });
+        }
+
+        function addShopManagementImageUrlInput() {
+            if (!adminImageUrlsContainer) return;
+            const div = document.createElement('div');
+            div.className = 'flex items-center space-x-2';
+            div.innerHTML = `
+                <input type="url" class="image-url-input w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="URL de l'image">
+                <button type="button" class="remove-image-url-btn px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition">X</button>
+            `;
+            adminImageUrlsContainer.appendChild(div);
+            div.querySelector('.remove-image-url-btn').addEventListener('click', (e) => {
+                e.target.closest('div').remove();
+            });
+        }
+
+
+        function setupShopManagementTool() {
+            // Assign elements for shop management
+            shopManagementForm = document.getElementById('admin-vehicle-form');
+            shopManagementSubmitButton = document.getElementById('admin-submit-button');
+            shopManagementCancelEditButton = document.getElementById('admin-cancel-edit');
+            shopManagementFormTitle = document.getElementById('admin-form-title');
+            adminMakeSelect = document.getElementById('admin-make');
+            adminFuelTypeSelect = document.getElementById('admin-fuelType');
+            adminGearboxTypeSelect = document.getElementById('admin-gearboxType');
+            adminAddImageUrlButton = document.getElementById('admin-add-image-url-btn');
+            adminIsSoldCheckbox = document.getElementById('admin-is-sold');
+            adminImageUploadInput = document.getElementById('admin-image-upload');
+            adminUploadStatus = document.getElementById('admin-upload-status');
+            adminOptionsCheckboxesContainer = document.getElementById('admin-options-checkboxes');
+            adminImageUrlsContainer = document.getElementById('admin-image-urls-container');
+            adminCustomOptionInput = document.getElementById('admin-custom-option-input');
+            adminAddCustomOptionButton = document.getElementById('admin-add-custom-option-btn');
+
+            // Populate dropdowns
+            function populateSelect(selectElement, optionsList, selectedValue = '') {
+                selectElement.innerHTML = '';
+                optionsList.forEach(option => {
+                    const opt = document.createElement('option');
+                    opt.value = option;
+                    opt.textContent = option;
+                    if (option === selectedValue) {
+                        opt.selected = true;
+                    }
+                    selectElement.appendChild(opt);
+                });
+            }
+
+            populateSelect(adminMakeSelect, predefinedMakes);
+            populateSelect(adminFuelTypeSelect, predefinedFuelTypes);
+            populateSelect(adminGearboxTypeSelect, predefinedGearboxTypes);
+
+            // Render options checkboxes and image URL inputs initially
+            renderShopManagementOptionsCheckboxes();
+            renderShopManagementImageUrlsInputs();
+
+            if (shopManagementForm) {
+                shopManagementForm.addEventListener('submit', handleShopManagementSubmit);
+            }
+            if (shopManagementCancelEditButton) {
+                shopManagementCancelEditButton.addEventListener('click', resetShopManagementForm);
+            }
+            if (adminAddCustomOptionButton) {
+                adminAddCustomOptionButton.addEventListener('click', () => {
+                    const customOption = adminCustomOptionInput.value.trim();
+                    if (customOption && adminOptionsCheckboxesContainer) {
+                        const div = document.createElement('div');
+                        div.className = 'flex items-center';
+                        const checkboxId = `option-${customOption.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase()}-${Date.now()}`;
+                        div.innerHTML = `
+                            <input type="checkbox" id="${checkboxId}" name="options" value="${customOption}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
+                            <label for="${checkboxId}" class="ml-2 block text-sm text-gray-900">${customOption}</label>
+                        `;
+                        adminOptionsCheckboxesContainer.appendChild(div);
+                        adminCustomOptionInput.value = ''; // Clear input
+                    }
+                });
+            }
+            if (adminAddImageUrlButton) {
+                adminAddImageUrlButton.addEventListener('click', addShopManagementImageUrlInput);
             }
         }
 
-        async function loadAdminVehicles() {
+        async function loadShopManagementVehicles() {
             const adminVehiclesTableBody = document.getElementById('admin-vehicles-table-body');
             const adminNoVehiclesMessage = document.getElementById('admin-no-vehicles-message');
             const adminError = document.getElementById('admin-error');
@@ -808,10 +1509,10 @@
 
                     // Attach event listeners to new buttons
                     document.querySelectorAll('.edit-btn').forEach(button => {
-                        button.addEventListener('click', (e) => handleAdminEdit(e.target.dataset.id));
+                        button.addEventListener('click', (e) => handleShopManagementEdit(e.target.dataset.id));
                     });
                     document.querySelectorAll('.delete-btn').forEach(button => {
-                        button.addEventListener('click', (e) => handleAdminDelete(e.target.dataset.id));
+                        button.addEventListener('click', (e) => handleShopManagementDelete(e.target.dataset.id));
                     });
                 }
             }, (err) => {
@@ -821,7 +1522,7 @@
             });
         }
 
-        async function handleAdminSubmit(e) {
+        async function handleShopManagementSubmit(e) {
             e.preventDefault();
             const formElements = e.target.elements;
             
@@ -845,24 +1546,37 @@
             }
             adminUploadStatus.classList.add('hidden'); // Hide status after upload attempts
 
-            // Combine existing URLs from textarea with newly uploaded URLs
-            const existingImageUrls = formElements.imageUrls.value.split(',').map(url => url.trim()).filter(url => url !== '');
+            // Collect existing URLs from dynamic inputs
+            const existingImageUrls = Array.from(adminImageUrlsContainer.querySelectorAll('.image-url-input'))
+                                            .map(input => input.value.trim())
+                                            .filter(url => url !== '');
             const finalImageUrls = [...existingImageUrls, ...uploadedImageUrls];
+
+            // Collect selected options from checkboxes
+            const selectedOptions = Array.from(adminOptionsCheckboxesContainer.querySelectorAll('input[type="checkbox"]:checked'))
+                                       .map(checkbox => checkbox.value);
+
+            let descriptionContent = formElements.description.value.trim();
+            // Append standard text if not already present (simple check)
+            if (!descriptionContent.includes("Tarif hors carte grise.")) {
+                descriptionContent += standardDescriptionText;
+            }
 
             const vehicleData = {
                 make: formElements.make.value,
                 model: formElements.model.value,
                 year: parseInt(formElements.year.value),
                 price: parseFloat(formElements.price.value),
-                description: formElements.description.value,
+                description: descriptionContent, // Utilise la description complétée
                 imageUrls: finalImageUrls, // Utilise les URLs combinées
                 mileage: parseInt(formElements.mileage.value) || 0,
                 engineType: formElements.engineType.value,
                 gearboxType: formElements.gearboxType.value,
                 fuelType: formElements.fuelType.value,
-                options: formElements.options.value.split(',').map(opt => opt.trim()).filter(opt => opt !== ''),
+                options: selectedOptions, // Utilise les options des checkboxes
                 taxHorsepower: parseInt(formElements.taxHorsepower.value) || 0,
                 steamHorsepower: parseInt(formElements.steamHorsepower.value) || 0,
+                isSold: formElements.isSold.checked // Get the value of the "Vendu" checkbox
             };
 
             try {
@@ -874,36 +1588,43 @@
                     await addDoc(collection(db, `artifacts/${appId}/public/data/vehicles`), vehicleData);
                     console.log("Véhicule ajouté avec succès !");
                 }
-                resetAdminForm();
+                resetShopManagementForm();
             } catch (err) {
                 console.error("Erreur lors de la soumission du véhicule:", err);
                 alert("Erreur lors de l'enregistrement du véhicule. Vérifiez la console pour plus de détails."); // Using alert for simplicity
             }
         }
 
-        function handleAdminEdit(id) {
+        function handleShopManagementEdit(id) {
             editingVehicleId = id;
             const vehicle = vehicles.find(v => v.id === id);
             if (vehicle) {
-                document.getElementById('admin-form-title').textContent = 'Modifier un Véhicule';
-                document.getElementById('admin-submit-button').textContent = 'Mettre à jour le Véhicule';
-                document.getElementById('admin-cancel-edit').classList.remove('hidden');
+                shopManagementFormTitle.textContent = 'Modifier un Véhicule';
+                shopManagementSubmitButton.textContent = 'Mettre à jour le Véhicule';
+                shopManagementCancelEditButton.classList.remove('hidden');
 
                 document.getElementById('admin-make').value = vehicle.make || '';
                 document.getElementById('admin-model').value = vehicle.model || '';
                 document.getElementById('admin-year').value = vehicle.year || '';
                 document.getElementById('admin-price').value = vehicle.price || '';
                 document.getElementById('admin-description').value = vehicle.description || '';
-                // Populate existing image URLs into the textarea
-                document.getElementById('admin-imageUrls').value = Array.isArray(vehicle.imageUrls) ? vehicle.imageUrls.join(', ') : (vehicle.imageUrls || '');
+                // Populate dropdowns with current vehicle data
+                document.getElementById('admin-make').value = vehicle.make || '';
+                document.getElementById('admin-fuelType').value = vehicle.fuelType || '';
+                document.getElementById('admin-gearboxType').value = vehicle.gearboxType || '';
+
+                // Populate existing image URLs into dynamic inputs
+                renderShopManagementImageUrlsInputs(vehicle.imageUrls || []);
+                
                 document.getElementById('admin-mileage').value = vehicle.mileage || '';
                 document.getElementById('admin-engineType').value = vehicle.engineType || '';
-                document.getElementById('admin-gearboxType').value = vehicle.gearboxType || '';
-                document.getElementById('admin-fuelType').value = vehicle.fuelType || '';
-                document.getElementById('admin-options').value = Array.isArray(vehicle.options) ? vehicle.options.join(', ') : (vehicle.options || '');
                 document.getElementById('admin-taxHorsepower').value = vehicle.taxHorsepower || '';
                 document.getElementById('admin-steamHorsepower').value = vehicle.steamHorsepower || '';
+                document.getElementById('admin-is-sold').checked = vehicle.isSold || false; // Set "Vendu" checkbox
 
+                // Pass existing options to render function to pre-check them
+                renderShopManagementOptionsCheckboxes(vehicle.options || []);
+                
                 // Clear the file input when editing, so user only uploads new files if needed
                 if (adminImageUploadInput) adminImageUploadInput.value = '';
                 if (adminUploadStatus) adminUploadStatus.classList.add('hidden');
@@ -912,7 +1633,7 @@
             }
         }
 
-        async function handleAdminDelete(id) {
+        async function handleShopManagementDelete(id) {
             const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce véhicule ?");
             if (confirmDelete) {
                 try {
@@ -925,32 +1646,38 @@
             }
         }
 
-        function resetAdminForm() {
+        function resetShopManagementForm() {
             editingVehicleId = null;
-            document.getElementById('admin-form-title').textContent = 'Ajouter un Nouveau Véhicule';
-            document.getElementById('admin-submit-button').textContent = 'Ajouter le Véhicule';
-            document.getElementById('admin-cancel-edit').classList.add('hidden');
-            document.getElementById('admin-vehicle-form').reset();
+            shopManagementFormTitle.textContent = 'Ajouter un Nouveau Véhicule';
+            shopManagementSubmitButton.textContent = 'Ajouter le Véhicule';
+            shopManagementCancelEditButton.classList.add('hidden');
+            shopManagementForm.reset();
             // Clear file input and status
             if (adminImageUploadInput) adminImageUploadInput.value = '';
             if (adminUploadStatus) adminUploadStatus.classList.add('hidden');
+            // Reset options checkboxes
+            renderShopManagementOptionsCheckboxes();
+            // Reset image URL inputs
+            renderShopManagementImageUrlsInputs();
+            // Reset "Vendu" checkbox
+            document.getElementById('admin-is-sold').checked = false;
         }
 
-        // --- ANTS Page Logic ---
-        function setupAntsPage() {
-            const maVariableInput = document.getElementById("maVariable");
-            const accessDossierButton = document.getElementById("access-dossier-button");
+        // --- ANTS Tool Logic ---
+        function setupAntsTool() {
+            antsMaVariableInput = document.getElementById("maVariable");
+            antsAccessDossierButton = document.getElementById("access-dossier-button");
 
-            if (maVariableInput) {
-                maVariableInput.addEventListener('keypress', handleKeyPress);
+            if (antsMaVariableInput) {
+                antsMaVariableInput.addEventListener('keypress', handleAntsKeyPress);
             }
-            if (accessDossierButton) {
-                accessDossierButton.addEventListener('click', modifierLien);
+            if (antsAccessDossierButton) {
+                antsAccessDossierButton.addEventListener('click', modifierLien);
             }
         }
 
         function modifierLien() {
-            const valeurSaisie = document.getElementById("maVariable").value;
+            const valeurSaisie = antsMaVariableInput.value;
             if (valeurSaisie.trim() === "") {
                 console.warn("Le numéro de dossier ne peut pas être vide.");
                 alert("Veuillez entrer un numéro de dossier."); // Using alert for simplicity
@@ -960,22 +1687,382 @@
             window.open(lien, '_blank'); // Open in new tab
         }
 
-        function handleKeyPress(event) {
+        function handleAntsKeyPress(event) {
             if (event.key === 'Enter') {
                 modifierLien();
             }
         }
 
+        // --- Client Dossier Tool Logic (Admin Panel) ---
+        let editingClientDossierId = null;
+
+        function setupClientDossierTool() {
+            clientDossierForm = document.getElementById('client-dossier-form');
+            clientDossierSubmitButton = document.getElementById('client-dossier-submit-button');
+            clientDossierCancelEditButton = document.getElementById('client-dossier-cancel-edit');
+            clientDossierFormTitle = document.getElementById('client-dossier-form-title');
+            clientDossiersTableBody = document.getElementById('client-dossiers-table-body');
+            clientDossiersNoDataMessage = document.getElementById('client-dossiers-no-data-message');
+            clientDossiersError = document.getElementById('client-dossiers-error');
+
+            if (clientDossierForm) {
+                clientDossierForm.addEventListener('submit', handleClientDossierSubmit);
+            }
+            if (clientDossierCancelEditButton) {
+                clientDossierCancelEditButton.addEventListener('click', resetClientDossierForm);
+            }
+        }
+
+        async function loadClientDossiers() {
+            if (clientDossiersTableBody) clientDossiersTableBody.innerHTML = '';
+            if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.add('hidden');
+            if (clientDossiersError) clientDossiersError.classList.add('hidden');
+
+            const clientDossiersCollectionRef = collection(db, `artifacts/${appId}/public/data/client_dossiers`);
+            onSnapshot(clientDossiersCollectionRef, (snapshot) => {
+                clientDossiers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                clientDossiers.sort((a, b) => (a.clientName || '').localeCompare(b.clientName || '')); // Sort by client name
+
+                if (clientDossiersTableBody) clientDossiersTableBody.innerHTML = '';
+
+                if (clientDossiers.length === 0) {
+                    if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.remove('hidden');
+                } else {
+                    if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.add('hidden');
+                    clientDossiers.forEach(dossier => {
+                        const row = clientDossiersTableBody.insertRow();
+                        row.innerHTML = `
+                            <td class="py-3 px-4 text-gray-800">${dossier.clientName || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${dossier.vehicle || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${dossier.vin || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${dossier.invoiceNumber || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${dossier.status || 'N/A'}</td>
+                            <td class="py-3 px-4 flex space-x-2">
+                                <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-300 ease-in-out transform hover:scale-105 edit-client-dossier-btn" data-id="${dossier.id}">Modifier</button>
+                                <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-md text-sm transition duration-300 ease-in-out transform hover:scale-105 delete-client-dossier-btn" data-id="${dossier.id}">Supprimer</button>
+                            </td>
+                        `;
+                    });
+
+                    document.querySelectorAll('.edit-client-dossier-btn').forEach(button => {
+                        button.addEventListener('click', (e) => handleClientDossierEdit(e.target.dataset.id));
+                    });
+                    document.querySelectorAll('.delete-client-dossier-btn').forEach(button => {
+                        button.addEventListener('click', (e) => handleClientDossierDelete(e.target.dataset.id));
+                    });
+                }
+            }, (err) => {
+                console.error("Erreur de récupération des dossiers clients:", err);
+                if (clientDossiersError) clientDossiersError.textContent = "Impossible de charger les dossiers clients.";
+                if (clientDossiersError) clientDossiersError.classList.remove('hidden');
+            });
+        }
+
+        async function handleClientDossierSubmit(e) {
+            e.preventDefault();
+            const formElements = e.target.elements;
+
+            const dossierData = {
+                clientName: formElements.clientName.value,
+                vehicle: formElements.vehicle.value,
+                vin: formElements.vin.value,
+                invoiceNumber: formElements.invoiceNumber.value,
+                status: formElements.status.value,
+                notes: formElements.notes.value
+            };
+
+            try {
+                if (editingClientDossierId) {
+                    const dossierDocRef = doc(db, `artifacts/${appId}/public/data/client_dossiers`, editingClientDossierId);
+                    await updateDoc(dossierDocRef, dossierData);
+                    console.log("Dossier client mis à jour avec succès !");
+                } else {
+                    await addDoc(collection(db, `artifacts/${appId}/public/data/client_dossiers`), dossierData);
+                    console.log("Dossier client ajouté avec succès !");
+                }
+                resetClientDossierForm();
+            } catch (err) {
+                console.error("Erreur lors de la soumission du dossier client:", err);
+                alert("Erreur lors de l'enregistrement du dossier client. Vérifiez la console pour plus de détails.");
+            }
+        }
+
+        function handleClientDossierEdit(id) {
+            editingClientDossierId = id;
+            const dossier = clientDossiers.find(d => d.id === id);
+            if (dossier) {
+                clientDossierFormTitle.textContent = 'Modifier un Dossier Client';
+                clientDossierSubmitButton.textContent = 'Mettre à jour le Dossier';
+                clientDossierCancelEditButton.classList.remove('hidden');
+
+                document.getElementById('client-name').value = dossier.clientName || '';
+                document.getElementById('client-vehicle').value = dossier.vehicle || '';
+                document.getElementById('client-vin').value = dossier.vin || '';
+                document.getElementById('client-invoice-number').value = dossier.invoiceNumber || '';
+                document.getElementById('client-status').value = dossier.status || '';
+                document.getElementById('client-notes').value = dossier.notes || '';
+
+                document.getElementById('client-dossier-tool-container').scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        async function handleClientDossierDelete(id) {
+            const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce dossier client ?");
+            if (confirmDelete) {
+                try {
+                    await deleteDoc(doc(db, `artifacts/${appId}/public/data/client_dossiers`, id));
+                    console.log("Dossier client supprimé avec succès !");
+                } catch (err) {
+                    console.error("Erreur lors de la suppression du dossier client:", err);
+                    alert("Erreur lors de la suppression du dossier client.");
+                }
+            }
+        }
+
+        function resetClientDossierForm() {
+            editingClientDossierId = null;
+            clientDossierFormTitle.textContent = 'Ajouter un Nouveau Dossier Client';
+            clientDossierSubmitButton.textContent = 'Ajouter le Dossier';
+            clientDossierCancelEditButton.classList.add('hidden');
+            clientDossierForm.reset();
+        }
+
+        // --- Client Dossier Page Logic (for Clients) ---
+        function setupDossierPage() {
+            dossierSearchInput = document.getElementById('dossier-search-input');
+            dossierDetailsDisplay = document.getElementById('dossier-details-display');
+            const dossierErrorMessage = document.getElementById('dossier-error-message');
+            const dossierSearchButton = document.getElementById('dossier-search-button');
+
+            if (dossierSearchButton) {
+                dossierSearchButton.addEventListener('click', searchClientDossier);
+            }
+            if (dossierSearchInput) {
+                dossierSearchInput.addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') {
+                        searchClientDossier();
+                    }
+                });
+            }
+        }
+
+        async function searchClientDossier() {
+            const dossierNumber = dossierSearchInput.value.trim();
+            dossierDetailsDisplay.classList.add('hidden');
+            dossierDetailsDisplay.innerHTML = '';
+            dossierErrorMessage.classList.add('hidden');
+
+            if (!dossierNumber) {
+                dossierErrorMessage.textContent = "Veuillez entrer un numéro de dossier.";
+                dossierErrorMessage.classList.remove('hidden');
+                return;
+            }
+
+            if (!currentUser || !userName) {
+                dossierErrorMessage.textContent = "Vous devez être connecté pour rechercher un dossier.";
+                dossierErrorMessage.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                const q = query(collection(db, `artifacts/${appId}/public/data/client_dossiers`),
+                                where("invoiceNumber", "==", dossierNumber),
+                                where("clientName", "==", userName)); // Ensure clientName matches logged-in user's name
+                const querySnapshot = await getDocs(q);
+
+                if (querySnapshot.empty) {
+                    dossierErrorMessage.textContent = "Aucun dossier trouvé avec ce numéro pour votre compte.";
+                    dossierErrorMessage.classList.remove('hidden');
+                } else {
+                    querySnapshot.forEach((doc) => {
+                        const dossier = doc.data();
+                        dossierDetailsDisplay.innerHTML = `
+                            <h3 class="text-xl font-semibold text-blue-700 mb-2">Détails du Dossier : ${dossier.invoiceNumber}</h3>
+                            <p><strong class="text-blue-600">Client:</strong> ${dossier.clientName}</p>
+                            <p><strong class="text-blue-600">Véhicule:</strong> ${dossier.vehicle || 'N/A'}</p>
+                            <p><strong class="text-blue-600">VIN:</strong> ${dossier.vin || 'N/A'}</p>
+                            <p><strong class="text-blue-600">Statut:</strong> ${dossier.status}</p>
+                            <p><strong class="text-blue-600">Notes:</strong> ${dossier.notes || 'Aucune'}</p>
+                        `;
+                        dossierDetailsDisplay.classList.remove('hidden');
+                    });
+                }
+            } catch (error) {
+                console.error("Erreur lors de la recherche du dossier client:", error);
+                dossierErrorMessage.textContent = "Erreur lors de la recherche du dossier. Veuillez réessayer.";
+                dossierErrorMessage.classList.remove('hidden');
+            }
+        }
+
+        // --- Home Page Featured Vehicles Logic ---
+        function loadFeaturedVehicles() {
+            const featuredVehiclesContainer = document.getElementById('featured-vehicles-container');
+            const noFeaturedVehiclesMessage = document.getElementById('no-featured-vehicles-message');
+
+            if (!featuredVehiclesContainer) return;
+
+            featuredVehiclesContainer.innerHTML = ''; // Clear previous featured vehicles
+
+            // Filter out sold vehicles for featured display
+            const availableVehicles = vehicles.filter(v => !v.isSold);
+
+            if (availableVehicles.length === 0) {
+                if (noFeaturedVehiclesMessage) noFeaturedVehiclesMessage.classList.remove('hidden');
+                return;
+            } else {
+                if (noFeaturedVehiclesMessage) noFeaturedVehiclesMessage.classList.add('hidden');
+            }
+
+            // Shuffle vehicles and pick top 3
+            const shuffledVehicles = [...availableVehicles].sort(() => 0.5 - Math.random());
+            const selectedFeatured = shuffledVehicles.slice(0, 3);
+
+            selectedFeatured.forEach(vehicle => {
+                const vehicleCardHtml = generateVehicleCardHtml(vehicle, true); // Use helper with isFeatured = true
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = vehicleCardHtml;
+                const vehicleCard = tempDiv.firstElementChild;
+                vehicleCard.addEventListener('click', (event) => {
+                    // Prevent opening detail modal if clicking on a child element that has its own action
+                    if (event.target.tagName === 'A' || event.target.tagName === 'BUTTON') {
+                        return;
+                    }
+                    // Redirect to shop page and then open the detail modal
+                    currentPage = 'shop';
+                    renderPage();
+                    // Delay opening modal slightly to ensure shop page is rendered
+                    setTimeout(() => showVehicleDetailModal(vehicle.id), 100);
+                });
+                featuredVehiclesContainer.appendChild(vehicleCard);
+            });
+        }
+
+        // --- Review System Logic (Homepage) ---
+        function setupReviewForm() {
+            reviewForm = document.getElementById('review-form');
+            reviewRatingInput = document.getElementById('review-rating');
+            reviewCommentInput = document.getElementById('review-comment');
+            reviewSubmitButton = document.getElementById('review-submit-button');
+            reviewStatusMessage = document.getElementById('review-status-message');
+
+            if (reviewForm) {
+                reviewForm.addEventListener('submit', submitReview);
+            }
+        }
+
+        async function submitReview(e) {
+            e.preventDefault();
+            reviewStatusMessage.classList.add('hidden');
+
+            if (!currentUser) {
+                reviewStatusMessage.textContent = "Vous devez être connecté pour soumettre un avis.";
+                reviewStatusMessage.classList.remove('hidden');
+                reviewStatusMessage.classList.remove('text-green-600');
+                reviewStatusMessage.classList.add('text-red-600');
+                return;
+            }
+
+            const rating = parseInt(reviewRatingInput.value);
+            const comment = reviewCommentInput.value.trim();
+
+            if (isNaN(rating) || rating < 1 || rating > 5) {
+                reviewStatusMessage.textContent = "Veuillez donner une note entre 1 et 5 étoiles.";
+                reviewStatusMessage.classList.remove('hidden');
+                reviewStatusMessage.classList.remove('text-green-600');
+                reviewStatusMessage.classList.add('text-red-600');
+                return;
+            }
+            if (!comment) {
+                reviewStatusMessage.textContent = "Veuillez écrire un commentaire.";
+                reviewStatusMessage.classList.remove('hidden');
+                reviewStatusMessage.classList.remove('text-green-600');
+                reviewStatusMessage.classList.add('text-red-600');
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, `artifacts/${appId}/public/data/reviews`), {
+                    userName: userName, // Use the display name of the logged-in user
+                    rating: rating,
+                    comment: comment,
+                    timestamp: new Date()
+                });
+                reviewStatusMessage.textContent = "Votre avis a été soumis avec succès !";
+                reviewStatusMessage.classList.remove('hidden');
+                reviewStatusMessage.classList.remove('text-red-600');
+                reviewStatusMessage.classList.add('text-green-600');
+                reviewForm.reset();
+                loadReviews(); // Reload reviews to show the new one
+            } catch (error) {
+                console.error("Erreur lors de la soumission de l'avis:", error);
+                reviewStatusMessage.textContent = "Erreur lors de la soumission de l'avis. Veuillez réessayer.";
+                reviewStatusMessage.classList.remove('hidden');
+                reviewStatusMessage.classList.remove('text-green-600');
+                reviewStatusMessage.classList.add('text-red-600');
+            }
+        }
+
+        function loadReviews() {
+            googleReviewsContainer = document.getElementById('google-reviews-container');
+            if (!googleReviewsContainer) return;
+
+            // Clear existing reviews (including the hardcoded examples)
+            googleReviewsContainer.innerHTML = '';
+
+            const reviewsCollectionRef = collection(db, `artifacts/${appId}/public/data/reviews`);
+            onSnapshot(reviewsCollectionRef, (snapshot) => {
+                reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                // Sort by newest first
+                reviews.sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
+
+                if (reviews.length === 0) {
+                    googleReviewsContainer.innerHTML = `<p class="text-center text-gray-600 col-span-full">Aucun avis pour le moment. Soyez le premier à en laisser un !</p>`;
+                } else {
+                    reviews.forEach(review => {
+                        const reviewCard = document.createElement('div');
+                        reviewCard.className = 'bg-white p-4 rounded-lg shadow-sm';
+                        reviewCard.innerHTML = `
+                            <div class="flex items-center mb-2">
+                                ${generateStars(review.rating)}
+                                <span class="ml-2 font-semibold">${review.userName || 'Anonyme'}</span>
+                            </div>
+                            <p class="text-gray-700 text-sm">${review.comment}</p>
+                            <p class="text-gray-500 text-xs mt-1">${review.timestamp ? new Date(review.timestamp.toDate()).toLocaleDateString('fr-FR') : ''}</p>
+                        `;
+                        googleReviewsContainer.appendChild(reviewCard);
+                    });
+                }
+            }, (error) => {
+                console.error("Erreur lors du chargement des avis:", error);
+                googleReviewsContainer.innerHTML = `<p class="text-red-600 text-center col-span-full">Impossible de charger les avis.</p>`;
+            });
+        }
+
+
         // --- Event Listeners ---
         document.getElementById('nav-home').addEventListener('click', () => { currentPage = 'home'; renderPage(); });
         document.getElementById('nav-shop').addEventListener('click', () => { currentPage = 'shop'; renderPage(); });
-        document.getElementById('nav-services').addEventListener('click', () => { currentPage = 'services'; renderPage(); });
+        document.getElementById('nav-about').addEventListener('click', () => { currentPage = 'about'; renderPage(); }); // Changed ID
         document.getElementById('nav-contact').addEventListener('click', () => { currentPage = 'contact'; renderPage(); });
-        
-        // Admin password modal event listeners
-        adminPasswordCancelButton.addEventListener('click', hideAdminPasswordModal);
-        adminPasswordSubmitButton.addEventListener('click', handleAdminPasswordSubmit);
+        document.getElementById('nav-dossier').addEventListener('click', () => { currentPage = 'dossier'; renderPage(); }); // New Dossier button
+        document.getElementById('nav-espace-pro').addEventListener('click', () => showAuthModal('login')); // Espace pro button now opens auth modal
+        document.getElementById('nav-logout').addEventListener('click', handleLogout); // Logout button
 
+        // Auth modal event listeners
+        if (authForm) {
+            authForm.addEventListener('submit', handleAuthFormSubmit);
+        }
+        if (authToggleModeButton) {
+            authToggleModeButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAuthModal(isLoginMode ? 'signup' : 'login');
+            });
+        }
+        if (authCloseButton) {
+            authCloseButton.addEventListener('click', hideAuthModal);
+        }
+
+        // Vehicle detail modal event listeners
         detailCloseButton.addEventListener('click', hideVehicleDetailModal);
         detailCloseButtonBottom.addEventListener('click', hideVehicleDetailModal);
         prevImageButton.addEventListener('click', () => {
@@ -994,8 +2081,11 @@
 
         fullscreenCloseButton.addEventListener('click', hideFullscreenImage);
 
-        // Initial render when script loads
-        document.addEventListener('DOMContentLoaded', renderPage);
+        // Initial setup and render when script loads
+        document.addEventListener('DOMContentLoaded', () => {
+            setupAuth(); // Initialize Firebase Auth listener
+            // renderPage() will be called by onAuthStateChanged after initial auth state is determined
+        });
     </script>
 </body>
 </html>
