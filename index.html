@@ -147,8 +147,9 @@
                     <button id="nav-contact" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Contact</button>
                     <button id="nav-dossier" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700 hidden">Dossier</button>
                 </div>
-                <!-- Separated "Se connecter" button with distinct style -->
-                <button id="nav-espace-pro" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-md">Se connecter</button>
+                <!-- Auth/Admin buttons -->
+                <button id="nav-login-signup" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-md">Connexion / Inscription</button>
+                <button id="nav-admin-panel" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-md ml-4 hidden">Espace Pro</button>
                 <button id="nav-logout" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-md ml-4 hidden">Déconnexion</button>
             </div>
         </div>
@@ -294,7 +295,8 @@
         const appContent = document.getElementById('app-content');
         const userInfoDisplay = document.getElementById('user-info-display'); // Updated ID for user info display
         const navDossierButton = document.getElementById('nav-dossier');
-        const navEspaceProButton = document.getElementById('nav-espace-pro');
+        const navLoginSignupButton = document.getElementById('nav-login-signup'); // Renamed from navEspaceProButton
+        const navAdminPanelButton = document.getElementById('nav-admin-panel'); // New button
         const navLogoutButton = document.getElementById('nav-logout');
         
         // Auth Modal elements
@@ -534,7 +536,7 @@
                             <li>Dimanche: Fermé</li>
                         </ul>
                         <div class="mt-6">
-                            <h3 class="text-xl font-semibold mb-3">Retrouvez-nous sur la carte :</h3>
+                            <h3 class="text-xl font-semibold mb-3">Retrouvez-us sur la carte :</h3>
                             <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md">
                                 <iframe
                                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2535.8080000000003!2d3.5786483!3d50.4005083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c2b3f1a0e1b5f1%3A0x6d7e2e3f4a5b6c7d!2s576%20Rue%20Marcel%20Sembat%2C%2059690%20Vieux-Cond%C3%A9%2C%20France!5e0!3m2!1sen!2sfr!4v1700000000000!5m2!1sfr!2sfr"
@@ -878,8 +880,8 @@
         // Update Navbar active state and visibility of auth-related buttons
         function updateNavbarActiveState() {
             document.querySelectorAll('nav button').forEach(button => {
-                // Exclude "Se connecter" and "Déconnexion" from regular active state logic
-                if (button.id === 'nav-espace-pro' || button.id === 'nav-logout') {
+                // Exclude auth/admin/logout buttons from regular active state logic
+                if (button.id === 'nav-login-signup' || button.id === 'nav-admin-panel' || button.id === 'nav-logout') {
                     return;
                 }
 
@@ -891,28 +893,31 @@
                 }
             });
 
-            // Update visibility of "Dossier", "Se connecter", "Déconnexion" buttons
+            // Handle visibility of auth/admin/logout buttons
             if (isLoggedIn) {
-                navLogoutButton.classList.remove('hidden');
-                navEspaceProButton.classList.add('hidden'); // Hide "Se connecter" if logged in
-                if (isClient) {
-                    navDossierButton.classList.remove('hidden');
-                } else {
-                    navDossierButton.classList.add('hidden');
-                }
+                navLoginSignupButton.classList.add('hidden'); // Hide login/signup if logged in
+                navLogoutButton.classList.remove('hidden'); // Show logout if logged in
                 if (isAdmin) {
-                    navEspaceProButton.classList.remove('hidden'); // Show "Se connecter" if admin (it leads to admin panel)
+                    navAdminPanelButton.classList.remove('hidden'); // Show admin panel button for admins
                     navDossierButton.classList.add('hidden'); // Admins don't need client dossier page
+                } else {
+                    navAdminPanelButton.classList.add('hidden'); // Hide admin panel button for non-admins
+                    if (isClient) {
+                        navDossierButton.classList.remove('hidden'); // Show dossier for clients
+                    } else {
+                        navDossierButton.classList.add('hidden'); // Hide dossier for other logged-in roles (if any)
+                    }
                 }
             } else {
-                navLogoutButton.classList.add('hidden');
-                navEspaceProButton.classList.remove('hidden'); // Show "Se connecter" if not logged in
-                navDossierButton.classList.add('hidden');
+                navLoginSignupButton.classList.remove('hidden'); // Show login/signup if not logged in
+                navLogoutButton.classList.add('hidden'); // Hide logout if not logged in
+                navAdminPanelButton.classList.add('hidden'); // Hide admin panel button if not logged in
+                navDossierButton.classList.add('hidden'); // Hide dossier if not logged in
             }
 
             // Update footer user info
             if (isLoggedIn) {
-                userInfoDisplay.textContent = `Connecté en tant que: ${userName} (${userRole})`;
+                userInfoDisplay.textContent = `Connecté en tant que: ${userName} (Rôle: ${userRole})`;
             } else {
                 userInfoDisplay.textContent = `Non connecté`;
             }
@@ -955,7 +960,7 @@
                         isAdmin = false;
                         isClient = true;
                     }
-                    console.log(`Utilisateur connecté: ${userName} (Rôle: ${userRole})`);
+                    console.log(`Utilisateur connecté: ${userName} (Rôle: ${userRole}, UID: ${user.uid})`); // Added UID for debugging
                 } else {
                     currentUser = null;
                     userName = 'Non connecté';
@@ -1706,6 +1711,15 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
         }
 
         async function loadClientDossiers() {
+            if (!isLoggedIn) {
+                console.warn("Utilisateur non connecté. Impossible de charger les dossiers clients.");
+                if (clientDossiersError) clientDossiersError.textContent = "Veuillez vous connecter pour accéder aux dossiers clients.";
+                if (clientDossiersError) clientDossiersError.classList.remove('hidden');
+                if (clientDossiersTableBody) clientDossiersTableBody.innerHTML = '';
+                if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.add('hidden');
+                return;
+            }
+
             if (clientDossiersTableBody) clientDossiersTableBody.innerHTML = '';
             if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.add('hidden');
             if (clientDossiersError) clientDossiersError.classList.add('hidden');
@@ -1839,6 +1853,12 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
         }
 
         async function searchClientDossier() {
+            if (!isLoggedIn) {
+                dossierErrorMessage.textContent = "Vous devez être connecté pour rechercher un dossier.";
+                dossierErrorMessage.classList.remove('hidden');
+                return;
+            }
+
             const dossierNumber = dossierSearchInput.value.trim();
             dossierDetailsDisplay.classList.add('hidden');
             dossierDetailsDisplay.innerHTML = '';
@@ -2036,9 +2056,20 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
         document.getElementById('nav-shop').addEventListener('click', () => { currentPage = 'shop'; renderPage(); });
         document.getElementById('nav-about').addEventListener('click', () => { currentPage = 'about'; renderPage(); }); // Changed ID
         document.getElementById('nav-contact').addEventListener('click', () => { currentPage = 'contact'; renderPage(); });
-        document.getElementById('nav-dossier').addEventListener('click', () => { currentPage = 'dossier'; renderPage(); }); // New Dossier button
-        document.getElementById('nav-espace-pro').addEventListener('click', () => showAuthModal('login')); // Espace pro button now opens auth modal
-        document.getElementById('nav-logout').addEventListener('click', handleLogout); // Logout button
+        document.getElementById('nav-dossier').addEventListener('click', () => { currentPage = 'dossier'; renderPage(); });
+        
+        // Updated: nav-login-signup always opens auth modal
+        navLoginSignupButton.addEventListener('click', () => showAuthModal('login'));
+
+        // New: nav-admin-panel button
+        if (navAdminPanelButton) {
+            navAdminPanelButton.addEventListener('click', () => {
+                currentPage = 'admin-tools';
+                renderPage();
+            });
+        }
+        
+        document.getElementById('nav-logout').addEventListener('click', handleLogout);
 
         // Auth modal event listeners
         if (authForm) {
