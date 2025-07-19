@@ -247,21 +247,21 @@
         const __app_id = 'central-cars-a37ae'; // Ex: '1:1234567890:web:abcdef1234567890abcdef12'
         const __firebase_config = JSON.stringify({
            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
-            authDomain: "central-cars-a37ae.firebaseapp.com",
-            projectId: "central-cars-a37ae",
-            storageBucket: "central-cars-a37ae.firebasestorage.app",
-            messagingSenderId: "297273470734",
-            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
-            measurementId: "G-4LXQG2VWP2"
+           authDomain: "central-cars-a37ae.firebaseapp.com",
+           projectId: "central-cars-a37ae",
+           storageBucket: "central-cars-a37ae.firebasestorage.app",
+           messagingSenderId: "297273470734",
+           appId: "1:297273470734:web:7d35e6619b28dc569d715f",
+           measurementId: "G-4LXQG2VWP2"
         });
         // __initial_auth_token n'est plus utilisé car l'authentification Firebase est désormais gérée par email/mot de passe.
         const __initial_auth_token = '';
 
 
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-storage.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-storage.js";
 
         // Global variables for app state
         let currentPage = 'home';
@@ -282,16 +282,8 @@
         let isClient = false;
 
         // Firebase configuration and initialization
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'central-cars-a37ae';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
-            authDomain: "central-cars-a37ae.firebaseapp.com",
-            projectId: "central-cars-a37ae",
-            storageBucket: "central-cars-a37ae.firebasestorage.app",
-            messagingSenderId: "297273470734",
-            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
-            measurementId: "G-4LXQG2VWP2"
-        };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-central-cars-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
