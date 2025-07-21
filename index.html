@@ -9,7 +9,7 @@
     <style>
         /* Police Inter pour une esthétique moderne */
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Montserrat', sans-serif;
             @apply bg-gray-50 text-gray-800; /* Nouveau fond et couleur de texte par défaut */
         }
         /* Styles pour masquer/afficher les modales */
@@ -24,7 +24,11 @@
             @apply w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm; /* Plus arrondi, focus bleu */
         }
         .btn {
-            @apply px-6 py-3 rounded-xl shadow-md text-base font-semibold transition-all duration-200 ease-in-out transform hover:scale-105; /* Plus grand, plus arrondi, effet hover */
+            @apply px-6 py-3 rounded-xl shadow-md text-base font-semibold transition-all duration-200 ease-in-out transform ; /* Plus grand, plus arrondi, effet hover */
+        }
+        .btn:hover{
+            hover:scale-105;
+            font-weight: bold
         }
         .btn-primary {
             @apply text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500; /* Bleu plus profond */
@@ -1510,7 +1514,7 @@ function renderAdminToolContent(toolName) {
 let editingVehicleId = null; // Stores the ID of the vehicle being edited
 
 // Predefined lists for dropdowns and checkboxes
-const predefinedMakes = ["", "Renault", "Peugeot", "Citroën", "Volkswagen", "Audi", "BMW", "Mercedes-Benz", "Ford", "Opel", "Toyota", "Nissan", "Hyundai", "Kia", "Fiat", "Skoda", "Volvo", "Mazda", "Honda", "Suzuki", "Jeep", "Tesla", "Porsche", "Ferrari", "Lamborghini"];
+const predefinedMakes = ["", "Renault", "Dacia", "Peugeot", "Citroën", "Volkswagen", "Audi", "BMW", "Mercedes-Benz", "Ford", "Opel", "Toyota", "Nissan", "Hyundai", "Kia", "Fiat", "Skoda", "Volvo", "Mazda", "Honda", "Suzuki", "Jeep", "Tesla", "Porsche", "Ferrari", "Lamborghini"];
 const predefinedFuelTypes = ["", "Essence", "Diesel", "Électrique", "Hybride", "GPL", "Éthanol"];
 const predefinedGearboxTypes = ["", "Manuelle", "Automatique"];
 
