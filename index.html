@@ -48,73 +48,91 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 0, 0, 0.6); /* Rouge semi-transparent */
+            background-color: rgba(255, 0, 0, 0.7); /* Slightly more opaque red */
             display: flex;
             align-items: center;
             justify-content: center;
             color: white;
-            font-size: 2.5rem; /* Taille du texte */
+            font-size: 3rem; /* Larger "VENDU" text */
             font-weight: bold;
             text-transform: uppercase;
-            transform: rotate(-25deg); /* Rotation diagonale */
-            pointer-events: none; /* Permet de cliquer à travers l'overlay */
-            z-index: 10; /* Au-dessus de l'image */
-            opacity: 0.9;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            transform: rotate(-25deg);
+            pointer-events: none;
+            z-index: 10; /* Ensure it's on top of everything */
+            opacity: 0.95; /* More opaque */
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.6); /* Stronger text shadow */
         }
 
-        /* Styles pour les cartes de véhicules */
+        /* NOUVEAUX Styles pour les cartes de véhicules */
         .vehicle-card {
-            /* Re-applying previous styles for a more stylized look */
-            @apply relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl bg-white flex flex-col border border-gray-200; /* Added border */
+            @apply relative overflow-hidden rounded-3xl shadow-lg flex flex-col border border-gray-200 bg-white; /* Changed to rounded-3xl */
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.5s ease-in-out;
+            cursor: pointer;
+            min-height: 350px; /* Ensure a minimum height for consistent look */
+        }
+
+        .vehicle-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+            background: linear-gradient(to bottom right, #BFDBFE, #22D3EE); /* Gradient on hover */
         }
 
         .vehicle-card-image-container {
-            @apply w-full h-48 overflow-hidden relative; /* Fixed height for consistent image size */
+            @apply w-full h-48 overflow-hidden relative rounded-t-3xl; /* Changed to rounded-t-3xl */
         }
 
         .vehicle-card-image {
-            @apply w-full h-full object-cover transition-transform duration-300 ease-in-out; /* object-cover to maintain aspect ratio and fill container */
-        }
-
-        .vehicle-card:hover .vehicle-card-image {
-            transform: scale(1.05);
+            @apply w-full h-full object-cover transition-transform duration-300 ease-in-out;
         }
 
         .vehicle-card-content {
-            @apply p-5 flex-grow flex flex-col;
+            @apply p-5 flex-grow flex flex-col justify-between; /* Distribute content vertically */
+            position: relative; /* For z-index context */
+            z-index: 2; /* Ensure content is above any background effects */
         }
 
         .vehicle-card-title {
-            @apply text-2xl font-bold text-gray-900 mb-2 leading-tight uppercase; /* Uppercase and bold */
+            @apply text-2xl font-extrabold text-gray-900 mb-2 leading-tight uppercase;
+            transition: color 0.3s ease-in-out;
         }
 
         .vehicle-card-price {
             @apply text-3xl font-extrabold text-blue-700 mb-3;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .vehicle-card:hover .vehicle-card-title,
+        .vehicle-card:hover .vehicle-card-price {
+            color: white; /* Text color changes to white on hover */
         }
 
         .vehicle-card-detail {
             @apply text-gray-700 text-base mb-1;
+            transition: color 0.3s ease-in-out;
+        }
+
+        .vehicle-card:hover .vehicle-card-detail {
+            color: rgba(255, 255, 255, 0.9); /* Lighter text on hover for details */
         }
 
         .vehicle-card-description {
             @apply text-gray-600 text-sm line-clamp-3 mt-2;
+            transition: color 0.3s ease-in-out;
         }
 
-        .vehicle-card-logo {
-            @apply absolute top-3 left-3 h-10 w-auto object-contain;
+        .vehicle-card:hover .vehicle-card-description {
+            color: rgba(255, 255, 255, 0.8);
         }
 
-        /* Style pour les véhicules en vedette sur la page d'accueil */
+        /* Style pour les véhicules en vedette sur la page d'accueil (keep existing for featured) */
         .featured-vehicle-card {
-            /* Re-applying previous styles for a more stylized look */
-            @apply relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl bg-white flex flex-col cursor-pointer border border-gray-200; /* Added border */
+            @apply relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl bg-white flex flex-col cursor-pointer border border-gray-200;
         }
         .featured-vehicle-card .featured-image-container {
-            @apply w-full h-48 overflow-hidden; /* Fixed height for consistent image size */
+            @apply w-full h-48 overflow-hidden;
         }
         .featured-vehicle-card .featured-image {
-            @apply w-full h-full object-cover transition-transform duration-300 ease-in-out; /* object-cover to maintain aspect ratio and fill container */
+            @apply w-full h-full object-cover transition-transform duration-300 ease-in-out;
         }
         .featured-vehicle-card:hover .featured-image {
             transform: scale(1.05);
@@ -123,7 +141,7 @@
             @apply p-4 flex-grow flex flex-col;
         }
         .featured-vehicle-card-title {
-            @apply text-xl font-bold text-gray-900 mb-1 leading-tight uppercase; /* Uppercase and bold */
+            @apply text-xl font-bold text-gray-900 mb-1 leading-tight uppercase;
         }
         .featured-vehicle-card-price {
             @apply text-2xl font-extrabold text-blue-700 mb-2;
@@ -131,10 +149,50 @@
         .featured-vehicle-card-detail {
             @apply text-gray-700 text-sm;
         }
+
+        /* Styles pour le glisser-déposer des images */
+        .draggable-image-item {
+            @apply flex flex-col items-center space-y-2 p-2 border border-gray-300 rounded-md bg-white shadow-sm cursor-grab relative;
+            transition: transform 0.2s ease-in-out;
+        }
+        .draggable-image-item.dragging {
+            @apply opacity-50 border-blue-500;
+        }
+        .draggable-image-item.drag-over {
+            @apply border-2 border-blue-600 bg-blue-50;
+        }
+        .draggable-image-item img {
+            @apply w-24 h-24 object-cover rounded-md;
+        }
+        .draggable-image-item .remove-image-url-btn {
+            @apply absolute top-1 right-1 bg-red-500 text-white rounded-full h-6 w-6 flex items-center justify-center text-xs font-bold opacity-80 hover:opacity-100 transition-opacity;
+        }
+        .image-url-input {
+            @apply text-sm;
+        }
+
+        /* Styles pour les sections d'options */
+        .accordion-header {
+            @apply flex justify-between items-center w-full p-4 bg-blue-100 text-blue-800 font-semibold rounded-md cursor-pointer hover:bg-blue-200 transition-colors duration-200 ease-in-out;
+        }
+        .accordion-content {
+            @apply p-4 bg-white border border-blue-100 rounded-b-md;
+            display: none;
+        }
+        .accordion-content.active {
+            display: block;
+        }
+        .accordion-arrow {
+            @apply transform transition-transform duration-200 ease-in-out;
+        }
+        .accordion-arrow.rotate {
+            @apply rotate-180;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col bg-gray-100">
 
+    <!-- Navbar -->
     <nav class="bg-gray-800 p-4 shadow-lg">
         <div class="container mx-auto flex justify-between items-center flex-wrap">
             <div class="text-white text-3xl font-bold font-inter rounded-md p-2">CENTRAL CARS</div>
@@ -390,6 +448,9 @@
         let reviewStatusMessage;
         let googleReviewsContainer;
 
+        // Drag and drop variables
+        let draggedItem = null;
+
 
         // --- Page Content Templates ---
 
@@ -406,6 +467,8 @@
             const descriptionClass = 'hidden'; // Description is always hidden on cards
 
             const soldOverlay = vehicle.isSold ? `<div class="sold-overlay">VENDU</div>` : '';
+            // Conditionally display price or nothing in the title based on isSold
+            const priceDisplay = vehicle.isSold ? '' : `<span class="${priceClass.replace('mb-3', '')}">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price)}</span>`;
 
             return `
                 <div class="${cardClass}" data-vehicle-id="${vehicle.id}">
@@ -414,7 +477,7 @@
                         ${soldOverlay} <!-- Sold overlay directly on the image container -->
                     </div>
                     <div class="${contentClass}">
-                        <h2 class="${titleClass}">${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()} <span class="${priceClass.replace('mb-3', '')}">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price)}</span></h2>
+                        <h2 class="${titleClass}">${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()} ${priceDisplay}</h2>
                         <p class="${detailClass}">Année: ${vehicle.year}</p>
                         ${vehicle.engineType ? `<p class="${detailClass}">Motorisation: ${vehicle.engineType}</p>` : ''}
                         ${vehicle.steamHorsepower ? `<p class="${detailClass}">Puissance: ${vehicle.steamHorsepower} ch</p>` : ''}
@@ -623,84 +686,103 @@
             <div id="shop-management-tool-container">
                 <div id="admin-form-section" class="mb-12 p-6 border border-blue-200 rounded-lg shadow-md bg-blue-50">
                     <h2 id="admin-form-title" class="text-3xl font-semibold text-blue-800 mb-6 text-center">Ajouter un Nouveau Véhicule</h2>
-                    <form id="admin-vehicle-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="admin-make" class="block text-gray-700 font-medium mb-1">Marque</label>
-                            <select id="admin-make" name="make" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <!-- Options will be dynamically loaded -->
-                            </select>
-                        </div>
-                        <div>
-                            <label for="admin-model" class="block text-gray-700 font-medium mb-1">Modèle</label>
-                            <input type="text" id="admin-model" name="model" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                        </div>
-                        <div>
-                            <label for="admin-year" class="block text-gray-700 font-medium mb-1">Année</label>
-                            <input type="number" id="admin-year" name="year" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                        </div>
-                        <div>
-                            <label for="admin-price" class="block text-gray-700 font-medium mb-1">Prix (€)</label>
-                            <input type="number" id="admin-price" name="price" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" step="0.01" required />
-                        </div>
-                        <div>
-                            <label for="admin-mileage" class="block text-gray-700 font-medium mb-1">Kilométrage (km)</label>
-                            <input type="number" id="admin-mileage" name="mileage" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div>
-                            <label for="admin-engineType" class="block text-gray-700 font-medium mb-1">Motorisation</label>
-                            <input type="text" id="admin-engineType" name="engineType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div>
-                            <label for="admin-gearboxType" class="block text-gray-700 font-medium mb-1">Type de boîte de vitesse</label>
-                            <select id="admin-gearboxType" name="gearboxType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <!-- Options will be dynamically loaded -->
-                            </select>
-                        </div>
-                        <div>
-                            <label for="admin-fuelType" class="block text-gray-700 font-medium mb-1">Carburant</label>
-                            <select id="admin-fuelType" name="fuelType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <!-- Options will be dynamically loaded -->
-                            </select>
-                        </div>
-                        <div>
-                            <label for="admin-taxHorsepower" class="block text-gray-700 font-medium mb-1">Puissance fiscale (CV)</label>
-                            <input type="number" id="admin-taxHorsepower" name="taxHorsepower" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div>
-                            <label for="admin-steamHorsepower" class="block text-gray-700 font-medium mb-1">Puissance (ch)</label>
-                            <input type="number" id="admin-steamHorsepower" name="steamHorsepower" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-gray-700 font-medium mb-1">Options</label>
-                            <div id="admin-options-checkboxes" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 p-3 border border-gray-300 rounded-md bg-white">
-                                <!-- Checkboxes will be dynamically loaded here -->
+                    <form id="admin-vehicle-form" class="space-y-6">
+                        <!-- Section: Détails du Véhicule -->
+                        <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Détails du Véhicule</h3>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label for="admin-make" class="block text-gray-700 font-medium mb-1">Marque</label>
+                                    <select id="admin-make" name="make" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                                        <!-- Options will be dynamically loaded -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="admin-model" class="block text-gray-700 font-medium mb-1">Modèle</label>
+                                    <input type="text" id="admin-model" name="model" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                </div>
+                                <div>
+                                    <label for="admin-year" class="block text-gray-700 font-medium mb-1">Année</label>
+                                    <input type="number" id="admin-year" name="year" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                </div>
+                                <div>
+                                    <label for="admin-price" class="block text-gray-700 font-medium mb-1">Prix (€)</label>
+                                    <input type="number" id="admin-price" name="price" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" step="0.01" required />
+                                </div>
+                                <div>
+                                    <label for="admin-mileage" class="block text-gray-700 font-medium mb-1">Kilométrage (km)</label>
+                                    <input type="number" id="admin-mileage" name="mileage" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                </div>
+                                <div>
+                                    <label for="admin-engineType" class="block text-gray-700 font-medium mb-1">Motorisation</label>
+                                    <input type="text" id="admin-engineType" name="engineType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                </div>
+                                <div>
+                                    <label for="admin-gearboxType" class="block text-gray-700 font-medium mb-1">Type de boîte de vitesse</label>
+                                    <select id="admin-gearboxType" name="gearboxType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <!-- Options will be dynamically loaded -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="admin-fuelType" class="block text-gray-700 font-medium mb-1">Carburant</label>
+                                    <select id="admin-fuelType" name="fuelType" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <!-- Options will be dynamically loaded -->
+                                    </select>
+                                </div>
+                                <div>
+                                    <label for="admin-taxHorsepower" class="block text-gray-700 font-medium mb-1">Puissance fiscale (CV)</label>
+                                    <input type="number" id="admin-taxHorsepower" name="taxHorsepower" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                </div>
+                                <div>
+                                    <label for="admin-steamHorsepower" class="block text-gray-700 font-medium mb-1">Puissance (ch)</label>
+                                    <input type="number" id="admin-steamHorsepower" name="steamHorsepower" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                </div>
+                                <div class="md:col-span-2 flex items-center">
+                                    <input type="checkbox" id="admin-is-sold" name="isSold" class="h-5 w-5 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                    <label for="admin-is-sold" class="ml-2 block text-lg text-gray-700 font-medium">Véhicule Vendu</label>
+                                </div>
                             </div>
-                            <div class="flex items-center mt-3">
-                                <input type="text" id="admin-custom-option-input" placeholder="Ajouter une option personnalisée" class="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        </div>
+
+                        <!-- Section: Images -->
+                        <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Images du Véhicule</h3>
+                            <div class="mb-4">
+                                <label for="admin-image-upload" class="block text-gray-700 font-medium mb-1">Téléverser de nouvelles Images</label>
+                                <input type="file" id="admin-image-upload" name="imageUpload" multiple accept="image/*" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                                <p id="admin-upload-status" class="text-sm text-gray-600 mt-2 hidden"></p>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-gray-700 font-medium mb-1">Images existantes (glisser-déposer pour réorganiser)</label>
+                                <div id="admin-image-urls-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-3 border border-gray-300 rounded-md bg-gray-50 min-h-[120px]">
+                                    <!-- Dynamic image URL inputs/thumbnails will be loaded here -->
+                                </div>
+                                <button type="button" id="admin-add-image-url-btn" class="mt-4 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Ajouter une URL d'image</button>
+                            </div>
+                        </div>
+
+                        <!-- Section: Options -->
+                        <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Options du Véhicule</h3>
+                            <div id="admin-options-checkboxes-container" class="space-y-3">
+                                <!-- Accordion sections for options will be dynamically loaded here -->
+                            </div>
+                            <div class="flex items-center mt-6">
+                                <input type="text" id="admin-custom-option-input" placeholder="Ajouter une option personnalisée" class="w-full p-3 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                                 <button type="button" id="admin-add-custom-option-btn" class="ml-2 px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 transition">Ajouter</button>
                             </div>
                         </div>
-                        <div class="md:col-span-2">
-                            <label for="admin-image-upload" class="block text-gray-700 font-medium mb-1">Téléverser des Images</label>
-                            <input type="file" id="admin-image-upload" name="imageUpload" multiple accept="image/*" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                            <p id="admin-upload-status" class="text-sm text-gray-600 mt-2 hidden"></p>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label class="block text-gray-700 font-medium mb-1">URLs des Images existantes</label>
-                            <div id="admin-image-urls-container" class="space-y-2 p-3 border border-gray-300 rounded-md bg-white">
-                                <!-- Dynamic image URL inputs will be loaded here -->
+
+                        <!-- Section: Description -->
+                        <div class="bg-white p-6 rounded-lg shadow-inner border border-gray-200">
+                            <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Description</h3>
+                            <div>
+                                <label for="admin-description" class="block text-gray-700 font-medium mb-1">Description (sera complétée automatiquement)</label>
+                                <textarea id="admin-description" name="description" rows="6" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
                             </div>
-                            <button type="button" id="admin-add-image-url-btn" class="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition">Ajouter une URL</button>
                         </div>
-                        <div class="md:col-span-2 flex items-center">
-                            <input type="checkbox" id="admin-is-sold" name="isSold" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                            <label for="admin-is-sold" class="ml-2 block text-gray-700 font-medium">Véhicule Vendu</label>
-                        </div>
-                        <div class="md:col-span-2">
-                            <label for="admin-description" class="block text-gray-700 font-medium mb-1">Description (sera complétée automatiquement)</label>
-                            <textarea id="admin-description" name="description" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                        </div>
-                        <div class="md:col-span-2 flex justify-end space-x-4 mt-4">
+
+                        <div class="flex justify-end space-x-4 mt-6">
                             <button type="button" id="admin-cancel-edit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3 px-6 rounded-md transition duration-300 ease-in-out transform hover:scale-105 hidden">Annuler l'édition</button>
                             <button type="submit" id="admin-submit-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Ajouter le Véhicule</button>
                         </div>
@@ -1302,24 +1384,34 @@
         const predefinedFuelTypes = ["", "Essence", "Diesel", "Électrique", "Hybride", "GPL", "Éthanol"];
         const predefinedGearboxTypes = ["", "Manuelle", "Automatique"];
 
-        // Predefined list of options for checkboxes
-        const predefinedOptions = [
-            "Limiteur de vitesse", "Régulateur de vitesse", "GPS", "Feu automatique", "Balais essuie-glace automatique",
-            "Climatisation", "Caméra de recul", "Radar de recul avant et arrière", "Jantes aluminium", "Rétroviseur électriques",
-            "Ventilation banquette arrière", "Phares LED", "Vitres électriques", "Bluetooth", "Prise Auxiliaire",
-            "USB", "Radio commande au volant", "ISOFIX", "Ouverture/fermeture centralisée", "Allume cigare",
-            "Ordinateur de bord", "Phares antibrouillard arrière", "Phares antibrouillard avant", "Vendu avec deux clés",
-            "Commande console centrale", "ABS", "Feu de brouillard arrière", "Airbags frontaux, latéraux",
-            "Volant réglable en hauteur et en profondeur", "Toit ouvrant panoramique", "Sièges chauffants", "Démarrage sans clé",
-            "Aide au stationnement", "Alerte franchissement de ligne", "Système Start & Stop", "Frein de parking électrique",
-            "Accoudoir central", "Volant multifonctions", "Détecteur de pluie", "Roue de secours",
-            "Aide au démarrage en côte", "Avertisseur d'angle mort", "Clé mains libres", "Régulateur de vitesse adaptatif",
-            "Affichage tête haute", "Sièges en cuir", "Hayon électrique", "Recharge sans fil pour smartphone",
-            "Android Auto", "Apple CarPlay", "Phares Xénon", "Aide au freinage d'urgence",
-            "Avertisseur de collision", "Reconnaissance des panneaux de signalisation", "Sièges ventilés",
-            "Volant chauffant", "Suspension adaptative", "Système audio premium", "Éclairage d'ambiance",
-            "Attelage remorque", "Barres de toit", "Peinture métallisée"
-        ];
+        // Categorized options for checkboxes
+        const categorizedOptions = {
+            "Confort et Intérieur": [
+                "Climatisation", "Sièges chauffants", "Sièges ventilés", "Volant chauffant", "Volant multifonctions",
+                "Accoudoir central", "Vitres électriques", "Ventilation banquette arrière", "Toit ouvrant panoramique",
+                "Démarrage sans clé", "Clé mains libres", "Recharge sans fil pour smartphone", "Éclairage d'ambiance"
+            ],
+            "Technologie et Multimédia": [
+                "GPS", "Bluetooth", "Prise Auxiliaire", "USB", "Radio commande au volant", "Ordinateur de bord",
+                "Android Auto", "Apple CarPlay", "Affichage tête haute", "Système audio premium"
+            ],
+            "Sécurité et Assistance à la Conduite": [
+                "ABS", "Airbags frontaux, latéraux", "ISOFIX", "Aide au stationnement", "Caméra de recul",
+                "Radar de recul avant et arrière", "Alerte franchissement de ligne", "Système Start & Stop",
+                "Frein de parking électrique", "Aide au démarrage en côte", "Avertisseur d'angle mort",
+                "Aide au freinage d'urgence", "Avertisseur de collision", "Reconnaissance des panneaux de signalisation"
+            ],
+            "Extérieur et Esthétique": [
+                "Jantes aluminium", "Phares LED", "Phares Xénon", "Phares antibrouillard avant", "Phares antibrouillard arrière",
+                "Rétroviseur électriques", "Peinture métallisée", "Attelage remorque", "Barres de toit"
+            ],
+            "Autres": [
+                "Limiteur de vitesse", "Régulateur de vitesse", "Feu automatique", "Balais essuie-glace automatique",
+                "Vendu avec deux clés", "Commande console centrale", "Feu de brouillard arrière",
+                "Volant réglable en hauteur et en profondeur", "Roue de secours", "Suspension adaptative",
+                "Ouverture/fermeture centralisée", "Allume cigare", "Détecteur de pluie", "Régulateur de vitesse adaptatif"
+            ]
+        };
 
         // Standard description text to append
         const standardDescriptionText = `
@@ -1341,23 +1433,60 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
 `;
 
         function renderShopManagementOptionsCheckboxes(selectedOptions = []) {
-            if (!adminOptionsCheckboxesContainer) return; // Ensure element exists
+            const optionsContainer = document.getElementById('admin-options-checkboxes-container');
+            if (!optionsContainer) return;
 
-            adminOptionsCheckboxesContainer.innerHTML = ''; // Clear previous checkboxes
-            predefinedOptions.forEach(option => {
-                const div = document.createElement('div');
-                div.className = 'flex items-center';
-                const checkboxId = `option-${option.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase()}`; // Sanitize ID
-                div.innerHTML = `
-                    <input type="checkbox" id="${checkboxId}" name="options" value="${option}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                    <label for="${checkboxId}" class="ml-2 block text-sm text-gray-900">${option}</label>
+            optionsContainer.innerHTML = ''; // Clear previous content
+
+            for (const category in categorizedOptions) {
+                const categoryOptions = categorizedOptions[category];
+                const categoryId = category.replace(/\s+/g, '-').toLowerCase();
+
+                const accordionSection = document.createElement('div');
+                accordionSection.className = 'rounded-md shadow-sm border border-blue-200';
+
+                const header = document.createElement('button');
+                header.type = 'button';
+                header.className = 'accordion-header';
+                header.innerHTML = `
+                    <span>${category}</span>
+                    <svg class="accordion-arrow w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
                 `;
-                const checkbox = div.querySelector(`#${checkboxId}`);
-                if (selectedOptions.includes(option)) {
-                    checkbox.checked = true;
-                }
-                adminOptionsCheckboxesContainer.appendChild(div);
-            });
+                accordionSection.appendChild(header);
+
+                const content = document.createElement('div');
+                content.className = 'accordion-content';
+                content.id = `accordion-content-${categoryId}`;
+                content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div>`; // Inner grid for checkboxes
+                accordionSection.appendChild(content);
+
+                const innerGrid = content.querySelector('div');
+
+                categoryOptions.forEach(option => {
+                    const div = document.createElement('div');
+                    div.className = 'flex items-center';
+                    const checkboxId = `option-${option.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase()}`; // Sanitize ID
+                    div.innerHTML = `
+                        <input type="checkbox" id="${checkboxId}" name="options" value="${option}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                        <label for="${checkboxId}" class="ml-2 block text-sm text-gray-900">${option}</label>
+                    `;
+                    const checkbox = div.querySelector(`#${checkboxId}`);
+                    if (selectedOptions.includes(option)) {
+                        checkbox.checked = true;
+                    }
+                    innerGrid.appendChild(div);
+                });
+
+                // Add event listener for accordion toggle
+                header.addEventListener('click', () => {
+                    content.classList.toggle('active');
+                    header.querySelector('.accordion-arrow').classList.toggle('rotate');
+                });
+
+                optionsContainer.appendChild(accordionSection);
+            }
         }
 
         // Function to render dynamic image URL inputs for shop management
@@ -1373,18 +1502,47 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
 
             urls.forEach((url, index) => {
                 const div = document.createElement('div');
-                div.className = 'flex items-center space-x-2';
+                div.className = 'draggable-image-item'; // Add class for styling and D&D
+                div.draggable = true; // Make it draggable
+                div.dataset.index = index; // Store original index for D&D logic
+
+                // Add D&D event listeners directly to the element
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragover', handleDragOver);
+                div.addEventListener('dragleave', handleDragLeave);
+                div.addEventListener('drop', handleDrop);
+                div.addEventListener('dragend', handleDragEnd);
+
+                const thumbnailUrl = url || 'https://placehold.co/64x64/E0E0E0/000000?text=No+Image'; // Placeholder for empty URL
+                
                 div.innerHTML = `
+                    <img src="${thumbnailUrl}" alt="Thumbnail" class="w-24 h-24 object-cover rounded-md" onerror="this.onerror=null;this.src='https://placehold.co/64x64/E0E0E0/000000?text=Error';">
                     <input type="url" class="image-url-input w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="URL de l'image" value="${url}">
-                    <button type="button" class="remove-image-url-btn px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition">X</button>
+                    <button type="button" class="remove-image-url-btn">X</button>
                 `;
                 adminImageUrlsContainer.appendChild(div);
             });
 
-            // Add event listeners for remove buttons
+            // Add event listeners for remove buttons (ensure they are re-attached after re-rendering)
             adminImageUrlsContainer.querySelectorAll('.remove-image-url-btn').forEach(button => {
                 button.addEventListener('click', (e) => {
-                    e.target.closest('div').remove(); // Remove the parent div (input + button)
+                    e.target.closest('.draggable-image-item').remove(); // Remove the parent draggable item
+                });
+            });
+
+            // Add event listener for URL input changes to update thumbnail
+            adminImageUrlsContainer.querySelectorAll('.image-url-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const imgElement = e.target.previousElementSibling; // The img element is the one before the input
+                    if (imgElement && e.target.value) {
+                        imgElement.src = e.target.value;
+                        imgElement.onerror = function() {
+                            this.onerror = null;
+                            this.src = 'https://placehold.co/64x64/E0E0E0/000000?text=Error';
+                        };
+                    } else if (imgElement) {
+                        imgElement.src = 'https://placehold.co/64x64/E0E0E0/000000?text=No+Image';
+                    }
                 });
             });
         }
@@ -1392,14 +1550,95 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
         function addShopManagementImageUrlInput() {
             if (!adminImageUrlsContainer) return;
             const div = document.createElement('div');
-            div.className = 'flex items-center space-x-2';
+            div.className = 'draggable-image-item';
+            div.draggable = true;
+            // No dataset.index initially, it will be re-evaluated on submit based on DOM order
+            
+            // Add D&D event listeners
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragover', handleDragOver);
+            div.addEventListener('dragleave', handleDragLeave);
+            div.addEventListener('drop', handleDrop);
+            div.addEventListener('dragend', handleDragEnd);
+
             div.innerHTML = `
+                <img src="https://placehold.co/64x64/E0E0E0/000000?text=No+Image" alt="Thumbnail" class="w-24 h-24 object-cover rounded-md">
                 <input type="url" class="image-url-input w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="URL de l'image">
-                <button type="button" class="remove-image-url-btn px-3 py-1 bg-red-500 text-white rounded-md hover:bg-red-600 transition">X</button>
+                <button type="button" class="remove-image-url-btn">X</button>
             `;
             adminImageUrlsContainer.appendChild(div);
             div.querySelector('.remove-image-url-btn').addEventListener('click', (e) => {
-                e.target.closest('div').remove();
+                e.target.closest('.draggable-image-item').remove();
+            });
+            div.querySelector('.image-url-input').addEventListener('input', (e) => {
+                const imgElement = e.target.previousElementSibling;
+                if (imgElement && e.target.value) {
+                    imgElement.src = e.target.value;
+                    imgElement.onerror = function() {
+                        this.onerror = null;
+                        this.src = 'https://placehold.co/64x64/E0E0E0/000000?text=Error';
+                    };
+                } else if (imgElement) {
+                    imgElement.src = 'https://placehold.co/64x64/E0E0E0/000000?text=No+Image';
+                }
+            });
+        }
+
+        // --- Drag and Drop Functions ---
+        function handleDragStart(e) {
+            draggedItem = this; // 'this' refers to the draggable-image-item div
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.outerHTML); // Store the entire HTML for potential re-insertion
+            this.classList.add('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault(); // Necessary to allow dropping
+            const dropTarget = e.target.closest('.draggable-image-item');
+            if (dropTarget && dropTarget !== draggedItem) {
+                // Remove drag-over from all items first
+                adminImageUrlsContainer.querySelectorAll('.draggable-image-item').forEach(item => {
+                    item.classList.remove('drag-over');
+                });
+                // Add drag-over to the current target
+                dropTarget.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            if (e.target.closest('.draggable-image-item')) {
+                e.target.closest('.draggable-image-item').classList.remove('drag-over');
+            }
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            const dropTarget = e.target.closest('.draggable-image-item');
+
+            if (dropTarget && draggedItem && dropTarget !== draggedItem) {
+                // Determine if we're dropping before or after the target
+                const rect = dropTarget.getBoundingClientRect();
+                const offsetY = e.clientY - rect.top;
+                const insertBefore = offsetY < rect.height / 2;
+
+                if (insertBefore) {
+                    adminImageUrlsContainer.insertBefore(draggedItem, dropTarget);
+                } else {
+                    adminImageUrlsContainer.insertBefore(draggedItem, dropTarget.nextSibling);
+                }
+            }
+            // Clean up drag-over class
+            adminImageUrlsContainer.querySelectorAll('.draggable-image-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            draggedItem = null; // Clear dragged item
+            // Ensure any lingering drag-over classes are removed
+            adminImageUrlsContainer.querySelectorAll('.draggable-image-item').forEach(item => {
+                item.classList.remove('drag-over');
             });
         }
 
@@ -1417,7 +1656,7 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
             adminIsSoldCheckbox = document.getElementById('admin-is-sold');
             adminImageUploadInput = document.getElementById('admin-image-upload');
             adminUploadStatus = document.getElementById('admin-upload-status');
-            adminOptionsCheckboxesContainer = document.getElementById('admin-options-checkboxes');
+            adminOptionsCheckboxesContainer = document.getElementById('admin-options-checkboxes-container'); // Updated ID
             adminImageUrlsContainer = document.getElementById('admin-image-urls-container');
             adminCustomOptionInput = document.getElementById('admin-custom-option-input');
             adminAddCustomOptionButton = document.getElementById('admin-add-custom-option-btn');
@@ -1442,7 +1681,7 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
 
             // Render options checkboxes and image URL inputs initially
             renderShopManagementOptionsCheckboxes();
-            renderShopManagementImageUrlsInputs();
+            renderShopManagementImageUrlsInputs(); // This will now set up D&D listeners
 
             if (shopManagementForm) {
                 shopManagementForm.addEventListener('submit', handleShopManagementSubmit);
@@ -1453,15 +1692,13 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
             if (adminAddCustomOptionButton) {
                 adminAddCustomOptionButton.addEventListener('click', () => {
                     const customOption = adminCustomOptionInput.value.trim();
-                    if (customOption && adminOptionsCheckboxesContainer) {
-                        const div = document.createElement('div');
-                        div.className = 'flex items-center';
-                        const checkboxId = `option-${customOption.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase()}-${Date.now()}`;
-                        div.innerHTML = `
-                            <input type="checkbox" id="${checkboxId}" name="options" value="${customOption}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded" checked>
-                            <label for="${checkboxId}" class="ml-2 block text-sm text-gray-900">${customOption}</label>
-                        `;
-                        adminOptionsCheckboxesContainer.appendChild(div);
+                    if (customOption) {
+                        // Add to "Autres" category and re-render options
+                        if (!categorizedOptions["Autres"]) {
+                            categorizedOptions["Autres"] = [];
+                        }
+                        categorizedOptions["Autres"].push(customOption);
+                        renderShopManagementOptionsCheckboxes(getCheckedOptions()); // Re-render with current selections + new option
                         adminCustomOptionInput.value = ''; // Clear input
                     }
                 });
@@ -1469,6 +1706,15 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
             if (adminAddImageUrlButton) {
                 adminAddImageUrlButton.addEventListener('click', addShopManagementImageUrlInput);
             }
+        }
+
+        // Helper to get currently checked options (useful before re-rendering options)
+        function getCheckedOptions() {
+            const checkedOptions = [];
+            document.querySelectorAll('#admin-options-checkboxes-container input[type="checkbox"]:checked').forEach(checkbox => {
+                checkedOptions.push(checkbox.value);
+            });
+            return checkedOptions;
         }
 
         async function loadShopManagementVehicles() {
@@ -1567,14 +1813,14 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
                 }
             }
             
-            // Collect existing URLs from dynamic inputs
-            const existingImageUrls = Array.from(adminImageUrlsContainer.querySelectorAll('.image-url-input'))
+            // Collect existing URLs from dynamic inputs in their current DOM order
+            const currentImageUrlsInOrder = Array.from(adminImageUrlsContainer.querySelectorAll('.image-url-input'))
                                             .map(input => input.value.trim())
                                             .filter(url => url !== '');
-            const finalImageUrls = [...existingImageUrls, ...uploadedImageUrls];
+            const finalImageUrls = [...currentImageUrlsInOrder, ...uploadedImageUrls]; // New uploads are appended
 
             // Collect selected options from checkboxes
-            const selectedOptions = Array.from(adminOptionsCheckboxesContainer.querySelectorAll('input[type="checkbox"]:checked'))
+            const selectedOptions = Array.from(document.querySelectorAll('#admin-options-checkboxes-container input[type="checkbox"]:checked'))
                                        .map(checkbox => checkbox.value);
 
             let descriptionContent = formElements.description.value.trim();
@@ -1643,7 +1889,7 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
                 document.getElementById('admin-fuelType').value = vehicle.fuelType || '';
                 document.getElementById('admin-gearboxType').value = vehicle.gearboxType || '';
 
-                // Populate existing image URLs into dynamic inputs
+                // Populate existing image URLs into dynamic inputs, now with D&D
                 renderShopManagementImageUrlsInputs(vehicle.imageUrls || []);
                 
                 document.getElementById('admin-mileage').value = vehicle.mileage || '';
@@ -1793,7 +2039,7 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
             }, (err) => {
                 console.error("Erreur de récupération des dossiers clients:", err);
                 if (clientDossiersError) clientDossiersError.textContent = "Impossible de charger les dossiers clients.";
-                if (clientDossiersError) clientDossiersError.classList.remove('hidden');
+                if (clientDossiersError) clientDossiers.classList.remove('hidden');
             });
         }
 
@@ -2145,4 +2391,3 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
     </script>
 </body>
 </html>
-
