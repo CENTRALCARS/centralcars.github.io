@@ -256,7 +256,7 @@
                     <button id="nav-shop" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Boutique</button>
                     <button id="nav-about" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">À propos</button>
                     <button id="nav-contact" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700">Contact</button>
-                    <button id="nav-dossier" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700 hidden">Dossier</button>
+                    <button id="nav-dossier" class="text-white px-3 py-2 rounded-md text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-gray-700 hidden">Mon espace</button>
                 </div>
                 <!-- Auth/Admin buttons -->
                 <button id="nav-login-signup" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-md">Connexion / Inscription</button>
@@ -396,6 +396,7 @@
         // Auth state
         let currentUser = null;
         let userName = 'Non connecté';
+        let userEmail = ''; // Store user's email for display
         let userRole = 'guest'; // 'guest', 'client', 'admin'
         let isLoggedIn = false;
         let isAdmin = false;
@@ -494,6 +495,7 @@
         let clientDossiersError;
         let dossierSearchInput;
         let dossierDetailsDisplay;
+        let dossierAccountInfoDisplay; // New: for displaying user's account info on dossier page
 
         // Review Form elements (on homepage)
         let reviewForm;
@@ -902,14 +904,25 @@
             </div>
         `;
 
-        // Client Dossier Page Content
+        // Client Dossier Page Content (for regular logged-in users)
         const dossierPageContent = `
             <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
-                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Mon Dossier Client</h1>
+                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Mon Espace Client</h1>
+
+                <div class="max-w-md mx-auto p-6 border border-blue-200 rounded-lg shadow-md bg-blue-50 mb-8">
+                    <h2 class="text-2xl font-semibold text-blue-800 mb-4 text-center">Mes Informations de Compte</h2>
+                    <div id="dossier-account-info-display" class="space-y-2 text-lg">
+                        <p><strong class="text-blue-600">Nom:</strong> <span id="account-name"></span></p>
+                        <p><strong class="text-blue-600">Email:</strong> <span id="account-email"></span></p>
+                        <p><strong class="text-blue-600">Rôle:</strong> <span id="account-role"></span></p>
+                    </div>
+                </div>
+
                 <div class="max-w-md mx-auto p-6 border border-blue-200 rounded-lg shadow-md bg-blue-50">
-                    <label for="dossier-search-input" class="block text-gray-700 font-medium mb-1">Rechercher par numéro de dossier</label>
+                    <h2 class="text-2xl font-semibold text-blue-800 mb-4 text-center">Rechercher mon Dossier</h2>
+                    <label for="dossier-search-input" class="block text-gray-700 font-medium mb-1">Entrez votre numéro de facture</label>
                     <div class="flex space-x-2 mb-4">
-                        <input type="text" id="dossier-search-input" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Entrez le numéro de dossier" />
+                        <input type="text" id="dossier-search-input" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: INV-2023-001" />
                         <button id="dossier-search-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Rechercher</button>
                     </div>
                     <div id="dossier-details-display" class="mt-6 p-4 border border-gray-300 rounded-md bg-white hidden">
@@ -931,8 +944,12 @@
                             <input type="text" id="client-name" name="clientName" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
                         </div>
                         <div>
-                            <label for="client-vehicle" class="block text-gray-700 font-medium mb-1">Véhicule</label>
-                            <input type="text" id="client-vehicle" name="vehicle" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                            <label for="client-vehicle-make" class="block text-gray-700 font-medium mb-1">Marque du Véhicule</label>
+                            <input type="text" id="client-vehicle-make" name="vehicleMake" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                        </div>
+                        <div>
+                            <label for="client-vehicle-model" class="block text-gray-700 font-medium mb-1">Modèle du Véhicule</label>
+                            <input type="text" id="client-vehicle-model" name="vehicleModel" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" />
                         </div>
                         <div>
                             <label for="client-vin" class="block text-gray-700 font-medium mb-1">VIN (Numéro d'identification du véhicule)</label>
@@ -967,8 +984,8 @@
                         <thead class="bg-gray-200">
                             <tr>
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Client</th>
-                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Véhicule</th>
-                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">VIN</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Marque</th>
+                                <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Modèle</th>
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Facture</th>
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Statut</th>
                                 <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
@@ -1058,7 +1075,7 @@
                     } else {
                         currentPage = 'home';
                         renderPage();
-                        alert("Veuillez vous connecter pour accéder à votre dossier.");
+                        alert("Veuillez vous connecter pour accéder à votre espace.");
                     }
                     break;
                 case 'admin-tools': // New case for admin tools main page
@@ -1132,6 +1149,8 @@
                 if (user) {
                     currentUser = user;
                     isLoggedIn = true;
+                    userEmail = user.email; // Store email
+
                     // Fetch user role from Firestore
                     try {
                         const userDocRef = doc(db, `artifacts/${appId}/public/data/users`, user.uid);
@@ -1167,6 +1186,7 @@
                 } else {
                     currentUser = null;
                     userName = 'Non connecté';
+                    userEmail = '';
                     userRole = 'guest';
                     isLoggedIn = false;
                     isAdmin = false;
@@ -2140,8 +2160,8 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
                         const row = clientDossiersTableBody.insertRow();
                         row.innerHTML = `
                             <td class="py-3 px-4 text-gray-800">${dossier.clientName || 'N/A'}</td>
-                            <td class="py-3 px-4 text-gray-800">${dossier.vehicle || 'N/A'}</td>
-                            <td class="py-3 px-4 text-gray-800">${dossier.vin || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${dossier.vehicleMake || 'N/A'}</td>
+                            <td class="py-3 px-4 text-gray-800">${dossier.vehicleModel || 'N/A'}</td>
                             <td class="py-3 px-4 text-gray-800">${dossier.invoiceNumber || 'N/A'}</td>
                             <td class="py-3 px-4 text-gray-800">${dossier.status || 'N/A'}</td>
                             <td class="py-3 px-4 flex space-x-2">
@@ -2171,7 +2191,8 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
 
             const dossierData = {
                 clientName: formElements.clientName.value,
-                vehicle: formElements.vehicle.value,
+                vehicleMake: formElements.vehicleMake.value,
+                vehicleModel: formElements.vehicleModel.value,
                 vin: formElements.vin.value,
                 invoiceNumber: formElements.invoiceNumber.value,
                 status: formElements.status.value,
@@ -2203,7 +2224,8 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
                 clientDossierCancelEditButton.classList.remove('hidden');
 
                 document.getElementById('client-name').value = dossier.clientName || '';
-                document.getElementById('client-vehicle').value = dossier.vehicle || '';
+                document.getElementById('client-vehicle-make').value = dossier.vehicleMake || '';
+                document.getElementById('client-vehicle-model').value = dossier.vehicleModel || '';
                 document.getElementById('client-vin').value = dossier.vin || '';
                 document.getElementById('client-invoice-number').value = dossier.invoiceNumber || '';
                 document.getElementById('client-status').value = dossier.status || '';
@@ -2238,8 +2260,16 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
         function setupDossierPage() {
             dossierSearchInput = document.getElementById('dossier-search-input');
             dossierDetailsDisplay = document.getElementById('dossier-details-display');
+            dossierAccountInfoDisplay = document.getElementById('dossier-account-info-display');
             const dossierErrorMessage = document.getElementById('dossier-error-message');
             const dossierSearchButton = document.getElementById('dossier-search-button');
+
+            // Display user's account info
+            if (dossierAccountInfoDisplay) {
+                document.getElementById('account-name').textContent = userName;
+                document.getElementById('account-email').textContent = userEmail;
+                document.getElementById('account-role').textContent = userRole.charAt(0).toUpperCase() + userRole.slice(1); // Capitalize first letter
+            }
 
             if (dossierSearchButton) {
                 dossierSearchButton.addEventListener('click', searchClientDossier);
@@ -2266,7 +2296,7 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
             dossierErrorMessage.classList.add('hidden');
 
             if (!dossierNumber) {
-                dossierErrorMessage.textContent = "Veuillez entrer un numéro de dossier.";
+                dossierErrorMessage.textContent = "Veuillez entrer un numéro de facture.";
                 dossierErrorMessage.classList.remove('hidden');
                 return;
             }
@@ -2278,13 +2308,14 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
             }
 
             try {
+                // Query by invoiceNumber and clientName (which is the logged-in user's name)
                 const q = query(collection(db, `artifacts/${appId}/public/data/client_dossiers`),
                                 where("invoiceNumber", "==", dossierNumber),
-                                where("clientName", "==", userName)); // Ensure clientName matches logged-in user's name
+                                where("clientName", "==", userName));
                 const querySnapshot = await getDocs(q);
 
                 if (querySnapshot.empty) {
-                    dossierErrorMessage.textContent = "Aucun dossier trouvé avec ce numéro pour votre compte.";
+                    dossierErrorMessage.textContent = "Aucun dossier trouvé avec ce numéro de facture pour votre compte.";
                     dossierErrorMessage.classList.remove('hidden');
                 } else {
                     querySnapshot.forEach((doc) => {
@@ -2292,7 +2323,7 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
                         dossierDetailsDisplay.innerHTML = `
                             <h3 class="text-xl font-semibold text-blue-700 mb-2">Détails du Dossier : ${dossier.invoiceNumber}</h3>
                             <p><strong class="text-blue-600">Client:</strong> ${dossier.clientName}</p>
-                            <p><strong class="text-blue-600">Véhicule:</strong> ${dossier.vehicle || 'N/A'}</p>
+                            <p><strong class="text-blue-600">Véhicule:</strong> ${dossier.vehicleMake || 'N/A'} ${dossier.vehicleModel || 'N/A'}</p>
                             <p><strong class="text-blue-600">VIN:</strong> ${dossier.vin || 'N/A'}</p>
                             <p><strong class="text-blue-600">Statut:</strong> ${dossier.status}</p>
                             <p><strong class="text-blue-600">Notes:</strong> ${dossier.notes || 'Aucune'}</p>
