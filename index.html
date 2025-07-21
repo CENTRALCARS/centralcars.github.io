@@ -86,18 +86,20 @@
         }
 
         .vehicle-card-content {
-            @apply p-5 flex-grow flex flex-col justify-between; /* Distribute content vertically */
+            @apply p-5 flex-grow flex flex-col justify-between items-center; /* Added items-center for centering children */
             position: relative; /* For z-index context */
             z-index: 2; /* Ensure content is above any background effects */
         }
 
         .vehicle-card-title {
-            @apply text-2xl font-extrabold text-gray-900 mb-2 leading-tight uppercase;
+            /* Updated: Centered and bold */
+            @apply text-2xl font-extrabold text-gray-900 mb-1 leading-tight uppercase text-center; /* Reduced mb-2 to mb-1 for closer price */
             transition: color 0.3s ease-in-out;
         }
 
         .vehicle-card-price {
-            @apply text-3xl font-extrabold text-blue-700 mb-3;
+            /* Updated: Centered and bold */
+            @apply text-3xl font-extrabold text-blue-700 mb-3 text-center;
             transition: color 0.3s ease-in-out;
         }
 
@@ -138,13 +140,15 @@
             transform: scale(1.05);
         }
         .featured-vehicle-card-content {
-            @apply p-4 flex-grow flex flex-col;
+            @apply p-4 flex-grow flex flex-col items-center; /* Added items-center for centering children */
         }
         .featured-vehicle-card-title {
-            @apply text-xl font-bold text-gray-900 mb-1 leading-tight uppercase;
+            /* Updated: Centered and bold */
+            @apply text-xl font-extrabold text-gray-900 mb-1 leading-tight uppercase text-center; /* Changed from font-bold to font-extrabold */
         }
         .featured-vehicle-card-price {
-            @apply text-2xl font-extrabold text-blue-700 mb-2;
+            /* Updated: Centered and bold */
+            @apply text-2xl font-extrabold text-blue-700 mb-2 text-center;
         }
         .featured-vehicle-card-detail {
             @apply text-gray-700 text-sm;
@@ -187,6 +191,56 @@
         }
         .accordion-arrow.rotate {
             @apply rotate-180;
+        }
+
+        /* Styles pour les champs éditables de page */
+        .editable-field-container {
+            position: relative;
+            padding: 0.5rem; /* Add some padding for better clickability/hover */
+            border-radius: 0.375rem; /* rounded-md */
+            transition: background-color 0.2s ease-in-out;
+        }
+        .editable-field-container:hover {
+            background-color: #f0f4f8; /* Light blue-gray on hover */
+        }
+
+        .editable-field-container.editing {
+            background-color: #e0f2fe; /* Lighter blue when editing */
+            border: 1px solid #90cdf4; /* Blue border when editing */
+        }
+
+        .editable-controls {
+            position: absolute;
+            top: 0.5rem;
+            right: 0.5rem;
+            display: none; /* Hidden by default */
+        }
+        .editable-field-container:hover .editable-controls {
+            display: block; /* Show on hover */
+        }
+        .editable-field-container.editing .editable-controls {
+            display: block; /* Always show when editing */
+        }
+
+        .editable-controls button {
+            @apply px-2 py-1 text-xs rounded-md shadow-sm transition-colors duration-150 ease-in-out;
+        }
+        .editable-controls .edit-btn {
+            @apply bg-yellow-500 text-white hover:bg-yellow-600;
+        }
+        .editable-controls .save-btn {
+            @apply bg-green-500 text-white hover:bg-green-600;
+        }
+        .editable-controls .cancel-btn {
+            @apply bg-red-500 text-white hover:bg-red-600;
+        }
+
+        .editable-textarea, .editable-input {
+            @apply w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+        }
+        /* Ensure textareas for description take full width */
+        textarea.editable-textarea {
+            width: 100%;
         }
     </style>
 </head>
@@ -246,7 +300,7 @@
                 <p id="auth-error-message" class="text-red-500 text-sm hidden"></p>
                 <div class="flex justify-between items-center">
                     <button type="submit" id="auth-submit-button" class="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Se connecter</button>
-                    <button type="button" id="auth-toggle-mode" class="text-blue-600 hover:underline text-sm">Pas encore de compte ? S'inscrire</button>
+                    <button type="button" id="auth-toggle-mode" class="text-blue-600 hover:underline text-sm">Pas encore de compte ? S'inscire</button>
                 </div>
             </form>
             <button id="auth-close-button" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-3xl font-bold">&times;</button>
@@ -337,6 +391,7 @@
         let selectedVehicle = null;
         let selectedClientDossier = null; // New variable for selected client dossier
         let currentImageIndex = 0;
+        let pageContent = {}; // Stores dynamic page content from Firestore
 
         // Auth state
         let currentUser = null;
@@ -468,7 +523,7 @@
 
             const soldOverlay = vehicle.isSold ? `<div class="sold-overlay">VENDU</div>` : '';
             // Conditionally display price or nothing in the title based on isSold
-            const priceDisplay = vehicle.isSold ? '' : `<span class="${priceClass.replace('mb-3', '')}">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price)}</span>`;
+            const priceHtml = vehicle.isSold ? '' : `<span class="${priceClass} w-full">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price)}</span>`;
 
             return `
                 <div class="${cardClass}" data-vehicle-id="${vehicle.id}">
@@ -477,7 +532,8 @@
                         ${soldOverlay} <!-- Sold overlay directly on the image container -->
                     </div>
                     <div class="${contentClass}">
-                        <h2 class="${titleClass}">${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()} ${priceDisplay}</h2>
+                        <h2 class="${titleClass} w-full">${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()}</h2>
+                        ${priceHtml} <!-- Price moved outside h2 for separate line -->
                         <p class="${detailClass}">Année: ${vehicle.year}</p>
                         ${vehicle.engineType ? `<p class="${detailClass}">Motorisation: ${vehicle.engineType}</p>` : ''}
                         ${vehicle.steamHorsepower ? `<p class="${detailClass}">Puissance: ${vehicle.steamHorsepower} ch</p>` : ''}
@@ -496,153 +552,174 @@
             return stars;
         }
 
+        // Helper to create an editable field wrapper
+        function createEditableField(pageId, fieldName, content, tag = 'p', isTitle = false) {
+            const elementId = `${pageId}-${fieldName}`;
+            const isEditingClass = isAdmin ? 'editable-field-container' : '';
+            const tagType = isTitle ? 'h1' : tag; // Use h1 for main titles
 
-        const homePageContent = `
-            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
-                <h1 class="text-5xl font-extrabold text-center text-blue-700 mb-8">Bienvenue chez CENTRAL CARS</h1>
-                <p class="text-lg leading-relaxed mb-6 text-center max-w-3xl mx-auto">
-                    Notre équipe de professionnels expérimentés et passionnés vous viendra en aide chaleureusement et avec transparence à des prix compétitifs. Un garage automobile où qualité et service vont de pair.
-                </p>
-                
-                <div class="mt-12 p-6 bg-blue-50 rounded-lg shadow-md">
-                    <h2 class="text-3xl font-bold text-center text-blue-700 mb-6">Véhicules en Vedette</h2>
-                    <div id="featured-vehicles-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <!-- Featured vehicles will be loaded here -->
-                    </div>
-                    <p id="no-featured-vehicles-message" class="text-center text-xl text-gray-600 mt-8 hidden">Aucun véhicule en vedette pour le moment.</p>
+            return `
+                <div class="${isEditingClass}" data-page-id="${pageId}" data-field-name="${fieldName}" data-tag="${tag}">
+                    <${tagType} id="${elementId}" class="${isTitle ? 'w-full' : ''}">${content}</${tagType}>
+                    ${isAdmin ? `
+                    <div class="editable-controls space-x-2">
+                        <button class="edit-btn" data-action="edit">Éditer</button>
+                        <button class="save-btn hidden" data-action="save">Sauvegarder</button>
+                        <button class="cancel-btn hidden" data-action="cancel">Annuler</button>
+                    </div>` : ''}
                 </div>
+            `;
+        }
 
-                <div class="mt-12 text-center">
-                    <img
-                        src="https://placehold.co/800x400/ADD8E6/000000?text=Garage+CENTRAL+CARS"
-                        alt="Image du garage CENTRAL CARS"
-                        class="rounded-lg shadow-md mx-auto w-full max-w-4xl"
-                        onerror="this.onerror=null;this.src='https://placehold.co/800x400/ADD8E6/000000?text=Image+non+disponible';"
-                    />
-                </div>
-
-                <!-- New Google Reviews Section -->
-                <div class="mt-12 p-6 bg-yellow-50 rounded-lg shadow-md">
-                    <h2 class="text-3xl font-bold text-center text-yellow-800 mb-6">Ce que nos clients disent de nous</h2>
-                    <div id="google-reviews-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <!-- Reviews will be loaded here -->
-                    </div>
-                    <p class="text-center text-gray-600 text-sm mt-6">
-                        Ces avis sont des exemples. Pour une intégration en temps réel des avis Google, une API dédiée ou un service tiers serait nécessaire.
-                    </p>
-                    <div class="text-center mt-4">
-                        <a href="https://g.co/kgs/rCYbWHK" target="_blank" class="text-blue-600 hover:underline font-medium">Voir tous les avis Google</a>
-                    </div>
-                </div>
-
-                <!-- Add Review Section (visible only when logged in) -->
-                <div id="add-review-section" class="mt-12 p-6 bg-green-50 rounded-lg shadow-md hidden">
-                    <h2 class="text-3xl font-bold text-center text-green-800 mb-6">Ajouter un avis</h2>
-                    <form id="review-form" class="space-y-4">
-                        <div>
-                            <label for="review-rating" class="block text-gray-700 font-medium mb-1">Note (1-5 étoiles)</label>
-                            <input type="number" id="review-rating" min="1" max="5" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required />
+        // Page content functions now accept pageData
+        function getHomePageContent(pageData) {
+            return `
+                <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
+                    ${createEditableField('home', 'title', pageData.title, 'h1', true)}
+                    ${createEditableField('home', 'paragraph1', pageData.paragraph1)}
+                    
+                    <div class="mt-12 p-6 bg-blue-50 rounded-lg shadow-md">
+                        ${createEditableField('home', 'featured_vehicles_title', pageData.featured_vehicles_title, 'h2')}
+                        <div id="featured-vehicles-container" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <!-- Featured vehicles will be loaded here -->
                         </div>
-                        <div>
-                            <label for="review-comment" class="block text-gray-700 font-medium mb-1">Votre commentaire</label>
-                            <textarea id="review-comment" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required></textarea>
+                        <p id="no-featured-vehicles-message" class="text-center text-xl text-gray-600 mt-8 hidden">Aucun véhicule en vedette pour le moment.</p>
+                    </div>
+
+                    <div class="mt-12 text-center">
+                        <img
+                            src="https://placehold.co/800x400/ADD8E6/000000?text=Garage+CENTRAL+CARS"
+                            alt="Image du garage CENTRAL CARS"
+                            class="rounded-lg shadow-md mx-auto w-full max-w-4xl"
+                            onerror="this.onerror=null;this.src='https://placehold.co/800x400/ADD8E6/000000?text=Image+non+disponible';"
+                        />
+                    </div>
+
+                    <!-- New Google Reviews Section -->
+                    <div class="mt-12 p-6 bg-yellow-50 rounded-lg shadow-md">
+                        ${createEditableField('home', 'reviews_title', pageData.reviews_title, 'h2')}
+                        <div id="google-reviews-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Reviews will be loaded here -->
                         </div>
-                        <button type="submit" id="review-submit-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Soumettre l'avis</button>
-                        <p id="review-status-message" class="mt-4 text-center text-green-600 font-semibold"></p>
-                    </form>
-                </div>
-            </div>
-        `;
-
-        const aboutPageContent = `
-            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
-                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">À propos de CENTRAL CARS</h1>
-                <p class="text-lg leading-relaxed mb-6 text-center max-w-3xl mx-auto">
-                    Chez CENTRAL CARS, nous sommes fiers de notre engagement envers l'excellence et la satisfaction client. Forts de nombreuses années d'expérience dans l'industrie automobile, nous nous efforçons de fournir des services de qualité supérieure et une sélection de véhicules d'occasion fiables.
-                </p>
-                <div class="grid md:grid-cols-2 gap-8 mt-10">
-                    <div class="flex flex-col items-center text-center">
-                        <svg class="w-16 h-16 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path>
-                        </svg>
-                        <h3 class="text-2xl font-semibold mb-2">Notre Mission</h3>
-                        <p class="text-gray-700">Fournir des véhicules inspectés et garantis, ainsi que des services d'entretien de premier ordre pour assurer votre tranquillité d'esprit sur la route.</p>
-                    </div>
-                    <div class="flex flex-col items-center text-center">
-                        <svg class="w-16 h-16 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20">
-                            <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                            <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
-                        </svg>
-                        <h3 class="text-2xl font-semibold mb-2">Notre Vision</h3>
-                        <p class="text-gray-700">Devenir le leader reconnu de l'industrie automobile locale, en bâtissant des relations durables basées sur la confiance et l'excellence.</p>
-                    </div>
-                </div>
-                <div class="mt-10 text-center">
-                    <h2 class="text-3xl font-bold text-blue-700 mb-6">Nos Engagements</h2>
-                    <ul class="list-disc list-inside text-lg text-gray-700 max-w-2xl mx-auto space-y-2">
-                        <li>Transparence totale sur l'historique et l'état des véhicules.</li>
-                        <li>Conseils personnalisés pour trouver le véhicule adapté à vos besoins.</li>
-                        <li>Services d'entretien et de réparation effectués par des techniciens qualifiés.</li>
-                        <li>Un service après-vente réactif et à votre écoute.</li>
-                    </ul>
-                </div>
-            </div>
-        `;
-
-        const contactPageContent = `
-            <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
-                <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Nous Contacter</h1>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h2 class="text-2xl font-semibold mb-4">Informations de Contact</h2>
-                        <p class="mb-2"><strong class="text-blue-600">Adresse:</strong> 576 rue Marcel Sembat, 59690 Vieux Condé, France</p>
-                        <p class="mb-2"><strong class="text-blue-600">Téléphone:</strong> 0698979463</p>
-                        <p class="mb-2"><strong class="text-blue-600">Email:</strong> contact@centralcars.fr</p>
-                        <p class="mb-2"><strong class="text-blue-600">Horaires:</strong></p>
-                        <ul class="list-disc list-inside ml-4">
-                            <li>Lundi - Vendredi: 09h00 - 12h00 et 14h00 - 17h30</li>
-                            <li>Samedi: 09h00 - 12h00</li>
-                            <li>Dimanche: Fermé</li>
-                        </ul>
-                        <div class="mt-6">
-                            <h3 class="text-xl font-semibold mb-3">Retrouvez-us sur la carte :</h3>
-                            <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md">
-                                <iframe
-                                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2535.8080000000003!2d3.5786483!3d50.4005083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c2b3f1a0e1b5f1%3A0x6d7e2e3f4a5b6c7d!2s576%20Rue%20Marcel%20Sembat%2C%2059690%20Vieux-Cond%C3%A9%2C%20France!5e0!3m2!1sen!2sfr!4v1700000000000!5m2!1sfr!2sfr"
-                                    width="100%"
-                                    height="300"
-                                    style="border:0;"
-                                    allowfullscreen=""
-                                    loading="lazy"
-                                    referrerpolicy="no-referrer-when-downgrade"
-                                    title="Localisation de CENTRAL CARS"
-                                    class="rounded-lg"
-                                ></iframe>
-                            </div>
+                        <p class="text-center text-gray-600 text-sm mt-6">
+                            Ces avis sont des exemples. Pour une intégration en temps réel des avis Google, une API dédiée ou un service tiers serait nécessaire.
+                        </p>
+                        <div class="text-center mt-4">
+                            <a href="https://g.co/kgs/rCYbWHK" target="_blank" class="text-blue-600 hover:underline font-medium">Voir tous les avis Google</a>
                         </div>
                     </div>
-                    <div>
-                        <h2 class="text-2xl font-semibold mb-4">Envoyez-nous un message</h2>
-                        <form id="contact-form" class="space-y-4">
+
+                    <!-- Add Review Section (visible only when logged in) -->
+                    <div id="add-review-section" class="mt-12 p-6 bg-green-50 rounded-lg shadow-md hidden">
+                        ${createEditableField('home', 'add_review_title', pageData.add_review_title, 'h2')}
+                        <form id="review-form" class="space-y-4">
                             <div>
-                                <label for="contact-name" class="block text-gray-700 font-medium mb-1">Nom</label>
-                                <input type="text" id="contact-name" name="name" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                <label for="review-rating" class="block text-gray-700 font-medium mb-1">Note (1-5 étoiles)</label>
+                                <input type="number" id="review-rating" min="1" max="5" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required />
                             </div>
                             <div>
-                                <label for="contact-email" class="block text-gray-700 font-medium mb-1">Email</label>
-                                <input type="email" id="contact-email" name="email" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                <label for="review-comment" class="block text-gray-700 font-medium mb-1">Votre commentaire</label>
+                                <textarea id="review-comment" rows="4" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500" required></textarea>
                             </div>
-                            <div>
-                                <label for="contact-message" class="block text-gray-700 font-medium mb-1">Votre Message</label>
-                                <textarea id="contact-message" name="message" rows="5" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                            </div>
-                            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Envoyer le Message</button>
-                            <p id="contact-status-message" class="mt-4 text-center text-green-600 font-semibold"></p>
+                            <button type="submit" id="review-submit-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Soumettre l'avis</button>
+                            <p id="review-status-message" class="mt-4 text-center text-green-600 font-semibold"></p>
                         </form>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+        }
+
+        function getAboutPageContent(pageData) {
+            return `
+                <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
+                    ${createEditableField('about', 'title', pageData.title, 'h1', true)}
+                    ${createEditableField('about', 'paragraph1', pageData.paragraph1)}
+                    <div class="grid md:grid-cols-2 gap-8 mt-10">
+                        <div class="flex flex-col items-center text-center">
+                            <svg class="w-16 h-16 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path>
+                            </svg>
+                            ${createEditableField('about', 'mission_title', pageData.mission_title, 'h3')}
+                            ${createEditableField('about', 'mission_text', pageData.mission_text)}
+                        </div>
+                        <div class="flex flex-col items-center text-center">
+                            <svg class="w-16 h-16 text-blue-600 mb-4" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
+                                <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
+                            </svg>
+                            ${createEditableField('about', 'vision_title', pageData.vision_title, 'h3')}
+                            ${createEditableField('about', 'vision_text', pageData.vision_text)}
+                        </div>
+                    </div>
+                    <div class="mt-10 text-center">
+                        ${createEditableField('about', 'commitments_title', pageData.commitments_title, 'h2')}
+                        <ul class="list-disc list-inside text-lg text-gray-700 max-w-2xl mx-auto space-y-2">
+                            <li>${createEditableField('about', 'commitment1', pageData.commitment1, 'span')}</li>
+                            <li>${createEditableField('about', 'commitment2', pageData.commitment2, 'span')}</li>
+                            <li>${createEditableField('about', 'commitment3', pageData.commitment3, 'span')}</li>
+                            <li>${createEditableField('about', 'commitment4', pageData.commitment4, 'span')}</li>
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function getContactPageContent(pageData) {
+            return `
+                <div class="bg-white p-8 rounded-lg shadow-xl text-gray-800 my-8">
+                    ${createEditableField('contact', 'title', pageData.title, 'h1', true)}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <div>
+                            ${createEditableField('contact', 'contact_info_title', pageData.contact_info_title, 'h2')}
+                            <p class="mb-2"><strong class="text-blue-600">Adresse:</strong> ${createEditableField('contact', 'address', pageData.address, 'span')}</p>
+                            <p class="mb-2"><strong class="text-blue-600">Téléphone:</strong> ${createEditableField('contact', 'phone', pageData.phone, 'span')}</p>
+                            <p class="mb-2"><strong class="text-blue-600">Email:</strong> ${createEditableField('contact', 'email', pageData.email, 'span')}</p>
+                            <p class="mb-2">${createEditableField('contact', 'hours_title', pageData.hours_title, 'strong')}</p>
+                            <ul class="list-disc list-inside ml-4">
+                                <li>${createEditableField('contact', 'hours_mon_fri', pageData.hours_mon_fri, 'span')}</li>
+                                <li>${createEditableField('contact', 'hours_sat', pageData.hours_sat, 'span')}</li>
+                                <li>${createEditableField('contact', 'hours_sun', pageData.hours_sun, 'span')}</li>
+                            </ul>
+                            <div class="mt-6">
+                                ${createEditableField('contact', 'map_title', pageData.map_title, 'h3')}
+                                <div class="aspect-w-16 aspect-h-9 rounded-lg overflow-hidden shadow-md">
+                                    <iframe
+                                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2535.8080000000003!2d3.5786483!3d50.4005083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c2b3f1a0e1b5f1%3A0x6d7e2e3f4a5b6c7d!2s576%20Rue%20Marcel%20Sembat%2C%2059690%20Vieux-Cond%C3%A9%2C%20France!5e0!3m2!1sen!2sfr!4v1700000000000!5m2!1sfr!2sfr"
+                                        width="100%"
+                                        height="300"
+                                        style="border:0;"
+                                        allowfullscreen=""
+                                        loading="lazy"
+                                        referrerpolicy="no-referrer-when-downgrade"
+                                        title="Localisation de CENTRAL CARS"
+                                        class="rounded-lg"
+                                    ></iframe>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            ${createEditableField('contact', 'message_section_title', pageData.message_section_title, 'h2')}
+                            <form id="contact-form" class="space-y-4">
+                                <div>
+                                    <label for="contact-name" class="block text-gray-700 font-medium mb-1">Nom</label>
+                                    <input type="text" id="contact-name" name="name" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                </div>
+                                <div>
+                                    <label for="contact-email" class="block text-gray-700 font-medium mb-1">Email</label>
+                                    <input type="email" id="contact-email" name="email" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+                                </div>
+                                <div>
+                                    <label for="contact-message" class="block text-gray-700 font-medium mb-1">Votre Message</label>
+                                    <textarea id="contact-message" name="message" rows="5" class="w-full p-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-md shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Envoyer le Message</button>
+                                <p id="contact-status-message" class="mt-4 text-center text-green-600 font-semibold"></p>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
 
         // Shop Page Content (no changes to this content itself)
         const shopPageContent = `
@@ -671,6 +748,7 @@
                     <button id="subnav-shop-management" class="btn btn-secondary">Gestion Boutique</button>
                     <button id="subnav-ants-tool" class="btn btn-secondary">Outil ANTS</button>
                     <button id="subnav-client-dossiers" class="btn btn-secondary">Dossiers Clients</button>
+                    <button id="subnav-page-management" class="btn btn-secondary">Gestion des Pages</button>
                     <button id="admin-logout-button" class="btn btn-danger">Quitter le mode Admin</button>
                 </div>
 
@@ -906,15 +984,52 @@
             </div>
         `;
 
+        // Page Management Tool Content
+        const pageManagementToolContent = `
+            <div id="page-management-tool-container">
+                <h2 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Gérer le Contenu des Pages</h2>
+
+                <!-- Home Page Section -->
+                <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-4">Page d'Accueil (Accueil)</h3>
+                    <div id="page-content-home" class="space-y-4">
+                        <!-- Home page editable fields will be loaded here -->
+                        <p class="text-gray-600">Chargement du contenu...</p>
+                    </div>
+                </div>
+
+                <!-- About Page Section -->
+                <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-4">Page À Propos (About)</h3>
+                    <div id="page-content-about" class="space-y-4">
+                        <!-- About page editable fields will be loaded here -->
+                        <p class="text-gray-600">Chargement du contenu...</p>
+                    </div>
+                </div>
+
+                <!-- Contact Page Section -->
+                <div class="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <h3 class="text-2xl font-semibold text-blue-700 mb-4">Page Contact (Contact)</h3>
+                    <div id="page-content-contact" class="space-y-4">
+                        <!-- Contact page editable fields will be loaded here -->
+                        <p class="text-gray-600">Chargement du contenu...</p>
+                    </div>
+                </div>
+            </div>
+        `;
+
 
         // --- Core Application Logic ---
 
         // Function to render content based on current page
-        function renderPage() {
+        async function renderPage() {
             appContent.innerHTML = ''; // Clear current content
+            // Fetch page content before rendering
+            await fetchPageContent();
+
             switch (currentPage) {
                 case 'home':
-                    appContent.innerHTML = homePageContent;
+                    appContent.innerHTML = getHomePageContent(pageContent.home || {});
                     loadFeaturedVehicles(); // Load featured vehicles on home page
                     loadReviews(); // Load reviews on home page
                     setupReviewForm(); // Setup review form
@@ -930,10 +1045,10 @@
                     loadShopVehicles();
                     break;
                 case 'about': // Changed from 'services'
-                    appContent.innerHTML = aboutPageContent;
+                    appContent.innerHTML = getAboutPageContent(pageContent.about || {});
                     break;
                 case 'contact':
-                    appContent.innerHTML = contactPageContent;
+                    appContent.innerHTML = getContactPageContent(pageContent.contact || {});
                     setupContactForm();
                     break;
                 case 'dossier': // New page for client dossiers
@@ -960,7 +1075,7 @@
                     }
                     break;
                 default:
-                    appContent.innerHTML = homePageContent;
+                    appContent.innerHTML = getHomePageContent(pageContent.home || {});
             }
             updateNavbarActiveState();
         }
@@ -1313,6 +1428,7 @@
             const subnavShopManagement = document.getElementById('subnav-shop-management');
             const subnavAntsTool = document.getElementById('subnav-ants-tool');
             const subnavClientDossiers = document.getElementById('subnav-client-dossiers');
+            const subnavPageManagement = document.getElementById('subnav-page-management'); // New button
             const adminLogoutButton = document.getElementById('admin-logout-button');
 
             // Add event listeners for sub-navigation
@@ -1324,6 +1440,9 @@
             }
             if (subnavClientDossiers) {
                 subnavClientDossiers.addEventListener('click', () => renderAdminToolContent('client-dossiers'));
+            }
+            if (subnavPageManagement) { // New event listener
+                subnavPageManagement.addEventListener('click', () => renderAdminToolContent('page-management'));
             }
             if (adminLogoutButton) {
                 adminLogoutButton.addEventListener('click', () => {
@@ -1368,6 +1487,10 @@
                     adminToolContentArea.innerHTML = clientDossierToolContent;
                     setupClientDossierTool();
                     loadClientDossiers();
+                    break;
+                case 'page-management': // New case
+                    adminToolContentArea.innerHTML = pageManagementToolContent;
+                    setupPageManagementTool();
                     break;
                 default:
                     adminToolContentArea.innerHTML = `<p class="text-center text-xl text-gray-600">Sélectionnez un outil d'administration.</p>`;
@@ -1879,7 +2002,6 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
                 shopManagementSubmitButton.textContent = 'Mettre à jour le Véhicule';
                 shopManagementCancelEditButton.classList.remove('hidden');
 
-                document.getElementById('admin-make').value = vehicle.make || '';
                 document.getElementById('admin-model').value = vehicle.model || '';
                 document.getElementById('admin-year').value = vehicle.year || '';
                 document.getElementById('admin-price').value = vehicle.price || '';
@@ -2329,6 +2451,215 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
             });
         }
 
+        // --- Page Content Management Logic (Admin Panel) ---
+        let originalPageContent = {}; // To store content before editing for cancel functionality
+
+        async function fetchPageContent() {
+            const pageContentCollectionRef = collection(db, `artifacts/${appId}/public/data/page_content`);
+            try {
+                const snapshot = await getDocs(pageContentCollectionRef);
+                pageContent = {}; // Clear previous content
+                snapshot.forEach(doc => {
+                    pageContent[doc.id] = doc.data();
+                });
+                console.log("Contenu des pages chargé:", pageContent);
+            } catch (error) {
+                console.error("Erreur lors du chargement du contenu des pages:", error);
+            }
+        }
+
+        async function initializePageContentDefaults() {
+            const defaultContent = {
+                home: {
+                    title: "Bienvenue chez CENTRAL CARS",
+                    paragraph1: "Notre équipe de professionnels expérimentés et passionnés vous viendra en aide chaleureusement et avec transparence à des prix compétitifs. Un garage automobile où qualité et service vont de pair.",
+                    featured_vehicles_title: "Véhicules en Vedette",
+                    reviews_title: "Ce que nos clients disent de nous",
+                    add_review_title: "Ajouter un avis"
+                },
+                about: {
+                    title: "À propos de CENTRAL CARS",
+                    paragraph1: "Chez CENTRAL CARS, nous sommes fiers de notre engagement envers l'excellence et la satisfaction client. Forts de nombreuses années d'expérience dans l'industrie automobile, nous nous efforçons de fournir des services de qualité supérieure et une sélection de véhicules d'occasion fiables.",
+                    mission_title: "Notre Mission",
+                    mission_text: "Fournir des véhicules inspectés et garantis, ainsi que des services d'entretien de premier ordre pour assurer votre tranquillité d'esprit sur la route.",
+                    vision_title: "Notre Vision",
+                    vision_text: "Devenir le leader reconnu de l'industrie automobile locale, en bâtissant des relations durables basées sur la confiance et l'excellence.",
+                    commitments_title: "Nos Engagements",
+                    commitment1: "Transparence totale sur l'historique et l'état des véhicules.",
+                    commitment2: "Conseils personnalisés pour trouver le véhicule adapté à vos besoins.",
+                    commitment3: "Services d'entretien et de réparation effectués par des techniciens qualifiés.",
+                    commitment4: "Un service après-vente réactif et à votre écoute."
+                },
+                contact: {
+                    title: "Nous Contacter",
+                    contact_info_title: "Informations de Contact",
+                    address: "576 rue Marcel Sembat, 59690 Vieux Condé, France",
+                    phone: "0698979463",
+                    email: "contact@centralcars.fr",
+                    hours_title: "Horaires:",
+                    hours_mon_fri: "Lundi - Vendredi: 09h00 - 12h00 et 14h00 - 17h30",
+                    hours_sat: "Samedi: 09h00 - 12h00",
+                    hours_sun: "Dimanche: Fermé",
+                    map_title: "Retrouvez-nous sur la carte :",
+                    message_section_title: "Envoyez-nous un message"
+                }
+            };
+
+            for (const pageId in defaultContent) {
+                const docRef = doc(db, `artifacts/${appId}/public/data/page_content`, pageId);
+                const docSnap = await getDoc(docRef);
+                if (!docSnap.exists()) {
+                    await setDoc(docRef, defaultContent[pageId]);
+                    console.log(`Contenu par défaut pour la page '${pageId}' ajouté à Firestore.`);
+                }
+            }
+        }
+
+        function setupPageManagementTool() {
+            // Display current content
+            for (const pageId of ['home', 'about', 'contact']) {
+                const container = document.getElementById(`page-content-${pageId}`);
+                if (container) {
+                    container.innerHTML = ''; // Clear loading message
+
+                    const pageData = pageContent[pageId] || {};
+                    let htmlContent = '';
+
+                    // Dynamically generate editable fields based on the pageData structure
+                    if (pageId === 'home') {
+                        htmlContent += createEditableField(pageId, 'title', pageData.title, 'h1', true);
+                        htmlContent += createEditableField(pageId, 'paragraph1', pageData.paragraph1, 'p');
+                        htmlContent += createEditableField(pageId, 'featured_vehicles_title', pageData.featured_vehicles_title, 'h2');
+                        htmlContent += createEditableField(pageId, 'reviews_title', pageData.reviews_title, 'h2');
+                        htmlContent += createEditableField(pageId, 'add_review_title', pageData.add_review_title, 'h2');
+                    } else if (pageId === 'about') {
+                        htmlContent += createEditableField(pageId, 'title', pageData.title, 'h1', true);
+                        htmlContent += createEditableField(pageId, 'paragraph1', pageData.paragraph1, 'p');
+                        htmlContent += `<div class="mt-4">`;
+                        htmlContent += createEditableField(pageId, 'mission_title', pageData.mission_title, 'h3');
+                        htmlContent += createEditableField(pageId, 'mission_text', pageData.mission_text, 'p');
+                        htmlContent += createEditableField(pageId, 'vision_title', pageData.vision_title, 'h3');
+                        htmlContent += createEditableField(pageId, 'vision_text', pageData.vision_text, 'p');
+                        htmlContent += `</div>`;
+                        htmlContent += createEditableField(pageId, 'commitments_title', pageData.commitments_title, 'h2');
+                        htmlContent += `<ul class="list-disc list-inside ml-4 space-y-2">`;
+                        htmlContent += `<li>${createEditableField(pageId, 'commitment1', pageData.commitment1, 'span')}</li>`;
+                        htmlContent += `<li>${createEditableField(pageId, 'commitment2', pageData.commitment2, 'span')}</li>`;
+                        htmlContent += `<li>${createEditableField(pageId, 'commitment3', pageData.commitment3, 'span')}</li>`;
+                        htmlContent += `<li>${createEditableField(pageId, 'commitment4', pageData.commitment4, 'span')}</li>`;
+                        htmlContent += `</ul>`;
+                    } else if (pageId === 'contact') {
+                        htmlContent += createEditableField(pageId, 'title', pageData.title, 'h1', true);
+                        htmlContent += createEditableField(pageId, 'contact_info_title', pageData.contact_info_title, 'h2');
+                        htmlContent += `<p class="mb-2"><strong class="text-blue-600">Adresse:</strong> ${createEditableField(pageId, 'address', pageData.address, 'span')}</p>`;
+                        htmlContent += `<p class="mb-2"><strong class="text-blue-600">Téléphone:</strong> ${createEditableField(pageId, 'phone', pageData.phone, 'span')}</p>`;
+                        htmlContent += `<p class="mb-2"><strong class="text-blue-600">Email:</strong> ${createEditableField(pageId, 'email', pageData.email, 'span')}</p>`;
+                        htmlContent += `<p class="mb-2">${createEditableField(pageId, 'hours_title', pageData.hours_title, 'strong')}</p>`;
+                        htmlContent += `<ul class="list-disc list-inside ml-4">`;
+                        htmlContent += `<li>${createEditableField(pageId, 'hours_mon_fri', pageData.hours_mon_fri, 'span')}</li>`;
+                        htmlContent += `<li>${createEditableField(pageId, 'hours_sat', pageData.hours_sat, 'span')}</li>`;
+                        htmlContent += `<li>${createEditableField(pageId, 'hours_sun', pageData.hours_sun, 'span')}</li>`;
+                        htmlContent += `</ul>`;
+                        htmlContent += `<div class="mt-6">`;
+                        htmlContent += createEditableField(pageId, 'map_title', pageData.map_title, 'h3');
+                        htmlContent += `</div>`; // Closing div for map_title
+                        htmlContent += createEditableField(pageId, 'message_section_title', pageData.message_section_title, 'h2');
+                    }
+                    container.innerHTML = htmlContent;
+                }
+            }
+
+            // Attach event listeners to all editable field containers
+            document.querySelectorAll('.editable-field-container').forEach(container => {
+                const editBtn = container.querySelector('[data-action="edit"]');
+                const saveBtn = container.querySelector('[data-action="save"]');
+                const cancelBtn = container.querySelector('[data-action="cancel"]');
+
+                if (editBtn) editBtn.addEventListener('click', () => toggleEditMode(container, true));
+                if (saveBtn) saveBtn.addEventListener('click', () => handlePageSave(container));
+                if (cancelBtn) cancelBtn.addEventListener('click', () => toggleEditMode(container, false));
+            });
+        }
+
+        function toggleEditMode(container, enableEdit) {
+            const pageId = container.dataset.pageId;
+            const fieldName = container.dataset.fieldName;
+            const originalTag = container.dataset.tag; // The original HTML tag (p, h1, span, strong)
+            const displayElement = container.querySelector(`#${pageId}-${fieldName}`);
+            const editBtn = container.querySelector('[data-action="edit"]');
+            const saveBtn = container.querySelector('[data-action="save"]');
+            const cancelBtn = container.querySelector('[data-action="cancel"]');
+
+            if (enableEdit) {
+                container.classList.add('editing');
+                editBtn.classList.add('hidden');
+                saveBtn.classList.remove('hidden');
+                cancelBtn.classList.remove('hidden');
+
+                // Store original content
+                originalPageContent[`${pageId}-${fieldName}`] = displayElement.textContent;
+
+                // Replace display element with input/textarea
+                const inputElement = (originalTag === 'p' || originalTag === 'span') ?
+                                     document.createElement('textarea') :
+                                     document.createElement('input');
+                
+                inputElement.id = `${pageId}-${fieldName}-edit`;
+                inputElement.className = (originalTag === 'p' || originalTag === 'span') ? 'editable-textarea' : 'editable-input';
+                inputElement.value = displayElement.textContent;
+                if (originalTag === 'p' || originalTag === 'span') {
+                    inputElement.rows = 3; // Default rows for textarea
+                }
+
+                displayElement.replaceWith(inputElement);
+            } else { // Disable edit mode (cancel or after save)
+                container.classList.remove('editing');
+                editBtn.classList.remove('hidden');
+                saveBtn.classList.add('hidden');
+                cancelBtn.classList.add('hidden');
+
+                const inputElement = container.querySelector(`#${pageId}-${fieldName}-edit`);
+                if (inputElement) {
+                    const newDisplayElement = document.createElement(originalTag);
+                    newDisplayElement.id = `${pageId}-${fieldName}`;
+                    // If canceling, revert to original content
+                    newDisplayElement.textContent = originalPageContent[`${pageId}-${fieldName}`];
+                    // Add w-full to h1 elements for proper centering
+                    if (originalTag === 'h1') {
+                        newDisplayElement.classList.add('w-full');
+                    }
+                    inputElement.replaceWith(newDisplayElement);
+                }
+            }
+        }
+
+        async function handlePageSave(container) {
+            const pageId = container.dataset.pageId;
+            const fieldName = container.dataset.fieldName;
+            const inputElement = container.querySelector(`#${pageId}-${fieldName}-edit`);
+            if (!inputElement) return;
+
+            const newValue = inputElement.value;
+
+            try {
+                const docRef = doc(db, `artifacts/${appId}/public/data/page_content`, pageId);
+                // Update only the specific field
+                await updateDoc(docRef, { [fieldName]: newValue });
+                console.log(`Page '${pageId}', champ '${fieldName}' mis à jour avec succès.`);
+
+                // Update local pageContent object
+                if (pageContent[pageId]) {
+                    pageContent[pageId][fieldName] = newValue;
+                }
+
+                toggleEditMode(container, false); // Switch back to display mode
+                renderPage(); // Re-render the entire app to reflect changes on public pages
+            } catch (error) {
+                console.error("Erreur lors de la sauvegarde du contenu de la page:", error);
+                alert("Erreur lors de la sauvegarde. Veuillez réessayer.");
+            }
+        }
+
 
         // --- Event Listeners ---
         document.getElementById('nav-home').addEventListener('click', () => { currentPage = 'home'; renderPage(); });
@@ -2384,9 +2715,9 @@ Pour faciliter les démarches administratives pensez a vous munir des pièces su
         fullscreenCloseButton.addEventListener('click', hideFullscreenImage);
 
         // Initial setup and render when script loads
-        document.addEventListener('DOMContentLoaded', () => {
-            setupAuth(); // Initialize Firebase Auth listener
-            // renderPage() will be called by onAuthStateChanged after initial auth state is determined
+        document.addEventListener('DOMContentLoaded', async () => {
+            await initializePageContentDefaults(); // Ensure default content exists
+            setupAuth(); // Initialize Firebase Auth listener (will call renderPage)
         });
     </script>
 </body>
