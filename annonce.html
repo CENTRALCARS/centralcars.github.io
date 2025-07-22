@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Générateur d'Annonces Central Cars</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f0f2f5;
+        }
+        .container {
+            max-width: 900px;
+        }
+        .input-field {
+            @apply w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500;
+        }
+        .checkbox-label, .radio-label {
+            @apply flex items-center cursor-pointer text-gray-700 text-sm;
+        }
+        .checkbox-input, .radio-input {
+            @apply mr-2 h-5 w-5 text-red-600 rounded-md focus:ring-red-500;
+        }
+        .radio-input {
+            @apply rounded-full; /* Make radio buttons round */
+        }
+        .btn {
+            @apply px-6 py-3 rounded-lg font-semibold shadow-md transition duration-300 ease-in-out;
+        }
+        .btn-primary {
+            @apply bg-red-600 text-white hover:bg-red-700;
+        }
+        .btn-secondary {
+            @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+        }
+        .output-area {
+            @apply w-full p-4 border border-gray-300 rounded-lg bg-white resize-y overflow-hidden;
+            min-height: 200px;
+        }
+        /* Custom styling for checked state for better visibility */
+        .checkbox-input:checked + span, .radio-input:checked + span {
+            @apply font-medium text-red-700;
+        }
+    </style>
+</head>
+<body class="p-4 sm:p-6 lg:p-8">
+    <div class="container mx-auto bg-white p-6 sm:p-8 rounded-xl shadow-lg">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Générateur d'Annonces Central Cars</h1>
+
+        <form id="adForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <!-- Informations Générales -->
+            <div class="md:col-span-2">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Informations du Véhicule</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label for="marque" class="block text-sm font-medium text-gray-700 mb-1">Marque :</label>
+                        <input type="text" id="marque" class="input-field" placeholder="Ex: Renault" required>
+                    </div>
+                    <div>
+                        <label for="modele" class="block text-sm font-medium text-gray-700 mb-1">Modèle :</label>
+                        <input type="text" id="modele" class="input-field" placeholder="Ex: Clio IV" required>
+                    </div>
+                    <div>
+                        <label for="miseEnCirculation" class="block text-sm font-medium text-gray-700 mb-1">Mise en circulation :</label>
+                        <input type="text" id="miseEnCirculation" class="input-field" placeholder="Ex: 01/2018" required>
+                    </div>
+                    <div>
+                        <label for="carburant" class="block text-sm font-medium text-gray-700 mb-1">Carburant :</label>
+                        <input type="text" id="carburant" class="input-field" placeholder="Ex: Essence" required>
+                    </div>
+                    <div>
+                        <label for="kilometrage" class="block text-sm font-medium text-gray-700 mb-1">Kilométrage :</label>
+                        <input type="number" id="kilometrage" class="input-field" placeholder="Ex: 85000" required>
+                    </div>
+                    <div>
+                        <label for="prix" class="block text-sm font-medium text-gray-700 mb-1">Prix (€ TTC) :</label>
+                        <input type="number" id="prix" class="input-field" placeholder="Ex: 12500" required>
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label for="equivalent" class="block text-sm font-medium text-gray-700 mb-1">Equivalent (optionnel) :</label>
+                        <input type="text" id="equivalent" class="input-field" placeholder="Ex: Megane break, 207 SW">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Entretiens Effectués -->
+            <div class="md:col-span-2">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Entretiens Effectués</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="maintenanceCheckboxes">
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Vidange moteur" class="checkbox-input"><span>Vidange moteur</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Filtre à huile" class="checkbox-input"><span>Filtre à huile</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Kit distribution" class="checkbox-input"><span>Kit distribution</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Filtre à air" class="checkbox-input"><span>Filtre à air</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Filtre à carburant" class="checkbox-input"><span>Filtre à carburant</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Filtre d'habitacle" class="checkbox-input"><span>Filtre d'habitacle</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Plaquettes de frein avant" class="checkbox-input"><span>Plaquettes de frein avant</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Plaquettes de frein arrière" class="checkbox-input"><span>Plaquettes de frein arrière</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Disques de frein avant" class="checkbox-input"><span>Disques de frein avant</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Disques de frein arrière" class="checkbox-input"><span>Disques de frein arrière</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Pneus avant" class="checkbox-input"><span>Pneus avant</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Pneus arrière" class="checkbox-input"><span>Pneus arrière</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Contrôle technique OK" class="checkbox-input"><span>Contrôle technique OK</span></label>
+                </div>
+            </div>
+
+            <!-- Suivi Kilométrique / Carnet d'Entretiens -->
+            <div class="md:col-span-2">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Suivi du Véhicule</h2>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <label class="radio-label">
+                        <input type="radio" name="kilometerTracking" value="suivi_complet" class="radio-input" checked>
+                        <span>Vendu avec son suivi kilométrique complet</span>
+                    </label>
+                    <label class="radio-label">
+                        <input type="radio" name="kilometerTracking" value="carnet_inclus" class="radio-input">
+                        <span>Carnet d'entretiens inclus</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Équipements Extérieur/Intérieur -->
+            <div class="md:col-span-2">
+                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Équipements Extérieur/Intérieur</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="featuresCheckboxes">
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Vitres électriques" class="checkbox-input"><span>Vitres électriques</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Rétroviseur électriques" class="checkbox-input"><span>Rétroviseur électriques</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Bluetooth" class="checkbox-input"><span>Bluetooth</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="USB" class="checkbox-input"><span>USB</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="AUX" class="checkbox-input"><span>AUX</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Microphone appel autoradio" class="checkbox-input"><span>Microphone appel autoradio</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Phare éclairage automatique" class="checkbox-input"><span>Phare éclairage automatique</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Toit panoramique" class="checkbox-input"><span>Toit panoramique</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Ordinateur de bord" class="checkbox-input"><span>Ordinateur de bord</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Radio commande au volant" class="checkbox-input"><span>Radio commande au volant</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Ouverture/fermeture centralisée" class="checkbox-input"><span>Ouverture/fermeture centralisée</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="ISOFIX" class="checkbox-input"><span>ISOFIX</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Climatisation" class="checkbox-input"><span>Climatisation</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Radar de recul" class="checkbox-input"><span>Radar de recul</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Prise allume cigare" class="checkbox-input"><span>Prise allume cigare</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Phares antibrouillard arrière" class="checkbox-input"><span>Phares antibrouillard arrière</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Phares antibrouillard avant" class="checkbox-input"><span>Phares antibrouillard avant</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Vendu avec deux clés" class="checkbox-input"><span>Vendu avec deux clés</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="ABS" class="checkbox-input"><span>ABS</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Airbags frontaux, latéraux" class="checkbox-input"><span>Airbags frontaux, latéraux</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Volant réglable en hauteur et en profondeur" class="checkbox-input"><span>Volant réglable en hauteur et en profondeur</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Régulateur de vitesse" class="checkbox-input"><span>Régulateur de vitesse</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Limiteur de vitesse" class="checkbox-input"><span>Limiteur de vitesse</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Jantes alliage" class="checkbox-input"><span>Jantes alliage</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="GPS" class="checkbox-input"><span>GPS</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Caméra de recul" class="checkbox-input"><span>Caméra de recul</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Start & Stop" class="checkbox-input"><span>Start & Stop</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Sièges chauffants" class="checkbox-input"><span>Sièges chauffants</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Sellerie cuir" class="checkbox-input"><span>Sellerie cuir</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Aide au démarrage en côte" class="checkbox-input"><span>Aide au démarrage en côte</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Frein de parking électrique" class="checkbox-input"><span>Frein de parking électrique</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Détecteur de pluie" class="checkbox-input"><span>Détecteur de pluie</span></label>
+                    <label class="checkbox-label"><input type="checkbox" name="feature" value="Allumage automatique des feux" class="checkbox-input"><span>Allumage automatique des feux</span></label>
+                </div>
+            </div>
+
+            <div class="md:col-span-2 flex flex-col sm:flex-row justify-center gap-4 mt-6">
+                <button type="button" id="generateBtn" class="btn btn-primary">Générer l'annonce</button>
+                <button type="button" id="copyBtn" class="btn btn-secondary">Copier le texte</button>
+            </div>
+        </form>
+
+        <div class="mt-8">
+            <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Texte de l'annonce généré</h2>
+            <textarea id="adOutput" class="output-area" readonly placeholder="Le texte de l'annonce apparaîtra ici..."></textarea>
+            <div id="copyMessage" class="mt-2 text-sm text-green-600 text-center hidden">Texte copié !</div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const generateBtn = document.getElementById('generateBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const adOutput = document.getElementById('adOutput');
+            const copyMessage = document.getElementById('copyMessage');
+
+            generateBtn.addEventListener('click', generateAd);
+            copyBtn.addEventListener('click', copyAd);
+
+            /**
+             * Automatically adjusts the height of the textarea to fit its content.
+             */
+            function autoResizeTextarea() {
+                // Reset height to 'auto' to correctly calculate scrollHeight
+                adOutput.style.height = 'auto';
+                // Set height to scrollHeight to fit content
+                adOutput.style.height = adOutput.scrollHeight + 'px';
+            }
+
+            function generateAd() {
+                const marque = document.getElementById('marque').value;
+                const modele = document.getElementById('modele').value;
+                const miseEnCirculation = document.getElementById('miseEnCirculation').value;
+                const carburant = document.getElementById('carburant').value;
+                const kilometrage = document.getElementById('kilometrage').value;
+                const prix = document.getElementById('prix').value;
+                const equivalent = document.getElementById('equivalent').value;
+
+                const selectedMaintenance = Array.from(document.querySelectorAll('input[name="maintenance"]:checked'))
+                                            .map(checkbox => `🔸 ${checkbox.value}`);
+
+                const kilometerTrackingOption = document.querySelector('input[name="kilometerTracking"]:checked').value;
+
+                const selectedFeatures = Array.from(document.querySelectorAll('input[name="feature"]:checked'))
+                                            .map(checkbox => `✅ ${checkbox.value}`);
+
+                let adText = `🟥🟦 CENTRAL CARS 🟥🟦\n\n`;
+                adText += `Marque : ${marque}\n`;
+                adText += `Modèle : ${modele}\n`;
+                adText += `Mise en circulation : ${miseEnCirculation}\n`;
+                adText += `Carburant : ${carburant}\n`;
+                adText += `Boîte de vitesse : Manuel\n`;
+                adText += `Kilométrage : ${kilometrage} KM REEL ET GARANTI\n\n`;
+
+                if (selectedMaintenance.length > 0) {
+                    adText += `🛠 ENTETIENS EFFECTUÉS DANS NOS ATELIERS : \n`;
+                    adText += selectedMaintenance.join('\n') + '\n\n';
+                } else {
+                    adText += `🛠 AUCUN ENTRETIEN RÉCENT SPÉCIFIÉ DANS NOS ATELIERS.\n\n`;
+                }
+
+                if (kilometerTrackingOption === 'suivi_complet') {
+                    adText += `📖 VENDU AVEC SON SUIVIS KILOMÉTRIQUE COMPLET 📖\n\n`;
+                } else {
+                    adText += `📖 CARNET D'ENTRETIENS INCLUS 📖\n\n`;
+                }
+
+                if (selectedFeatures.length > 0) {
+                    adText += `🔰 Extérieur/ Intérieur 🔰\n\n`;
+                    adText += selectedFeatures.join('\n') + '\n\n';
+                } else {
+                    adText += `🔰 AUCUN ÉQUIPEMENT SPÉCIFIÉ 🔰\n\n`;
+                }
+
+
+                adText += `Prix : ${prix} € TTC 💶\n`;
+  
+                // Add "Tarif hors carte grise." only if price is provided
+                if (prix) {
+                    adText += `Tarif hors carte grise.\n\n`;
+                } else {
+                    adText += `\n`; // Add a newline for spacing even if price is not provided
+                }
+
+                adText += `🍃 Crit'Air 1\n\n`;
+
+                adText += `🧑🏼‍🔧 Garantie moteur et boîte 6 mois (extension de garantie possible).\n\n`;
+
+                adText += `🇫🇷🇫🇷HABILITÉE SERVICE CARTE GRISE 🇫🇷🇫🇷\n\n`;
+                adText += `Habilité par le Agence Nationale des Titres Sécurisés.\n\n`;
+                adText += `Nous nous occupons de toutes les démarches administratives d'immatriculation !\n\n`;
+                adText += `Pour faciliter les démarches administratives pensez a vous munir des pièces suivantes lors de votre visite : \n`;
+                adText += `🔸Pièce d'identité en cours de validité.\n`;
+                adText += `🔸Permis de conduire en cours de validité.\n`;
+                adText += `🔸Justificatif de domicile moins de 3 mois (facture ou avis d'imposition).\n`;
+                adText += `🔸En cas d'hébergement : une attestation d'hébergement et la copie de la carte d'identité de l'hébergeur.\n\n`;
+
+                adText += `🟥🟦 CENTRAL CARS 🟥🟦\n\n`;
+                adText += `📫576 Rue Marcel Sembat \n`;
+                adText += `     59690 Vieux-condé\n\n`;
+
+                adText += `⏰HORAIRES D'OUVERTURE⏰\n`;
+                adText += `- Du lundi au vendredi : 09H00-12H00 / 14H00-17h30\n`;
+                adText += `- SAMEDI : 9h30 -12h 14h30 - 17H00\n\n`;
+
+                adText += `⚠ Merci de prendre rendez-vous par téléphone avant votre venue afin de mieux pouvoir vous accueillir et de vous assurez de la disponibilité du véhicule ⚠\n\n`;
+
+                if (equivalent) {
+                    adText += `Equivalent : ${equivalent}\n\n`;
+                }
+
+                adText += `*sous réserve d’erreurs lors de l’édition des annonce.`;
+
+                adOutput.value = adText;
+                autoResizeTextarea(); // Call auto-resize after updating content
+            }
+
+            function copyAd() {
+                adOutput.select();
+                document.execCommand('copy');
+                copyMessage.classList.remove('hidden');
+                setTimeout(() => {
+                    copyMessage.classList.add('hidden');
+                }, 2000);
+            }
+
+            // Initial generation on load if fields are pre-filled (e.g., from browser history)
+            // And also auto-resize the textarea on load
+            generateAd();
+        });
+    </script>
+</body>
+</html>

@@ -53,15 +53,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(255, 0, 0, 0.75); /* Plus opaque */
+            background-color: rgba(255, 0, 0, 0); /* Plus opaque */
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
+            color: rgb(255, 0, 0);
             font-size: 3.5rem; /* Texte plus grand */
             font-weight: bold;
             text-transform: uppercase;
-            transform: rotate(-30deg); /* Rotation plus prononcée */
+            /* transform: rotate(-30deg); /* Rotation plus prononcée */
             pointer-events: none;
             z-index: 10;
             opacity: 0.98; /* Encore plus opaque */
@@ -1550,15 +1550,15 @@ const categorizedOptions = {
 // Standard description text to append
 const standardDescriptionText = `
 Tarif hors carte grise.
-
+<br>
 🧑🏼‍🔧 Garantie moteur et boîte 6 mois (extension de garantie possible).
-
+<br>
 🇫🇷🇫🇷HABILITÉE SERVICE CARTE GRISE 🇫🇷🇫🇷
-
+<br>
 Habilité par le Agence Nationale des Titres Sécurisés.
-
+<br>
 Nous nous occupons de toutes les démarches administratives d'immatriculation !
-
+<br>
 Pour faciliter les démarches administratives pensez a vous munir des pièces suivantes lors de votre visite :
 🔸Pièce d'identité en cours de validité.
 🔸Permis de conduire en cours de validité.
