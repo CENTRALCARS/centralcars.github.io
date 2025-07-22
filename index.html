@@ -3,2656 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CENTRAL CARS</title>
-    <!-- Tailwind CSS CDN -->
+    <title>CENTRAL CARS - Véhicules d'occasion à Vieux-Condé</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* Police Inter pour une esthétique moderne */
         body {
-            font-family: 'Montserrat', sans-serif;
-            @apply bg-gray-50 text-gray-800; /* Nouveau fond et couleur de texte par défaut */
+            font-family: 'Inter', sans-serif;
         }
-        /* Styles pour masquer/afficher les modales */
-        .modal-hidden {
-            display: none;
+        /* Style pour l'animation de scroll fluide */
+        html {
+            scroll-behavior: smooth;
         }
-        .modal-visible {
-            display: flex;
+        /* Style pour la barre de défilement */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-        /* Tailwind @apply directives for custom component classes */
-        .table-input {
-            @apply w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm; /* Plus arrondi, focus bleu */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
         }
-        .btn {
-            @apply px-6 py-3 rounded-xl shadow-md text-base font-semibold transition-all duration-200 ease-in-out transform ; /* Plus grand, plus arrondi, effet hover */
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
         }
-        .btn:hover{
-            hover:scale-105;
-            font-weight: bold
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
-        .btn-primary {
-            @apply text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500; /* Bleu plus profond */
-        }
-        .btn-secondary {
-            @apply text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500; /* Bleu clair */
-        }
-        .btn-danger {
-            @apply text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500;
-        }
-        .modal {
-            @apply fixed inset-0 bg-gray-900 bg-opacity-70 backdrop-blur-sm overflow-y-auto h-full w-full flex items-center justify-center z-50 p-4; /* Effet de flou */
-        }
-        .modal-content {
-            @apply bg-white p-8 rounded-2xl shadow-2xl w-full max-w-lg mx-auto border border-gray-100; /* Plus grand, plus arrondi, ombre plus prononcée */
-        }
-
-        /* Styles pour le filigrane "VENDU" */
-        .sold-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 0, 0, 0); /* Plus opaque */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: rgb(255, 0, 0);
-            font-size: 3.5rem; /* Texte plus grand */
-            font-weight: bold;
-            text-transform: uppercase;
-            /* transform: rotate(-30deg); /* Rotation plus prononcée */
-            pointer-events: none;
-            z-index: 10;
-            opacity: 0.98; /* Encore plus opaque */
-            text-shadow: 4px 4px 8px rgba(0, 0, 0, 0.7); /* Ombre plus forte */
-        }
-
-        /* Styles pour les cartes de véhicules */
-        .vehicle-card {
-            @apply relative overflow-hidden rounded-2xl shadow-lg flex flex-col border border-gray-100 bg-white; /* Plus arrondi, ombre subtile */
-            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out, background 0.5s ease-in-out;
-            cursor: pointer;
-            min-height: 380px; /* Hauteur légèrement augmentée */
-        }
-
-        .vehicle-card:hover {
-            transform: translateY(-8px); /* Effet de soulèvement plus prononcé */
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2); /* Ombre plus grande */
-            background: linear-gradient(to bottom right, #BBF7D0, #34D399); /* Nouveau dégradé vert-bleu */
-        }
-
-        .vehicle-card-image-container {
-            @apply w-full h-52 overflow-hidden relative rounded-t-2xl; /* Hauteur d'image augmentée */
-        }
-
-        .vehicle-card-image {
-            @apply w-full h-full object-cover transition-transform duration-300 ease-in-out;
-        }
-
-        .vehicle-card-content {
-            @apply p-6 flex-grow flex flex-col justify-between items-center; /* Espacement augmenté */
-            position: relative;
-            z-index: 2;
-        }
-
-        .vehicle-card-title {
-            @apply text-2xl font-extrabold text-gray-900 mb-2 leading-tight uppercase text-center;
-            transition: color 0.3s ease-in-out;
-        }
-
-        .vehicle-card-price {
-            @apply text-3xl font-extrabold text-blue-700 mb-4 text-center; /* Bleu plus profond */
-            transition: color 0.3s ease-in-out;
-        }
-
-        .vehicle-card:hover .vehicle-card-title,
-        .vehicle-card:hover .vehicle-card-price {
-            color: white; /* Texte blanc sur hover */
-        }
-
-        .vehicle-card-detail {
-            @apply text-gray-700 text-base mb-1;
-            transition: color 0.3s ease-in-out;
-        }
-
-        .vehicle-card:hover .vehicle-card-detail {
-            color: rgba(255, 255, 255, 0.95); /* Texte plus clair sur hover */
-        }
-
-        .vehicle-card-description {
-            @apply text-gray-600 text-sm line-clamp-3 mt-2;
-            transition: color 0.3s ease-in-out;
-        }
-
-        .vehicle-card:hover .vehicle-card-description {
-            color: rgba(255, 255, 255, 0.85);
-        }
-
-        /* Style pour les véhicules en vedette sur la page d'accueil */
-        .featured-vehicle-card {
-            @apply relative overflow-hidden rounded-xl shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:shadow-2xl bg-white flex flex-col cursor-pointer border border-gray-200;
-        }
-        .featured-vehicle-card .featured-image-container {
-            @apply w-full h-48 overflow-hidden;
-        }
-        .featured-vehicle-card .featured-image {
-            @apply w-full h-full object-cover transition-transform duration-300 ease-in-out;
-        }
-        .featured-vehicle-card:hover .featured-image {
-            transform: scale(1.05);
-        }
-        .featured-vehicle-card-content {
-            @apply p-4 flex-grow flex flex-col items-center;
-        }
-        .featured-vehicle-card-title {
-            @apply text-xl font-extrabold text-gray-900 mb-1 leading-tight uppercase text-center;
-        }
-        .featured-vehicle-card-price {
-            @apply text-2xl font-extrabold text-blue-700 mb-2 text-center;
-        }
-        .featured-vehicle-card-detail {
-            @apply text-gray-700 text-sm;
-        }
-
-        /* Styles pour le glisser-déposer des images */
-        .draggable-image-item {
-            @apply flex flex-col items-center space-y-2 p-3 border border-gray-300 rounded-lg bg-white shadow-sm cursor-grab relative; /* Plus de padding, plus arrondi */
-            transition: transform 0.2s ease-in-out;
-        }
-        .draggable-image-item.dragging {
-            @apply opacity-60 border-blue-600; /* Opacité et bordure plus prononcées */
-        }
-        .draggable-image-item.drag-over {
-            @apply border-2 border-blue-700 bg-blue-100; /* Bordure et fond plus prononcés */
-        }
-        .draggable-image-item img {
-            @apply w-28 h-28 object-cover rounded-lg; /* Images plus grandes et plus arrondies */
-        }
-        .draggable-image-item .remove-image-url-btn {
-            @apply absolute top-2 right-2 bg-red-500 text-white rounded-full h-7 w-7 flex items-center justify-center text-sm font-bold opacity-80 hover:opacity-100 transition-opacity; /* Plus grand */
-        }
-        .image-url-input {
-            @apply text-sm;
-        }
-
-        /* Styles pour les sections d'options */
-        .accordion-header {
-            @apply flex justify-between items-center w-full p-5 bg-blue-600 text-white font-semibold rounded-lg cursor-pointer hover:bg-blue-700 transition-colors duration-200 ease-in-out; /* Nouveau style d'accordéon */
-        }
-        .accordion-content {
-            @apply p-5 bg-white border border-blue-100 rounded-b-lg;
-            display: none;
-        }
-        .accordion-content.active {
-            display: block;
-        }
-        .accordion-arrow {
-            @apply transform transition-transform duration-200 ease-in-out;
-        }
-        .accordion-arrow.rotate {
-            @apply rotate-180;
-        }
-
-        /* Styles pour les champs éditables de page (maintenant non-éditables visuellement) */
-        .page-content-display {
-            padding: 0.75rem; /* Plus de padding */
-            border-radius: 0.5rem; /* Plus arrondi */
-        }
-        /* Styles pour les titres des pages */
-        .page-title {
-            @apply text-4xl font-extrabold text-blue-800 mb-6 text-center tracking-tight;
-        }
-        /* Styles pour les sous-titres des sections */
-        .section-title {
-            @apply text-3xl font-bold text-gray-800 mb-5 border-b-2 border-blue-200 pb-2;
-        }
-        /* Styles pour les paragraphes */
-        .page-paragraph {
-            @apply text-lg text-gray-700 leading-relaxed mb-4;
-        }
-        /* Styles pour les éléments de liste */
-        .list-item-text {
-            @apply text-lg text-gray-700;
-        }
-        /* Styles pour les informations de contact/horaires */
-        .info-text {
-            @apply text-lg text-gray-700;
-        }
-        .info-label {
-            @apply font-semibold text-blue-600;
+        /* Empêcher le défilement du corps lorsque la modale est ouverte */
+        .modal-open {
+            overflow: hidden;
         }
     </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="bg-gray-100 text-gray-800">
 
-    <!-- Navbar -->
-    <nav class="bg-gray-900 p-4 shadow-xl"> <!-- Navbar plus sombre, ombre plus prononcée -->
-        <div class="container mx-auto flex justify-between items-center flex-wrap">
-            <div class="text-white text-3xl font-bold font-inter rounded-lg p-2 bg-blue-700">CENTRAL CARS</div> <!-- Logo plus distinct -->
-            <div class="flex items-center flex-wrap justify-center sm:justify-start mt-2 sm:mt-0">
-                <div class="flex space-x-6 mr-6"> <!-- Espacement augmenté -->
-                    <button id="nav-home" class="text-white px-4 py-2 rounded-lg text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-600">Accueil</button>
-                    <button id="nav-shop" class="text-white px-4 py-2 rounded-lg text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-600">Boutique</button>
-                    <button id="nav-about" class="text-white px-4 py-2 rounded-lg text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-600">À propos</button>
-                    <button id="nav-contact" class="text-white px-4 py-2 rounded-lg text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-600">Contact</button>
-                    <button id="nav-dossier" class="text-white px-4 py-2 rounded-lg text-lg font-medium transition duration-300 ease-in-out transform hover:scale-105 hover:bg-blue-600 hidden">Mon espace</button>
-                </div>
-                <!-- Auth/Admin buttons -->
-                <button id="nav-login-signup" class="bg-cyan-500 hover:bg-cyan-600 text-white px-5 py-2.5 rounded-lg text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">Connexion / Inscription</button> <!-- Bouton accentué -->
-                <button id="nav-admin-panel" class="bg-purple-600 hover:bg-purple-700 text-white px-5 py-2.5 rounded-lg text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-lg ml-4 hidden">Espace Pro</button>
-                <button id="nav-logout" class="bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg text-lg font-semibold transition duration-300 ease-in-out transform hover:scale-105 shadow-lg ml-4 hidden">Déconnexion</button>
+    <!-- Header -->
+    <header id="header" class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="#" class="text-2xl font-bold text-gray-900">
+                <i class="fas fa-car-side text-red-600"></i> CENTRAL <span class="text-red-600">CARS</span>
+            </a>
+            <div class="hidden md:flex space-x-8">
+                <a href="#accueil" class="text-gray-600 hover:text-red-600 transition duration-300">Accueil</a>
+                <a href="#vehicules" class="text-gray-600 hover:text-red-600 transition duration-300">Nos Véhicules</a>
+                <a href="#contact" class="text-gray-600 hover:text-red-600 transition duration-300">Contact</a>
             </div>
+            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-red-600 focus:outline-none">
+                <i class="fas fa-bars text-2xl"></i>
+            </button>
+        </nav>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white">
+            <a href="#accueil" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Accueil</a>
+            <a href="#vehicules" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Nos Véhicules</a>
+            <a href="#contact" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Contact</a>
         </div>
-    </nav>
+    </header>
 
-    <!-- Main Content Area -->
-    <main id="app-content" class="flex-grow container mx-auto p-6"> <!-- Plus de padding -->
-        <!-- Content will be loaded here by JavaScript -->
-        <div class="flex justify-center items-center h-screen text-2xl text-gray-700"> <!-- Texte plus grand -->
-            Chargement de l'application...
-        </div>
+    <main>
+        <!-- Section Accueil (Hero) -->
+        <section id="accueil" class="h-screen bg-cover bg-center bg-fixed flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=2025&auto=format&fit=crop');">
+            <div class="absolute inset-0 bg-black opacity-50"></div>
+            <div class="text-center text-white z-10 p-4">
+                <h1 class="text-4xl md:text-6xl font-bold mb-4">CENTRAL CARS</h1>
+                <p class="text-lg md:text-2xl mb-8">Votre partenaire confiance pour les véhicules d'occasion à Vieux-Condé.</p>
+                <a href="#vehicules" class="bg-red-600 text-white font-bold py-3 px-8 rounded-full hover:bg-red-700 transition duration-300 transform hover:scale-105">Découvrir nos voitures</a>
+            </div>
+        </section>
+
+        <!-- Section Véhicules -->
+        <section id="vehicules" class="py-20 bg-white">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center mb-2">Nos Véhicules d'Occasion</h2>
+                <p class="text-center text-gray-500 mb-12">Des voitures sélectionnées et garanties pour votre sérénité.</p>
+                
+                <div id="vehicle-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Les fiches de véhicules seront injectées ici par JavaScript -->
+                </div>
+                 <div id="loading-spinner" class="text-center py-8">
+                    <i class="fas fa-spinner fa-spin text-red-600 text-4xl"></i>
+                    <p class="mt-2 text-gray-600">Chargement des véhicules...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section Contact -->
+        <section id="contact" class="py-20 bg-gray-100">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center mb-12">Contactez-nous</h2>
+                <div class="flex flex-wrap -mx-4">
+                    <!-- Formulaire de contact -->
+                    <div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">
+                        <div class="bg-white p-8 rounded-lg shadow-lg">
+                            <h3 class="text-2xl font-bold mb-6">Envoyez-nous un message</h3>
+                            <form>
+                                <div class="mb-4">
+                                    <label for="name" class="block text-gray-700 font-semibold mb-2">Nom complet</label>
+                                    <input type="text" id="name" name="name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre nom">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
+                                    <input type="email" id="email" name="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre email">
+                                </div>
+                                <div class="mb-6">
+                                    <label for="message" class="block text-gray-700 font-semibold mb-2">Message</label>
+                                    <textarea id="message" name="message" rows="5" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre message..."></textarea>
+                                </div>
+                                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300">Envoyer</button>
+                            </form>
+                        </div>
+                    </div>
+                    <!-- Informations de contact -->
+                    <div class="w-full lg:w-1/2 px-4">
+                        <div class="bg-white p-8 rounded-lg shadow-lg h-full">
+                            <h3 class="text-2xl font-bold mb-6">Nos Coordonnées</h3>
+                            <div class="space-y-6 text-lg">
+                                <p class="flex items-start">
+                                    <i class="fas fa-map-marker-alt text-red-600 mt-1 mr-4 w-6 text-center"></i>
+                                    <span>CENTRAL CARS<br>123 Rue de la République<br>59690 Vieux-Condé, France</span>
+                                </p>
+                                <p class="flex items-center">
+                                    <i class="fas fa-phone text-red-600 mr-4 w-6 text-center"></i>
+                                    <a href="tel:+33123456789" class="hover:text-red-600">01 23 45 67 89</a>
+                                </p>
+                                <p class="flex items-center">
+                                    <i class="fas fa-envelope text-red-600 mr-4 w-6 text-center"></i>
+                                    <a href="mailto:contact@centralcars.fr" class="hover:text-red-600">contact@centralcars.fr</a>
+                                 </p>
+                            </div>
+                            <div class="mt-8">
+                                <h4 class="text-xl font-bold mb-4">Horaires d'ouverture</h4>
+                                <ul class="space-y-2">
+                                    <li><strong>Lundi - Vendredi :</strong> 9h00 - 18h00</li>
+                                    <li><strong>Samedi :</strong> 9h00 - 12h00</li>
+                                    <li><strong>Dimanche :</strong> Fermé</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-900 text-white p-6 text-center mt-12"> <!-- Footer plus sombre, plus de padding -->
-        <p>&copy; 2025 CENTRAL CARS. Tous droits réservés.</p>
-        <p id="user-info-display" class="text-sm mt-2">Non connecté</p>
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 CENTRAL CARS. Tous droits réservés.</p>
+            <p class="text-sm text-gray-400 mt-2">Site conçu avec ❤️</p>
+        </div>
     </footer>
 
-    <!-- Auth Modal (Login/Signup) -->
-    <div id="auth-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 p-4 modal-hidden">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border border-gray-100"> <!-- Plus de padding, plus arrondi -->
-            <h2 id="auth-modal-title" class="text-3xl font-bold mb-8 text-gray-800 text-center">Connexion</h2> <!-- Texte plus grand -->
-            <form id="auth-form" class="space-y-6"> <!-- Espacement augmenté -->
-                <div id="auth-name-group" class="hidden">
-                    <label for="auth-name" class="block text-gray-700 font-medium mb-1">Nom</label>
-                    <input type="text" id="auth-name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Votre nom" />
-                </div>
-                <div>
-                    <label for="auth-email" class="block text-gray-700 font-medium mb-1">Email</label>
-                    <input type="email" id="auth-email" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="votre@email.com" required />
-                </div>
-                <div>
-                    <label for="auth-password" class="block text-gray-700 font-medium mb-1">Mot de passe</label>
-                    <input type="password" id="auth-password" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="********" required />
-                </div>
-                <p id="auth-error-message" class="text-red-500 text-sm hidden"></p>
-                <div class="flex justify-between items-center">
-                    <button type="submit" id="auth-submit-button" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3.5 px-7 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Se connecter</button>
-                    <button type="button" id="auth-toggle-mode" class="text-blue-700 hover:underline text-base">Pas encore de compte ? S'inscire</button> <!-- Texte plus grand -->
-                </div>
-            </form>
-            <button id="auth-close-button" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-4xl font-bold">&times;</button> <!-- Plus grand -->
+    <!-- Modale de détails du véhicule -->
+    <div id="vehicle-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div id="modal-content" class="bg-white rounded-lg shadow-2xl w-11/12 md:w-3/4 lg:w-2/3 max-h-[90vh] overflow-y-auto relative transform transition-all duration-300 scale-95 opacity-0">
+            <!-- Contenu de la modale injecté par JavaScript -->
         </div>
     </div>
 
-    <!-- Vehicle Detail Modal -->
-    <div id="vehicle-detail-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 items-center justify-center z-50 p-4 modal-hidden">
-        <div class="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto relative border border-gray-100"> <!-- Plus de padding, plus arrondi, plus large -->
-            <button id="detail-close-button" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-4xl font-bold">&times;</button>
-            <h2 id="detail-title" class="text-3xl font-bold text-blue-700 mb-6 text-center"></h2> <!-- Texte plus grand, plus de marge -->
-            <div class="flex flex-col md:flex-row gap-8 mb-8"> <!-- Espacement augmenté -->
-                <div class="md:w-1/2 relative">
-                    <img id="detail-image" src="" alt="Image du véhicule" class="w-full h-auto rounded-xl shadow-md cursor-pointer" /> <!-- Plus arrondi -->
-                    <button id="prev-image" class="absolute left-3 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-60 text-white p-3 rounded-full hover:bg-opacity-80 transition text-2xl hidden">&#10094;</button> <!-- Plus de padding, plus grand -->
-                    <button id="next-image" class="absolute right-3 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-60 text-white p-3 rounded-full hover:bg-opacity-80 transition text-2xl hidden">&#10095;</button> <!-- Plus de padding, plus grand -->
-                    <div id="image-counter" class="absolute bottom-3 left-0 right-0 text-center text-white text-base bg-gray-800 bg-opacity-60 py-1.5 rounded-b-xl hidden"></div> <!-- Plus de padding, plus grand -->
-                </div>
-                <div class="md:w-1/2 text-gray-800 space-y-3"> <!-- Espacement augmenté -->
-                    <p class="text-2xl font-semibold mb-2">Prix: <span id="detail-price" class="text-blue-700"></span></p> <!-- Texte plus grand -->
-                    <p class="text-base text-gray-600 mb-4">Tous les prix sont TTC, hors prix carte grise.</p>
-                    <p class="text-lg"><strong class="text-blue-600">Année:</strong> <span id="detail-year"></span></p>
-                    <p class="text-lg"><strong class="text-blue-600">Kilométrage:</strong> <span id="detail-mileage"></span> km</p>
-                    <p class="text-lg"><strong class="text-blue-600">Motorisation:</strong> <span id="detail-engine-type"></span></p>
-                    <p class="text-lg"><strong class="text-blue-600">Boîte de vitesse:</strong> <span id="detail-gearbox-type"></span></p>
-                    <p class="text-lg"><strong class="text-blue-600">Carburant:</strong> <span id="detail-fuel-type"></span></p>
-                    <p class="text-lg"><strong class="text-blue-600">Puissance fiscale:</strong> <span id="detail-tax-horsepower"></span> CV</p>
-                    <p class="text-lg"><strong class="text-blue-600">Puissance (ch):</strong> <span id="detail-steam-horsepower"></span> ch</p>
-                </div>
-            </div>
-            <div class="text-gray-800 mb-6"> <!-- Plus de marge -->
-                <h3 class="text-xl font-semibold text-blue-600 mb-3">Description:</h3> <!-- Plus de marge -->
-                <p id="detail-description" class="text-gray-700 leading-relaxed text-lg"></p> <!-- Hauteur de ligne améliorée -->
-            </div>
-            <div id="detail-options-section" class="text-gray-800 hidden">
-                <h3 class="text-xl font-semibold text-blue-600 mb-3">Options:</h3>
-                <ul id="detail-options" class="list-disc list-inside ml-4 grid grid-cols-1 sm:grid-cols-2 gap-2 text-gray-700 text-lg"></ul> <!-- Espacement augmenté -->
-            </div>
-            <div class="mt-8 flex flex-col sm:flex-row justify-center space-y-5 sm:space-y-0 sm:space-x-6"> <!-- Espacement augmenté -->
-                <button id="detail-close-button-bottom" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3.5 px-7 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Fermer</button>
-                <a id="call-garage-button" href="tel:0698979463" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-3.5 px-7 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105 text-center">Appeler le garage</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- Fullscreen Image Modal -->
-    <div id="fullscreen-image-modal" class="fixed inset-0 bg-gray-900 bg-opacity-90 items-center justify-center z-[100] p-4 modal-hidden">
-        <button id="fullscreen-close-button" class="absolute top-4 right-4 text-white text-5xl font-bold z-[101] hover:scale-110 transition-transform">&times;</button> <!-- Plus grand -->
-        <img id="fullscreen-image" src="" alt="Image en plein écran" class="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl" /> <!-- Plus arrondi -->
-    </div>
-
-    <!-- Firebase SDKs -->
     <script type="module">
-        // IMPORTANT: REMPLACEZ LES VALEURS CI-DESSOUS PAR CELLES DE VOTRE firebaseConfig
-        // Vous les trouverez dans les paramètres de votre projet Firebase (icône roue dentée -> Paramètres du projet -> Vos applications -> Web app)
-        const __app_id = 'central-cars-a37ae'; // Ex: '1:1234567890:web:abcdef1234567890abcdef12'
+        // --- IMPORTS ET CONFIGURATION FIREBASE ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Configuration Firebase fournie
+        const __app_id = 'central-cars-a37ae';
         const __firebase_config = JSON.stringify({
-           apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
-           authDomain: "central-cars-a37ae.firebaseapp.com",
-           projectId: "central-cars-a37ae",
-           storageBucket: "central-cars-a37ae.firebasestorage.app",
-           messagingSenderId: "297273470734",
-           appId: "1:297273470734:web:7d35e6619b28dc569d715f",
-           measurementId: "G-4LXQG2VWP2"
+            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
+            authDomain: "central-cars-a37ae.firebaseapp.com",
+            projectId: "central-cars-a37ae",
+            storageBucket: "central-cars-a37ae.firebasestorage.app",
+            messagingSenderId: "297273470734",
+            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
+            measurementId: "G-4LXQG2VWP2"
         });
-        // __initial_auth_token n'est plus utilisé car l'authentification Firebase est désormais gérée par email/mot de passe.
-        const __initial_auth_token = '';
 
-        // --- Cloudinary Configuration ---
-        // REMPLACEZ CES VALEURS PAR LES VÔTRES !
-        // cloudName: Votre "Cloud Name" depuis le tableau de bord Cloudinary.
-        // uploadPreset: Le nom de votre "Upload Preset" non signé que vous avez créé dans Cloudinary (ex: 'your_unsigned_preset_name').
-        const CLOUDINARY_CLOUD_NAME = 'dxneu57c0'; // Remplacez par votre Cloud Name Cloudinary
-        const CLOUDINARY_UPLOAD_PRESET = 'central_cars_unsigned_upload'; // Remplacez par le nom de votre preset non signé
+        const firebaseConfig = JSON.parse(__firebase_config);
 
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, doc, updateDoc, deleteDoc, onSnapshot, query, where, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-firestore.js";
-        // Firebase Storage imports are removed as we are now using Cloudinary
-        // import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.12.1/firebase-storage.js";
-
-        // Global variables for app state
-        let currentPage = 'home';
-        let currentAdminTool = 'shop-management'; // Default admin tool view
-        let vehicles = [];
-        let clientDossiers = []; // New array for client dossiers
-        let reviews = []; // New array for reviews
-        let selectedVehicle = null;
-        let selectedClientDossier = null; // New variable for selected client dossier
-        let currentImageIndex = 0;
-        let pageContent = {}; // Stores dynamic page content from Firestore
-
-        // Auth state
-        let currentUser = null;
-        let userName = 'Non connecté';
-        let userEmail = ''; // Store user's email for display
-        let userRole = 'guest'; // 'guest', 'client', 'admin'
-        let isLoggedIn = false;
-        let isAdmin = false;
-        let isClient = false;
-
-        // Firebase configuration and initialization
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-central-cars-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-
+        // Initialiser Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        // const storage = getStorage(app); // Firebase Storage is no longer used
-        const auth = getAuth(app); // Initialize Firebase Auth
 
-        // DOM Elements
-        const appContent = document.getElementById('app-content');
-        const userInfoDisplay = document.getElementById('user-info-display'); // Updated ID for user info display
-        const navDossierButton = document.getElementById('nav-dossier');
-        const navLoginSignupButton = document.getElementById('nav-login-signup'); // Renamed from navEspaceProButton
-        const navAdminPanelButton = document.getElementById('nav-admin-panel'); // New button
-        const navLogoutButton = document.getElementById('nav-logout');
-        
-        // Auth Modal elements
-        const authModal = document.getElementById('auth-modal');
-        const authModalTitle = document.getElementById('auth-modal-title');
-        const authForm = document.getElementById('auth-form');
-        const authNameGroup = document.getElementById('auth-name-group');
-        const authNameInput = document.getElementById('auth-name');
-        const authEmailInput = document.getElementById('auth-email');
-        const authPasswordInput = document.getElementById('auth-password');
-        const authErrorMessage = document.getElementById('auth-error-message');
-        const authSubmitButton = document.getElementById('auth-submit-button');
-        const authToggleModeButton = document.getElementById('auth-toggle-mode');
-        const authCloseButton = document.getElementById('auth-close-button');
+        // --- VARIABLES GLOBALES ---
+        let allVehicles = []; // Pour stocker tous les véhicules récupérés
 
-        let isLoginMode = true; // State for Auth Modal: true for login, false for signup
+        // --- GESTION DU MENU MOBILE ---
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
 
-        // Vehicle Detail Modal elements
-        const vehicleDetailModal = document.getElementById('vehicle-detail-modal');
-        const detailCloseButton = document.getElementById('detail-close-button');
-        const detailCloseButtonBottom = document.getElementById('detail-close-button-bottom');
-        const detailTitle = document.getElementById('detail-title');
-        const detailImage = document.getElementById('detail-image');
-        const prevImageButton = document.getElementById('prev-image');
-        const nextImageButton = document.getElementById('next-image');
-        const imageCounter = document.getElementById('image-counter');
-        const detailPrice = document.getElementById('detail-price');
-        const detailYear = document.getElementById('detail-year');
-        const detailMileage = document.getElementById('detail-mileage');
-        const detailEngineType = document.getElementById('detail-engine-type');
-        const detailGearboxType = document.getElementById('detail-gearbox-type');
-        const detailFuelType = document.getElementById('detail-fuel-type');
-        const detailTaxHorsepower = document.getElementById('detail-tax-horsepower');
-        const detailSteamHorsepower = document.getElementById('detail-steam-horsepower');
-        const detailDescription = document.getElementById('detail-description');
-        const detailOptionsSection = document.getElementById('detail-options-section');
-        const detailOptionsList = document.getElementById('detail-options');
-        const callGarageButton = document.getElementById('call-garage-button');
+        // --- FONCTION POUR AFFICHER LES VÉHICULES ---
+        function displayVehicles(vehicles) {
+            const vehicleList = document.getElementById('vehicle-list');
+            const loadingSpinner = document.getElementById('loading-spinner');
+            vehicleList.innerHTML = ''; // Vider la liste existante
 
-        // Fullscreen Image Modal elements
-        const fullscreenImageModal = document.getElementById('fullscreen-image-modal');
-        const fullscreenCloseButton = document.getElementById('fullscreen-close-button');
-        const fullscreenImage = document.getElementById('fullscreen-image');
+            if (vehicles.length === 0) {
+                 vehicleList.innerHTML = `<p class="text-center col-span-full">Aucun véhicule disponible pour le moment.</p>`;
+            } else {
+                vehicles.forEach(vehicle => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300';
+                    // Utilise une image de secours si la première image n'est pas définie
+                    const imageUrl = vehicle.images && vehicle.images.length > 0 ? vehicle.images[0] : 'https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';
+                    card.innerHTML = `
+                        <img src="${imageUrl}" alt="Image de ${vehicle.nom}" class="w-full h-56 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Invalide';">
+                        <div class="p-6">
+                            <h3 class="text-2xl font-bold mb-2">${vehicle.nom || 'Nom non disponible'}</h3>
+                            <div class="text-gray-600 mb-4 space-y-1">
+                                <p><i class="fas fa-calendar-alt w-6 text-red-500"></i> ${vehicle.annee || 'N/A'}</p>
+                                <p><i class="fas fa-tachometer-alt w-6 text-red-500"></i> ${vehicle.kilometrage ? vehicle.kilometrage.toLocaleString('fr-FR') : 'N/A'} km</p>
+                                <p><i class="fas fa-gas-pump w-6 text-red-500"></i> ${vehicle.carburant || 'N/A'}</p>
+                            </div>
+                            <p class="text-3xl font-bold text-red-600 mb-4">${vehicle.prix ? vehicle.prix.toLocaleString('fr-FR') : 'N/A'} €</p>
+                            <button data-id="${vehicle.id}" class="details-button w-full bg-gray-800 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-900 transition duration-300">
+                                Voir les détails
+                            </button>
+                        </div>
+                    `;
+                    vehicleList.appendChild(card);
+                });
+            }
+             loadingSpinner.style.display = 'none';
+        }
 
-        // Admin Tool specific elements (declared globally for access after content render)
-        let adminToolContentArea; // The div where specific admin tool content will be loaded
+        // --- GESTION DE LA MODALE ---
+        const modal = document.getElementById('vehicle-modal');
+        const modalContent = document.getElementById('modal-content');
 
-        // Shop Management Tool elements
-        let adminImageUploadInput;
-        let adminUploadStatus;
-        let adminOptionsCheckboxesContainer;
-        let adminImageUrlsContainer;
-        let adminCustomOptionInput;
-        let adminAddCustomOptionButton;
-        let shopManagementForm;
-        let shopManagementSubmitButton;
-        let shopManagementCancelEditButton;
-        let shopManagementFormTitle;
-        let adminMakeSelect;
-        let adminFuelTypeSelect;
-        let adminGearboxTypeSelect;
-        let adminAddImageUrlButton;
-        let adminIsSoldCheckbox;
+        function openModal(vehicle) {
+            let currentImageIndex = 0;
+            const images = vehicle.images && vehicle.images.length > 0 ? vehicle.images : ['https://placehold.co/800x600/cccccc/ffffff?text=Image+Indisponible'];
 
-        // ANTS Tool elements
-        let antsMaVariableInput;
-        let antsAccessDossierButton;
-
-        // Client Dossier Tool elements
-        let clientDossierForm;
-        let clientDossierSubmitButton;
-        let clientDossierCancelEditButton;
-        let clientDossierFormTitle;
-        let clientDossiersTableBody;
-        let clientDossiersNoDataMessage;
-        let clientDossiersError;
-        let dossierSearchInput;
-        let dossierDetailsDisplay;
-        let dossierAccountInfoDisplay; // New: for displaying user's account info on dossier page
-
-        // Review Form elements (on homepage)
-        let reviewForm;
-        let reviewRatingInput;
-let reviewCommentInput;
-let reviewSubmitButton;
-let reviewStatusMessage;
-let googleReviewsContainer;
-
-// Drag and drop variables
-let draggedItem = null;
-
-
-// --- Page Content Templates ---
-
-// Helper function to generate vehicle card HTML (reused for shop and home)
-function generateVehicleCardHtml(vehicle, isFeatured = false) {
-    const imageUrl = vehicle.imageUrls && vehicle.imageUrls.length > 0 ? vehicle.imageUrls[0] : `https://placehold.co/400x250/ADD8E6/000000?text=${vehicle.make}+${vehicle.model}`;
-    const cardClass = isFeatured ? 'featured-vehicle-card' : 'vehicle-card';
-    const imageContainerClass = isFeatured ? 'featured-image-container' : 'vehicle-card-image-container';
-    const imageClass = isFeatured ? 'featured-image' : 'vehicle-card-image';
-    const contentClass = isFeatured ? 'featured-vehicle-card-content' : 'vehicle-card-content';
-    const titleClass = isFeatured ? 'featured-vehicle-card-title' : 'vehicle-card-title';
-    const priceClass = isFeatured ? 'featured-vehicle-card-price' : 'vehicle-card-price';
-    const detailClass = isFeatured ? 'featured-vehicle-card-detail' : 'vehicle-card-detail';
-    const descriptionClass = 'hidden'; // Description is always hidden on cards
-
-    const soldOverlay = vehicle.isSold ? `<div class="sold-overlay">VENDU</div>` : '';
-    // Conditionally display price or nothing in the title based on isSold
-    const priceHtml = vehicle.isSold ? '' : `<span class="${priceClass} w-full">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price)}</span>`;
-
-    return `
-        <div class="${cardClass}" data-vehicle-id="${vehicle.id}">
-            <div class="${imageContainerClass}">
-                <img src="${imageUrl}" alt="${vehicle.make} ${vehicle.model}" class="${imageClass}" onerror="this.onerror=null;this.src='https://placehold.co/400x250/ADD8E6/000000?text=Image+non+disponible';" />
-                ${soldOverlay} <!-- Sold overlay directly on the image container -->
-            </div>
-            <div class="${contentClass}">
-                <h2 class="${titleClass} w-full">${vehicle.make.toUpperCase()} ${vehicle.model.toUpperCase()}</h2>
-                ${priceHtml} <!-- Price moved outside h2 for separate line -->
-                <p class="${detailClass}">Année: ${vehicle.year}</p>
-                ${vehicle.engineType ? `<p class="${detailClass}">Motorisation: ${vehicle.engineType}</p>` : ''}
-                ${vehicle.steamHorsepower ? `<p class="${detailClass}">Puissance: ${vehicle.steamHorsepower} ch</p>` : ''}
-                <p class="${descriptionClass}">${vehicle.description || ''}</p>
-            </div>
-        </div>
-    `;
-}
-
-// Helper to generate star ratings
-function generateStars(rating) {
-    let stars = '';
-    for (let i = 0; i < 5; i++) {
-        stars += `<span class="text-yellow-500 text-xl">${i < rating ? '&#9733;' : '&#9734;'}</span>`;
-    }
-    return stars;
-}
-
-// Helper to create a display field (no longer editable)
-function createDisplayField(pageId, fieldName, content, tag = 'p', isTitle = false, customClass = '') {
-    const elementId = `${pageId}-${fieldName}`;
-    const tagType = isTitle ? 'h1' : tag; // Use h1 for main titles
-    let classes = `page-content-display ${customClass}`;
-    if (isTitle) {
-        classes += ' page-title';
-    } else if (tag === 'p') {
-        classes += ' page-paragraph';
-    } else if (tag === 'span') {
-        classes += ' list-item-text';
-    } else if (tag === 'strong') {
-        classes += ' info-label';
-    } else if (tag === 'h2') {
-        classes += ' section-title';
-    } else if (tag === 'h3') {
-        classes += ' text-2xl font-bold text-gray-800 mb-3'; // Specific style for h3
-    }
-
-    return `
-        <div class="${classes}">
-            <${tagType} id="${elementId}" class="${isTitle ? 'w-full' : ''}">${content}</${tagType}>
-        </div>
-    `;
-}
-
-// Page content functions now accept pageData
-function getHomePageContent(pageData) {
-    return `
-        <div class="bg-white p-8 rounded-2xl shadow-xl text-gray-800 my-8 border border-gray-100"> <!-- Plus arrondi, ombre plus prononcée -->
-            ${createDisplayField('home', 'title', pageData.title, 'h1', true)}
-            ${createDisplayField('home', 'paragraph1', pageData.paragraph1, 'p')}
-            
-            <div class="mt-12 p-8 bg-blue-50 rounded-2xl shadow-md border border-blue-100"> <!-- Plus de padding, plus arrondi -->
-                ${createDisplayField('home', 'featured_vehicles_title', pageData.featured_vehicles_title, 'h2')}
-                <div id="featured-vehicles-container" class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-6"> <!-- Espacement augmenté -->
-                    <!-- Featured vehicles will be loaded here -->
+            modalContent.innerHTML = `
+                <button id="close-modal-button" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center text-2xl hover:bg-opacity-75 z-20">&times;</button>
+                
+                <div class="w-full h-64 md:h-96 relative">
+                    <img id="modal-image" src="${images[0]}" alt="Image principale de ${vehicle.nom}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/800x600/cccccc/ffffff?text=Image+Invalide';">
+                    <div id="modal-image-prev" class="absolute left-0 top-1/2 -translate-y-1/2 p-2 m-2 bg-black bg-opacity-50 text-white rounded-full cursor-pointer hover:bg-opacity-75 ${images.length <= 1 ? 'hidden' : ''}"><i class="fas fa-chevron-left"></i></div>
+                    <div id="modal-image-next" class="absolute right-0 top-1/2 -translate-y-1/2 p-2 m-2 bg-black bg-opacity-50 text-white rounded-full cursor-pointer hover:bg-opacity-75 ${images.length <= 1 ? 'hidden' : ''}"><i class="fas fa-chevron-right"></i></div>
                 </div>
-                <p id="no-featured-vehicles-message" class="text-center text-xl text-gray-600 mt-8 hidden">Aucun véhicule en vedette pour le moment.</p>
-            </div>
 
-            <div class="mt-12 text-center">
-                <img
-                    src="https://placehold.co/800x400/ADD8E6/000000?text=Garage+CENTRAL+CARS"
-                    alt="Image du garage CENTRAL CARS"
-                    class="rounded-2xl shadow-lg mx-auto w-full max-w-4xl border border-gray-100"
-                    onerror="this.onerror=null;this.src='https://placehold.co/800x400/ADD8E6/000000?text=Image+non+disponible';"
-                />
-            </div>
-
-            <!-- New Google Reviews Section -->
-            <div class="mt-12 p-8 bg-yellow-50 rounded-2xl shadow-md border border-yellow-100"> <!-- Plus de padding, plus arrondi -->
-                ${createDisplayField('home', 'reviews_title', pageData.reviews_title, 'h2')}
-                <div id="google-reviews-container" class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-6"> <!-- Espacement augmenté -->
-                    <!-- Reviews will be loaded here -->
-                </div>
-                <p class="text-center text-gray-600 text-sm mt-6">
-                    Ces avis sont des exemples. Pour une intégration en temps réel des avis Google, une API dédiée ou un service tiers serait nécessaire.
-                </p>
-                <div class="text-center mt-4">
-                    <a href="https://g.co/kgs/rCYbWHK" target="_blank" class="text-blue-700 hover:underline font-medium">Voir tous les avis Google</a>
-                </div>
-            </div>
-
-            <!-- Add Review Section (visible only when logged in) -->
-            <div id="add-review-section" class="mt-12 p-8 bg-green-50 rounded-2xl shadow-md border border-green-100 hidden"> <!-- Plus de padding, plus arrondi -->
-                ${createDisplayField('home', 'add_review_title', pageData.add_review_title, 'h2')}
-                <form id="review-form" class="space-y-6 mt-6"> <!-- Espacement augmenté -->
-                    <div>
-                        <label for="review-rating" class="block text-gray-700 font-medium mb-1">Note (1-5 étoiles)</label>
-                        <input type="number" id="review-rating" min="1" max="5" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required />
+                <div class="p-6 md:p-8">
+                    <h2 class="text-3xl font-bold mb-2">${vehicle.nom || 'Nom non disponible'}</h2>
+                    <p class="text-4xl font-bold text-red-600 mb-6">${vehicle.prix ? vehicle.prix.toLocaleString('fr-FR') : 'N/A'} €</p>
+                    
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center mb-6">
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.annee || 'N/A'}</div><div class="text-sm text-gray-600">Année</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.kilometrage ? vehicle.kilometrage.toLocaleString('fr-FR') : 'N/A'}</div><div class="text-sm text-gray-600">Km</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.carburant || 'N/A'}</div><div class="text-sm text-gray-600">Carburant</div></div>
                     </div>
-                    <div>
-                        <label for="review-comment" class="block text-gray-700 font-medium mb-1">Votre commentaire</label>
-                        <textarea id="review-comment" rows="4" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" required></textarea>
-                    </div>
-                    <button type="submit" id="review-submit-button" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3.5 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Soumettre l'avis</button>
-                    <p id="review-status-message" class="mt-4 text-center text-green-600 font-semibold"></p>
-                </form>
-            </div>
-        </div>
-    `;
-}
 
-function getAboutPageContent(pageData) {
-    return `
-        <div class="bg-white p-8 rounded-2xl shadow-xl text-gray-800 my-8 border border-gray-100">
-            ${createDisplayField('about', 'title', pageData.title, 'h1', true)}
-            ${createDisplayField('about', 'paragraph1', pageData.paragraph1, 'p')}
-            <div class="grid md:grid-cols-2 gap-10 mt-12">
-                <div class="flex flex-col items-center text-center p-6 bg-blue-50 rounded-xl shadow-sm border border-blue-100">
-                    <svg class="w-20 h-20 text-blue-700 mb-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2zm0 6a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1v-2z" clip-rule="evenodd"></path>
-                    </svg>
-                    ${createDisplayField('about', 'mission_title', pageData.mission_title, 'h3')}
-                    ${createDisplayField('about', 'mission_text', pageData.mission_text, 'p')}
-                </div>
-                <div class="flex flex-col items-center text-center p-6 bg-blue-50 rounded-xl shadow-sm border border-blue-100">
-                    <svg class="w-20 h-20 text-blue-700 mb-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path>
-                        <path fill-rule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clip-rule="evenodd"></path>
-                    </svg>
-                    ${createDisplayField('about', 'vision_title', pageData.vision_title, 'h3')}
-                    ${createDisplayField('about', 'vision_text', pageData.vision_text, 'p')}
-                </div>
-            </div>
-            <div class="mt-12 text-center p-6 bg-gray-50 rounded-2xl shadow-md border border-gray-100">
-                ${createDisplayField('about', 'commitments_title', pageData.commitments_title, 'h2')}
-                <ul class="list-disc list-inside text-lg text-gray-700 max-w-2xl mx-auto space-y-3 mt-6">
-                    <li>${createDisplayField('about', 'commitment1', pageData.commitment1, 'span', false, 'list-item-text')}</li>
-                    <li>${createDisplayField('about', 'commitment2', pageData.commitment2, 'span', false, 'list-item-text')}</li>
-                    <li>${createDisplayField('about', 'commitment3', pageData.commitment3, 'span', false, 'list-item-text')}</li>
-                    <li>${createDisplayField('about', 'commitment4', pageData.commitment4, 'span', false, 'list-item-text')}</li>
-                </ul>
-            </div>
-        </div>
-    `;
-}
+                    <h3 class="text-xl font-bold mb-3 border-b pb-2">Description</h3>
+                    <p class="text-gray-700 mb-6">${vehicle.description || 'Aucune description.'}</p>
 
-function getContactPageContent(pageData) {
-    return `
-        <div class="bg-white p-8 rounded-2xl shadow-xl text-gray-800 my-8 border border-gray-100">
-            ${createDisplayField('contact', 'title', pageData.title, 'h1', true)}
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-10 mt-12">
-                <div class="p-6 bg-blue-50 rounded-xl shadow-sm border border-blue-100">
-                    ${createDisplayField('contact', 'contact_info_title', pageData.contact_info_title, 'h2')}
-                    <p class="mb-3 text-lg"><strong class="info-label">Adresse:</strong> ${createDisplayField('contact', 'address', pageData.address, 'span', false, 'info-text')}</p>
-                    <p class="mb-3 text-lg"><strong class="info-label">Téléphone:</strong> ${createDisplayField('contact', 'phone', pageData.phone, 'span', false, 'info-text')}</p>
-                    <p class="mb-3 text-lg"><strong class="info-label">Email:</strong> ${createDisplayField('contact', 'email', pageData.email, 'span', false, 'info-text')}</p>
-                    <p class="mb-3 text-lg">${createDisplayField('contact', 'hours_title', pageData.hours_title, 'strong', false, 'info-label')}</p>
-                    <ul class="list-disc list-inside ml-4 space-y-2 text-lg">
-                        <li>${createDisplayField('contact', 'hours_mon_fri', pageData.hours_mon_fri, 'span', false, 'list-item-text')}</li>
-                        <li>${createDisplayField('contact', 'hours_sat', pageData.hours_sat, 'span', false, 'list-item-text')}</li>
-                        <li>${createDisplayField('contact', 'hours_sun', pageData.hours_sun, 'span', false, 'list-item-text')}</li>
+                    <h3 class="text-xl font-bold mb-3 border-b pb-2">Équipements et options</h3>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-gray-700">
+                        ${(vehicle.options && vehicle.options.length > 0) ? vehicle.options.map(opt => `<li><i class="fas fa-check-circle text-green-500 mr-2"></i>${opt}</li>`).join('') : '<li>Aucune option spécifiée.</li>'}
                     </ul>
-                    <div class="mt-8">
-                        ${createDisplayField('contact', 'map_title', pageData.map_title, 'h3')}
-                        <div class="aspect-w-16 aspect-h-9 rounded-xl overflow-hidden shadow-md mt-4">
-                            <iframe
-                                src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2535.8080000000003!2d3.5786483!3d50.4005083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c2b3f1a0e1b5f1%3A0x6d7e2e3f4a5b6c7d!2s576%20Rue%20Marcel%20Sembat%2C%2059690%20Vieux-Cond%C3%A9%2C%20France!5e0!3m2!1sen!2sfr!4v1700000000000!5m2!1sfr!2sfr"
-                                width="100%"
-                                height="300"
-                                style="border:0;"
-                                allowfullscreen=""
-                                loading="lazy"
-                                referrerpolicy="no-referrer-when-downgrade"
-                                title="Localisation de CENTRAL CARS"
-                                class="rounded-lg"
-                            ></iframe>
-                        </div>
+
+                     <div class="mt-8 text-center">
+                        <a href="#contact" id="contact-us-button" class="bg-red-600 text-white font-bold py-3 px-8 rounded-full hover:bg-red-700 transition duration-300">Ce véhicule m'intéresse</a>
                     </div>
                 </div>
-                <div class="p-6 bg-gray-50 rounded-xl shadow-sm border border-gray-100">
-                    ${createDisplayField('contact', 'message_section_title', pageData.message_section_title, 'h2')}
-                    <form id="contact-form" class="space-y-6 mt-6">
-                        <div>
-                            <label for="contact-name" class="block text-gray-700 font-medium mb-1">Nom</label>
-                            <input type="text" id="contact-name" name="name" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                        </div>
-                        <div>
-                            <label for="contact-email" class="block text-gray-700 font-medium mb-1">Email</label>
-                            <input type="email" id="contact-email" name="email" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                        </div>
-                        <div>
-                            <label for="contact-message" class="block text-gray-700 font-medium mb-1">Votre Message</label>
-                            <textarea id="contact-message" name="message" rows="5" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                        </div>
-                        <button type="submit" class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3.5 px-6 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Envoyer le Message</button>
-                        <p id="contact-status-message" class="mt-4 text-center text-green-600 font-semibold"></p>
-                    </form>
-                </div>
-            </div>
-        </div>
-    `;
-}
-
-// Shop Page Content (no changes to this content itself)
-const shopPageContent = `
-    <div class="bg-white p-8 rounded-2xl shadow-xl text-gray-800 my-8 relative border border-gray-100">
-        <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Notre Boutique</h1>
-        <!-- Admin Access Icon - Removed from here, now in main nav -->
-        <div id="shop-vehicles-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <!-- Vehicles will be loaded here -->
-        </div>
-        <p id="no-vehicles-message" class="text-center text-xl text-gray-600 mt-8 hidden">Aucun véhicule n'est actuellement disponible à la vente. Revenez bientôt !</p>
-        <div id="shop-loading" class="flex justify-center items-center h-48">
-            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-            <p class="ml-4 text-xl text-gray-700">Chargement des véhicules...</p>
-        </div>
-        <p id="shop-error" class="text-center text-xl text-red-600 mt-8 hidden"></p>
-    </div>
-`;
-
-// New Admin Tools Main Page Content
-const adminToolsPageContent = `
-    <div class="bg-white p-8 rounded-2xl shadow-xl text-gray-800 my-8 border border-gray-100">
-        <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Panneau d'Administration</h1>
-
-        <!-- Sub-navigation for Admin Tools -->
-        <div class="flex flex-wrap justify-center gap-6 mb-8 border-b-2 border-gray-200 pb-4"> <!-- Espacement augmenté -->
-            <button id="subnav-shop-management" class="btn btn-secondary">Gestion Boutique</button>
-            <button id="subnav-ants-tool" class="btn btn-secondary">Outil ANTS</button>
-            <button id="subnav-client-dossiers" class="btn btn-secondary">Dossiers Clients</button>
-            <button id="subnav-page-management" class="btn btn-secondary">Gestion des Pages</button>
-            <button id="admin-logout-button" class="btn btn-danger">Quitter le mode Admin</button>
-        </div>
-
-        <!-- Content area for selected admin tool -->
-        <div id="admin-tool-content-area">
-            <!-- Specific tool content will be loaded here by renderAdminToolContent -->
-        </div>
-    </div>
-`;
-
-// Renamed existing adminPageContent to shopManagementToolContent
-const shopManagementToolContent = `
-    <div id="shop-management-tool-container">
-        <div id="admin-form-section" class="mb-12 p-8 border border-blue-200 rounded-2xl shadow-md bg-blue-50"> <!-- Plus de padding, plus arrondi -->
-            <h2 id="admin-form-title" class="text-3xl font-semibold text-blue-800 mb-6 text-center">Ajouter un Nouveau Véhicule</h2>
-            <form id="admin-vehicle-form" class="space-y-6">
-                <!-- Section: Détails du Véhicule -->
-                <div class="bg-white p-6 rounded-xl shadow-inner border border-gray-200">
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Détails du Véhicule</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label for="admin-make" class="block text-gray-700 font-medium mb-1">Marque</label>
-                            <select id="admin-make" name="make" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required>
-                                <!-- Options will be dynamically loaded -->
-                            </select>
-                        </div>
-                        <div>
-                            <label for="admin-model" class="block text-gray-700 font-medium mb-1">Modèle</label>
-                            <input type="text" id="admin-model" name="model" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                        </div>
-                        <div>
-                            <label for="admin-year" class="block text-gray-700 font-medium mb-1">Année</label>
-                            <input type="number" id="admin-year" name="year" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                        </div>
-                        <div>
-                            <label for="admin-price" class="block text-gray-700 font-medium mb-1">Prix (€)</label>
-                            <input type="number" id="admin-price" name="price" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" step="0.01" required />
-                        </div>
-                        <div>
-                            <label for="admin-mileage" class="block text-gray-700 font-medium mb-1">Kilométrage (km)</label>
-                            <input type="number" id="admin-mileage" name="mileage" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div>
-                            <label for="admin-engineType" class="block text-gray-700 font-medium mb-1">Motorisation</label>
-                            <input type="text" id="admin-engineType" name="engineType" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div>
-                            <label for="admin-gearboxType" class="block text-gray-700 font-medium mb-1">Type de boîte de vitesse</label>
-                            <select id="admin-gearboxType" name="gearboxType" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <!-- Options will be dynamically loaded -->
-                            </select>
-                        </div>
-                        <div>
-                            <label for="admin-fuelType" class="block text-gray-700 font-medium mb-1">Carburant</label>
-                            <select id="admin-fuelType" name="fuelType" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <!-- Options will be dynamically loaded -->
-                            </select>
-                        </div>
-                        <div>
-                            <label for="admin-taxHorsepower" class="block text-gray-700 font-medium mb-1">Puissance fiscale (CV)</label>
-                            <input type="number" id="admin-taxHorsepower" name="taxHorsepower" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div>
-                            <label for="admin-steamHorsepower" class="block text-gray-700 font-medium mb-1">Puissance (ch)</label>
-                            <input type="number" id="admin-steamHorsepower" name="steamHorsepower" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        </div>
-                        <div class="md:col-span-2 flex items-center">
-                            <input type="checkbox" id="admin-is-sold" name="isSold" class="h-5 w-5 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                            <label for="admin-is-sold" class="ml-2 block text-lg text-gray-700 font-medium">Véhicule Vendu</label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Section: Images -->
-                <div class="bg-white p-6 rounded-xl shadow-inner border border-gray-200">
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Images du Véhicule</h3>
-                    <div class="mb-4">
-                        <label for="admin-image-upload" class="block text-gray-700 font-medium mb-1">Téléverser de nouvelles Images</label>
-                        <input type="file" id="admin-image-upload" name="imageUpload" multiple accept="image/*" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                        <p id="admin-upload-status" class="text-sm text-gray-600 mt-2 hidden"></p>
-                    </div>
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-medium mb-1">Images existantes (glisser-déposer pour réorganiser)</label>
-                        <div id="admin-image-urls-container" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-3 border border-gray-300 rounded-lg bg-gray-50 min-h-[120px]">
-                            <!-- Dynamic image URL inputs/thumbnails will be loaded here -->
-                        </div>
-                        <button type="button" id="admin-add-image-url-btn" class="mt-4 px-5 py-2.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">Ajouter une URL d'image</button>
-                    </div>
-                </div>
-
-                <!-- Section: Options -->
-                <div class="bg-white p-6 rounded-xl shadow-inner border border-gray-200">
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Options du Véhicule</h3>
-                    <div id="admin-options-checkboxes-container" class="space-y-3">
-                        <!-- Accordion sections for options will be dynamically loaded here -->
-                    </div>
-                    <div class="flex items-center mt-6">
-                        <input type="text" id="admin-custom-option-input" placeholder="Ajouter une option personnalisée" class="w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                        <button type="button" id="admin-add-custom-option-btn" class="ml-2 px-5 py-2.5 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">Ajouter</button>
-                    </div>
-                </div>
-
-                <!-- Section: Description -->
-                <div class="bg-white p-6 rounded-xl shadow-inner border border-gray-200">
-                    <h3 class="text-2xl font-semibold text-gray-800 mb-4 border-b pb-2">Description</h3>
-                    <div>
-                        <label for="admin-description" class="block text-gray-700 font-medium mb-1">Description (sera complétée automatiquement)</label>
-                        <textarea id="admin-description" name="description" rows="6" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required></textarea>
-                    </div>
-                </div>
-
-                <div class="flex justify-end space-x-4 mt-6">
-                    <button type="button" id="admin-cancel-edit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3.5 px-7 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 hidden">Annuler l'édition</button>
-                    <button type="submit" id="admin-submit-button" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3.5 px-7 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Ajouter le Véhicule</button>
-                </div>
-            </form>
-        </div>
-
-        <h2 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Véhicules Actuels</h2>
-        <div id="admin-vehicles-table-container" class="overflow-x-auto rounded-xl shadow-md border border-gray-200">
-            <table class="min-w-full bg-white">
-                <thead class="bg-gray-200">
-                    <tr>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Marque</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Modèle</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Année</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Prix</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="admin-vehicles-table-body">
-                    <!-- Vehicles will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-        <p id="admin-no-vehicles-message" class="text-center text-xl text-gray-600 mt-8 hidden"></p>
-        <p id="admin-error" class="text-center text-xl text-red-600 mt-8 hidden"></p>
-    </div>
-`;
-
-// Renamed existing antsPageContent to antsToolContent
-const antsToolContent = `
-    <div id="ants-tool-container" class="flex-grow px-6 py-10 flex flex-col items-center justify-center text-center"> <!-- Plus de padding -->
-        <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md border border-gray-100"> <!-- Plus de padding, plus arrondi -->
-            <h1 class="text-3xl font-bold text-slate-700 mb-8">Accès Dossier ANTS</h1> <!-- Texte plus grand -->
-            <input type="text" id="maVariable" maxlength="8" placeholder="Entrer numéro dossier" class="w-full p-4 mb-6 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 text-center text-xl"> <!-- Plus de padding, plus grand -->
-            <button id="access-dossier-button" class="w-full px-7 py-3.5 bg-blue-700 text-white font-semibold rounded-lg shadow-md hover:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-150 ease-in-out text-lg">
-                Accéder au dossier
-            </button>
-        </div>
-    </div>
-`;
-
-// Client Dossier Page Content (for regular logged-in users)
-const dossierPageContent = `
-    <div class="bg-white p-8 rounded-2xl shadow-xl text-gray-800 my-8 border border-gray-100">
-        <h1 class="text-4xl font-bold text-center text-blue-700 mb-8">Mon Espace Client</h1>
-
-        <div class="max-w-md mx-auto p-8 border border-blue-200 rounded-2xl shadow-md bg-blue-50 mb-8">
-            <h2 class="text-2xl font-semibold text-blue-800 mb-4 text-center">Mes Informations de Compte</h2>
-            <div id="dossier-account-info-display" class="space-y-3 text-lg">
-                <p><strong class="text-blue-600">Nom:</strong> <span id="account-name"></span></p>
-                <p><strong class="text-blue-600">Email:</strong> <span id="account-email"></span></p>
-                <p><strong class="text-blue-600">Rôle:</strong> <span id="account-role"></span></p>
-            </div>
-        </div>
-
-        <div class="max-w-md mx-auto p-8 border border-blue-200 rounded-2xl shadow-md bg-blue-50">
-            <h2 class="text-2xl font-semibold text-blue-800 mb-4 text-center">Rechercher mon Dossier</h2>
-            <label for="dossier-search-input" class="block text-gray-700 font-medium mb-1">Entrez votre numéro de facture</label>
-            <div class="flex space-x-3 mb-6">
-                <input type="text" id="dossier-search-input" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ex: INV-2023-001" />
-                <button id="dossier-search-button" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3.5 px-7 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Rechercher</button>
-            </div>
-            <div id="dossier-details-display" class="mt-6 p-6 border border-gray-300 rounded-lg bg-white hidden">
-                <!-- Dossier details will be displayed here -->
-            </div>
-            <p id="dossier-error-message" class="text-red-500 text-sm mt-4 hidden"></p>
-        </div>
-    </div>
-`;
-
-// Client Dossier Tool Content (for Admin Panel)
-const clientDossierToolContent = `
-    <div id="client-dossier-tool-container">
-        <div class="p-8 border border-blue-200 rounded-2xl shadow-md bg-blue-50 mb-8">
-            <h2 id="client-dossier-form-title" class="text-3xl font-semibold text-blue-800 mb-6 text-center">Ajouter un Nouveau Dossier Client</h2>
-            <form id="client-dossier-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                    <label for="client-name" class="block text-gray-700 font-medium mb-1">Nom du Client</label>
-                    <input type="text" id="client-name" name="clientName" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
-                </div>
-                <div>
-                    <label for="client-vehicle-make" class="block text-gray-700 font-medium mb-1">Marque du Véhicule</label>
-                    <input type="text" id="client-vehicle-make" name="vehicleMake" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div>
-                    <label for="client-vehicle-model" class="block text-gray-700 font-medium mb-1">Modèle du Véhicule</label>
-                    <input type="text" id="client-vehicle-model" name="vehicleModel" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div>
-                    <label for="client-vin" class="block text-gray-700 font-medium mb-1">VIN (Numéro d'identification du véhicule)</label>
-                    <input type="text" id="client-vin" name="vin" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div>
-                    <label for="client-invoice-number" class="block text-gray-700 font-medium mb-1">Numéro de Facture</label>
-                    <input type="text" id="client-invoice-number" name="invoiceNumber" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
-                </div>
-                <div>
-                    <label for="client-status" class="block text-gray-700 font-medium mb-1">Statut du Dossier</label>
-                    <select id="client-status" name="status" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                        <option value="En cours">En cours</option>
-                        <option value="Terminé">Terminé</option>
-                        <option value="En attente">En attente</option>
-                    </select>
-                </div>
-                <div class="md:col-span-2">
-                    <label for="client-notes" class="block text-gray-700 font-medium mb-1">Notes</label>
-                    <textarea id="client-notes" name="notes" rows="3" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
-                </div>
-                <div class="md:col-span-2 flex justify-end space-x-4 mt-4">
-                    <button type="button" id="client-dossier-cancel-edit" class="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold py-3.5 px-7 rounded-lg transition duration-300 ease-in-out transform hover:scale-105 hidden">Annuler l'édition</button>
-                    <button type="submit" id="client-dossier-submit-button" class="bg-blue-700 hover:bg-blue-800 text-white font-semibold py-3.5 px-7 rounded-lg shadow-lg transition duration-300 ease-in-out transform hover:scale-105">Ajouter le Dossier</button>
-                </div>
-            </form>
-        </div>
-
-        <h2 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Dossiers Clients Actuels</h2>
-        <div id="client-dossiers-table-container" class="overflow-x-auto rounded-xl shadow-md border border-gray-200">
-            <table class="min-w-full bg-white">
-                <thead class="bg-gray-200">
-                    <tr>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Client</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Marque</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Modèle</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Facture</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Statut</th>
-                        <th class="py-3 px-4 text-left text-sm font-semibold text-gray-700 uppercase tracking-wider">Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="client-dossiers-table-body">
-                    <!-- Client dossiers will be loaded here -->
-                </tbody>
-            </table>
-        </div>
-        <p id="client-dossiers-no-data-message" class="text-center text-xl text-gray-600 mt-8 hidden"></p>
-        <p id="client-dossiers-error" class="text-center text-xl text-red-600 mt-8 hidden"></p>
-    </div>
-`;
-
-// Page Management Tool Content
-const pageManagementToolContent = `
-    <div id="page-management-tool-container">
-        <h2 class="text-3xl font-semibold text-gray-800 mb-6 text-center">Gérer le Contenu des Pages</h2>
-
-        <p class="text-center text-gray-600 mb-8 text-lg">
-            Le contenu des pages ne peut plus être modifié directement ici. Pour les modifications, veuillez contacter le support technique.
-        </p>
-
-        <!-- Home Page Section -->
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-100">
-            <h3 class="text-2xl font-semibold text-blue-700 mb-4">Page d'Accueil (Accueil)</h3>
-            <div id="page-content-home" class="space-y-4">
-                <!-- Home page display fields will be loaded here -->
-                <p class="text-gray-600">Chargement du contenu...</p>
-            </div>
-        </div>
-
-        <!-- About Page Section -->
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-100">
-            <h3 class="text-2xl font-semibold text-blue-700 mb-4">Page À Propos (About)</h3>
-            <div id="page-content-about" class="space-y-4">
-                <!-- About page display fields will be loaded here -->
-                <p class="text-gray-600">Chargement du contenu...</p>
-            </div>
-        </div>
-
-        <!-- Contact Page Section -->
-        <div class="bg-white p-6 rounded-xl shadow-md mb-8 border border-gray-100">
-            <h3 class="text-2xl font-semibold text-blue-700 mb-4">Page Contact (Contact)</h3>
-            <div id="page-content-contact" class="space-y-4">
-                <!-- Contact page display fields will be loaded here -->
-                <p class="text-gray-600">Chargement du contenu...</p>
-            </div>
-        </div>
-    </div>
-`;
-
-
-// --- Core Application Logic ---
-
-// Function to render content based on current page
-async function renderPage() {
-    appContent.innerHTML = ''; // Clear current content
-    // Fetch page content before rendering
-    await fetchPageContent();
-
-    switch (currentPage) {
-        case 'home':
-            appContent.innerHTML = getHomePageContent(pageContent.home || {});
-            loadFeaturedVehicles(); // Load featured vehicles on home page
-            loadReviews(); // Load reviews on home page
-            setupReviewForm(); // Setup review form
-            // Show/hide add review section based on login status
-            if (isLoggedIn) {
-                document.getElementById('add-review-section').classList.remove('hidden');
-            } else {
-                document.getElementById('add-review-section').classList.add('hidden');
-            }
-            break;
-        case 'shop':
-            appContent.innerHTML = shopPageContent;
-            loadShopVehicles();
-            break;
-        case 'about': // Changed from 'services'
-            appContent.innerHTML = getAboutPageContent(pageContent.about || {});
-            break;
-        case 'contact':
-            appContent.innerHTML = getContactPageContent(pageContent.contact || {});
-            setupContactForm();
-            break;
-        case 'dossier': // New page for client dossiers
-            if (isLoggedIn) {
-                appContent.innerHTML = dossierPageContent;
-                setupDossierPage();
-            } else {
-                currentPage = 'home';
-                renderPage();
-                alert("Veuillez vous connecter pour accéder à votre espace.");
-            }
-            break;
-        case 'admin-tools': // New case for admin tools main page
-            if (isAdmin) {
-                appContent.innerHTML = adminToolsPageContent;
-                adminToolContentArea = document.getElementById('admin-tool-content-area');
-                setupAdminToolsPage(); // Setup sub-navigation and initial tool
-                renderAdminToolContent(currentAdminTool); // Render the default or last selected admin tool
-            } else {
-                // If not admin, redirect to home or show access denied message
-                currentPage = 'home'; // Redirect to home if not authorized
-                renderPage(); // Re-render home page
-                alert("Accès refusé. Vous n'êtes pas autorisé à accéder au panneau d'administration.");
-            }
-            break;
-        default:
-            appContent.innerHTML = getHomePageContent(pageContent.home || {});
-    }
-    updateNavbarActiveState();
-}
-
-// Update Navbar active state and visibility of auth-related buttons
-function updateNavbarActiveState() {
-    document.querySelectorAll('nav button').forEach(button => {
-        // Exclude auth/admin/logout buttons from regular active state logic
-        if (button.id === 'nav-login-signup' || button.id === 'nav-admin-panel' || button.id === 'nav-logout') {
-            return;
-        }
-
-        const page = button.id.replace('nav-', '');
-        if (page === currentPage) {
-            button.classList.add('bg-blue-600'); /* Nouvelle couleur de fond pour l'état actif */
-        } else {
-            button.classList.remove('bg-blue-600');
-        }
-    });
-
-    // Handle visibility of auth/admin/logout buttons
-    if (isLoggedIn) {
-        navLoginSignupButton.classList.add('hidden'); // Hide login/signup if logged in
-        navLogoutButton.classList.remove('hidden'); // Show logout if logged in
-        if (isAdmin) {
-            navAdminPanelButton.classList.remove('hidden'); // Show admin panel button for admins
-            navDossierButton.classList.add('hidden'); // Admins don't need client dossier page
-        } else {
-            navAdminPanelButton.classList.add('hidden'); // Hide admin panel button for non-admins
-            if (isClient) {
-                navDossierButton.classList.remove('hidden'); // Show dossier for clients
-            } else {
-                navDossierButton.classList.add('hidden'); // Hide dossier for other logged-in roles (if any)
-            }
-        }
-    } else {
-        navLoginSignupButton.classList.remove('hidden'); // Show login/signup if not logged in
-        navLogoutButton.classList.add('hidden'); // Hide logout if not logged in
-        navAdminPanelButton.classList.add('hidden'); // Hide admin panel button if not logged in
-        navDossierButton.classList.add('hidden'); // Hide dossier if not logged in
-    }
-
-    // Update footer user info
-    if (isLoggedIn) {
-        userInfoDisplay.textContent = `Connecté en tant que: ${userName} (Rôle: ${userRole})`;
-    } else {
-        userInfoDisplay.textContent = `Non connecté`;
-    }
-}
-
-// --- Firebase Auth Logic ---
-function setupAuth() {
-    onAuthStateChanged(auth, async (user) => {
-        if (user) {
-            currentUser = user;
-            isLoggedIn = true;
-            userEmail = user.email; // Store email
-
-            // Fetch user role from Firestore
-            try {
-                const userDocRef = doc(db, `artifacts/${appId}/public/data/users`, user.uid);
-                const userDocSnap = await getDoc(userDocRef);
-                if (userDocSnap.exists()) {
-                    const userData = userDocSnap.data();
-                    userName = userData.name || user.email;
-                    userRole = userData.role || 'client'; // Default to client if role not set
-                    isAdmin = (userRole === 'admin');
-                    isClient = (userRole === 'client');
-                } else {
-                    // User exists in Auth but not in Firestore 'users' collection (e.g., old user or manual creation)
-                    // Create a basic user profile in Firestore if it doesn't exist
-                    await setDoc(userDocRef, {
-                        name: user.displayName || user.email,
-                        email: user.email,
-                        role: 'client', // Default role for new Firestore user profiles
-                        createdAt: new Date()
-                    }, { merge: true }); // Use merge to avoid overwriting if partial data exists
-                    userName = user.displayName || user.email;
-                    userRole = 'client';
-                    isAdmin = false;
-                    isClient = true;
-                }
-            } catch (error) {
-                console.error("Erreur lors de la récupération/création du profil utilisateur Firestore:", error);
-                userName = user.displayName || user.email; // Fallback
-                userRole = 'client'; // Assume client role on error
-                isAdmin = false;
-                isClient = true;
-            }
-            console.log(`Utilisateur connecté: ${userName} (Rôle: ${userRole}, UID: ${user.uid})`); // Added UID for debugging
-        } else {
-            currentUser = null;
-            userName = 'Non connecté';
-            userEmail = '';
-            userRole = 'guest';
-            isLoggedIn = false;
-            isAdmin = false;
-            isClient = false;
-            console.log("Utilisateur déconnecté.");
-        }
-        renderPage(); // Re-render the page to update UI based on auth state
-    });
-}
-
-function showAuthModal(mode = 'login') {
-    isLoginMode = (mode === 'login');
-    authErrorMessage.classList.add('hidden');
-    authEmailInput.value = '';
-    authPasswordInput.value = '';
-    authNameInput.value = '';
-
-    if (isLoginMode) {
-        authModalTitle.textContent = 'Connexion';
-        authSubmitButton.textContent = 'Se connecter';
-        authToggleModeButton.textContent = 'Pas encore de compte ? S\'inscrire';
-        authNameGroup.classList.add('hidden');
-        authNameInput.removeAttribute('required');
-    } else {
-        authModalTitle.textContent = 'Créer un compte';
-        authSubmitButton.textContent = 'S\'inscrire';
-        authToggleModeButton.textContent = 'Déjà un compte ? Se connecter';
-        authNameGroup.classList.remove('hidden');
-        authNameInput.setAttribute('required', 'required');
-    }
-    authModal.classList.remove('modal-hidden');
-    authModal.classList.add('modal-visible');
-}
-
-function hideAuthModal() {
-    authModal.classList.remove('modal-visible');
-    authModal.classList.add('modal-hidden');
-}
-
-async function handleAuthFormSubmit(e) {
-    e.preventDefault();
-    authErrorMessage.classList.add('hidden'); // Hide previous errors
-
-    const email = authEmailInput.value;
-    const password = authPasswordInput.value;
-    const name = authNameInput.value;
-
-    if (isLoginMode) {
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-            hideAuthModal();
-            // onAuthStateChanged will handle UI update
-        } catch (error) {
-            console.error("Erreur de connexion:", error);
-            let message = "Erreur de connexion. Veuillez vérifier votre email et mot de passe.";
-            if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-                message = "Email ou mot de passe incorrect.";
-            } else if (error.code === 'auth/invalid-email') {
-                message = "Format d'email invalide.";
-            }
-            authErrorMessage.textContent = message;
-            authErrorMessage.classList.remove('hidden');
-        }
-    } else { // Signup mode
-        if (!name.trim()) {
-            authErrorMessage.textContent = "Veuillez entrer votre nom.";
-            authErrorMessage.classList.remove('hidden');
-            return;
-        }
-        try {
-            const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-            // Store user's name and role in Firestore
-            await setDoc(doc(db, `artifacts/${appId}/public/data/users`, userCredential.user.uid), {
-                name: name,
-                email: email,
-                role: 'client', // Default role for new users
-                createdAt: new Date()
-            });
-            hideAuthModal();
-            alert("Compte créé avec succès ! Vous êtes maintenant connecté.");
-            // onAuthStateChanged will handle UI update
-        } catch (error) {
-            console.error("Erreur d'inscription:", error);
-            let message = "Erreur lors de la création du compte.";
-            if (error.code === 'auth/email-already-in-use') {
-                message = "Cet email est déjà utilisé.";
-            } else if (error.code === 'auth/weak-password') {
-                message = "Le mot de passe doit contenir au moins 6 caractères.";
-            } else if (error.code === 'auth/invalid-email') {
-                message = "Format d'email invalide.";
-            }
-            authErrorMessage.textContent = message;
-            authErrorMessage.classList.remove('hidden');
-        }
-    }
-}
-
-async function handleLogout() {
-    try {
-        await signOut(auth);
-        // onAuthStateChanged will handle UI update
-        currentPage = 'home'; // Redirect to home after logout
-        renderPage();
-    } catch (error) {
-        console.error("Erreur de déconnexion:", error);
-        alert("Erreur lors de la déconnexion.");
-    }
-}
-
-// --- Shop Page Logic ---
-function loadShopVehicles() {
-    const shopVehiclesContainer = document.getElementById('shop-vehicles-container');
-    const shopLoading = document.getElementById('shop-loading');
-    const shopError = document.getElementById('shop-error');
-    const noVehiclesMessage = document.getElementById('no-vehicles-message');
-
-    if (shopLoading) shopLoading.classList.remove('hidden');
-    if (shopError) shopError.classList.add('hidden');
-    if (noVehiclesMessage) noVehiclesMessage.classList.add('hidden');
-    if (shopVehiclesContainer) shopVehiclesContainer.innerHTML = ''; // Clear previous vehicles
-
-    const vehiclesCollectionRef = collection(db, `artifacts/${appId}/public/data/vehicles`);
-    onSnapshot(vehiclesCollectionRef, (snapshot) => {
-        vehicles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        if (shopLoading) shopLoading.classList.add('hidden');
-
-        if (vehicles.length === 0) {
-            if (noVehiclesMessage) noVehiclesMessage.classList.remove('hidden');
-        } else {
-            if (noVehiclesMessage) noVehiclesMessage.classList.add('hidden');
-            shopVehiclesContainer.innerHTML = ''; // Clear before re-rendering
-            vehicles.forEach(vehicle => {
-                const vehicleCardHtml = generateVehicleCardHtml(vehicle); // Use the helper function
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = vehicleCardHtml;
-                const vehicleCard = tempDiv.firstElementChild;
-                vehicleCard.addEventListener('click', () => showVehicleDetailModal(vehicle.id));
-                shopVehiclesContainer.appendChild(vehicleCard);
-            });
-        }
-    }, (err) => {
-        console.error("Erreur de récupération des véhicules:", err);
-        if (shopLoading) shopLoading.classList.add('hidden');
-        if (shopError) shopError.textContent = "Impossible de charger les véhicules. Veuillez réessayer plus tard.";
-        if (shopError) shopError.classList.remove('hidden');
-    });
-}
-
-// --- Vehicle Detail Modal Logic ---
-function showVehicleDetailModal(vehicleId) {
-    selectedVehicle = vehicles.find(v => v.id === vehicleId);
-    if (!selectedVehicle) return;
-
-    // Populate modal content
-    detailTitle.textContent = `${selectedVehicle.make} ${selectedVehicle.model}`;
-    detailPrice.textContent = new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(selectedVehicle.price);
-    detailYear.textContent = selectedVehicle.year;
-    detailMileage.textContent = new Intl.NumberFormat('fr-FR').format(selectedVehicle.mileage || 0);
-    detailEngineType.textContent = selectedVehicle.engineType || 'N/A';
-    detailGearboxType.textContent = selectedVehicle.gearboxType || 'N/A';
-    detailFuelType.textContent = selectedVehicle.fuelType || 'N/A';
-    detailTaxHorsepower.textContent = selectedVehicle.taxHorsepower || 'N/A';
-    detailSteamHorsepower.textContent = selectedVehicle.steamHorsepower || 'N/A';
-    detailDescription.textContent = selectedVehicle.description || 'Aucune description disponible.';
-
-    // Handle options
-    detailOptionsList.innerHTML = '';
-    if (selectedVehicle.options && selectedVehicle.options.length > 0) {
-        selectedVehicle.options.forEach(option => {
-            const li = document.createElement('li');
-            li.textContent = option;
-            detailOptionsList.appendChild(li);
-        });
-        detailOptionsSection.classList.remove('hidden');
-    } else {
-        detailOptionsSection.classList.add('hidden');
-    }
-
-    // Handle image carousel
-    currentImageIndex = 0;
-    updateDetailImage();
-
-    // Show/hide carousel navigation
-    if (selectedVehicle.imageUrls && selectedVehicle.imageUrls.length > 1) {
-        prevImageButton.classList.remove('hidden');
-        nextImageButton.classList.remove('hidden');
-        imageCounter.classList.remove('hidden');
-    } else {
-        prevImageButton.classList.add('hidden');
-        nextImageButton.classList.add('hidden');
-        imageCounter.classList.add('hidden');
-    }
-
-    vehicleDetailModal.classList.remove('modal-hidden');
-    vehicleDetailModal.classList.add('modal-visible');
-}
-
-function updateDetailImage() {
-    if (selectedVehicle && selectedVehicle.imageUrls && selectedVehicle.imageUrls.length > 0) {
-        detailImage.src = selectedVehicle.imageUrls[currentImageIndex];
-        detailImage.alt = `${selectedVehicle.make} ${selectedVehicle.model} - Image ${currentImageIndex + 1}`;
-        imageCounter.textContent = `${currentImageIndex + 1} / ${selectedVehicle.imageUrls.length}`;
-    } else {
-        detailImage.src = `https://placehold.co/600x400/ADD8E6/000000?text=Image+non+disponible`;
-        detailImage.alt = `Image non disponible`;
-        imageCounter.textContent = '';
-    }
-    detailImage.onerror = function() {
-        this.onerror = null;
-        this.src = `https://placehold.co/600x400/ADD8E6/000000?text=Image+non+disponible`;
-    };
-}
-
-function hideVehicleDetailModal() {
-    vehicleDetailModal.classList.remove('modal-visible');
-    vehicleDetailModal.classList.add('modal-hidden');
-    selectedVehicle = null;
-}
-
-// --- Fullscreen Image Modal Logic ---
-function showFullscreenImage(imageUrl) {
-    fullscreenImage.src = imageUrl;
-    fullscreenImage.onerror = function() {
-        this.onerror = null;
-        this.src = "https://placehold.co/1200x800/ADD8E6/000000?text=Image+non+disponible";
-    };
-    fullscreenImageModal.classList.remove('modal-hidden');
-    fullscreenImageModal.classList.add('modal-visible');
-}
-
-function hideFullscreenImage() {
-    fullscreenImageModal.classList.remove('modal-visible');
-    fullscreenImageModal.classList.add('modal-hidden');
-}
-
-// --- Contact Page Logic ---
-function setupContactForm() {
-    const contactForm = document.getElementById('contact-form');
-    const contactStatusMessage = document.getElementById('contact-status-message');
-    if (contactForm) {
-        contactForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const formData = new FormData(contactForm);
-            const name = formData.get('name');
-            const email = formData.get('email');
-            const message = formData.get('message');
-
-            console.log('Formulaire de contact soumis:', { name, email, message });
-            contactStatusMessage.textContent = 'Votre message a été envoyé avec succès ! Nous vous répondrons bientôt.';
-            contactForm.reset(); // Réinitialiser le formulaire
-            setTimeout(() => contactStatusMessage.textContent = '', 5000); // Effacer le message après 5 secondes
-        });
-    }
-}
-
-// --- Admin Tools Main Page Logic ---
-function setupAdminToolsPage() {
-    // Get sub-navigation buttons
-    const subnavShopManagement = document.getElementById('subnav-shop-management');
-    const subnavAntsTool = document.getElementById('subnav-ants-tool');
-    const subnavClientDossiers = document.getElementById('subnav-client-dossiers');
-    const subnavPageManagement = document.getElementById('subnav-page-management'); // New button
-    const adminLogoutButton = document.getElementById('admin-logout-button');
-
-    // Add event listeners for sub-navigation
-    if (subnavShopManagement) {
-        subnavShopManagement.addEventListener('click', () => renderAdminToolContent('shop-management'));
-    }
-    if (subnavAntsTool) {
-        subnavAntsTool.addEventListener('click', () => renderAdminToolContent('ants-tool'));
-    }
-    if (subnavClientDossiers) {
-        subnavClientDossiers.addEventListener('click', () => renderAdminToolContent('client-dossiers'));
-    }
-    if (subnavPageManagement) { // New event listener
-        subnavPageManagement.addEventListener('click', () => renderAdminToolContent('page-management'));
-    }
-    if (adminLogoutButton) {
-        adminLogoutButton.addEventListener('click', () => {
-            handleLogout(); // Use the general logout function
-        });
-    }
-    updateAdminSubnavActiveState();
-}
-
-function updateAdminSubnavActiveState() {
-    document.querySelectorAll('.flex.flex-wrap.justify-center.gap-4 button').forEach(button => {
-        const toolName = button.id.replace('subnav-', '');
-        if (toolName === currentAdminTool) {
-            button.classList.remove('btn-secondary');
-            button.classList.add('btn-primary');
-        } else {
-            button.classList.remove('btn-primary');
-            button.classList.add('btn-secondary');
-        }
-    });
-}
-
-function renderAdminToolContent(toolName) {
-    currentAdminTool = toolName; // Update the current tool
-    if (!adminToolContentArea) {
-        console.error("Admin tool content area not found.");
-        return;
-    }
-    adminToolContentArea.innerHTML = ''; // Clear previous tool content
-
-    switch (toolName) {
-        case 'shop-management':
-            adminToolContentArea.innerHTML = shopManagementToolContent;
-            setupShopManagementTool();
-            loadShopManagementVehicles();
-            break;
-        case 'ants-tool':
-            adminToolContentArea.innerHTML = antsToolContent;
-            setupAntsTool();
-            break;
-        case 'client-dossiers':
-            adminToolContentArea.innerHTML = clientDossierToolContent;
-            setupClientDossierTool();
-            loadClientDossiers();
-            break;
-        case 'page-management': // New case
-            adminToolContentArea.innerHTML = pageManagementToolContent;
-            setupPageManagementTool();
-            break;
-        default:
-            adminToolContentArea.innerHTML = `<p class="text-center text-xl text-gray-600">Sélectionnez un outil d'administration.</p>`;
-    }
-    updateAdminSubnavActiveState(); // Update active state of sub-navigation buttons
-}
-
-
-// --- Shop Management Tool Logic ---
-let editingVehicleId = null; // Stores the ID of the vehicle being edited
-
-// Predefined lists for dropdowns and checkboxes
-const predefinedMakes = ["", "Renault", "Dacia", "Peugeot", "Citroën", "Volkswagen", "Audi", "BMW", "Mercedes-Benz", "Ford", "Opel", "Toyota", "Nissan", "Hyundai", "Kia", "Fiat", "Skoda", "Volvo", "Mazda", "Honda", "Suzuki", "Jeep", "Tesla", "Porsche", "Ferrari", "Lamborghini"];
-const predefinedFuelTypes = ["", "Essence", "Diesel", "Électrique", "Hybride", "GPL", "Éthanol"];
-const predefinedGearboxTypes = ["", "Manuelle", "Automatique"];
-
-// Categorized options for checkboxes
-const categorizedOptions = {
-    "Confort et Intérieur": [
-        "Climatisation", "Sièges chauffants", "Sièges ventilés", "Volant chauffant", "Volant multifonctions",
-        "Accoudoir central", "Vitres électriques", "Ventilation banquette arrière", "Toit ouvrant panoramique",
-        "Démarrage sans clé", "Clé mains libres", "Recharge sans fil pour smartphone", "Éclairage d'ambiance"
-    ],
-    "Technologie et Multimédia": [
-        "GPS", "Bluetooth", "Prise Auxiliaire", "USB", "Radio commande au volant", "Ordinateur de bord",
-        "Android Auto", "Apple CarPlay", "Affichage tête haute", "Système audio premium"
-    ],
-    "Sécurité et Assistance à la Conduite": [
-        "ABS", "Airbags frontaux, latéraux", "ISOFIX", "Aide au stationnement", "Caméra de recul",
-        "Radar de recul avant et arrière", "Alerte franchissement de ligne", "Système Start & Stop",
-        "Frein de parking électrique", "Aide au démarrage en côte", "Avertisseur d'angle mort",
-        "Aide au freinage d'urgence", "Avertisseur de collision", "Reconnaissance des panneaux de signalisation"
-    ],
-    "Extérieur et Esthétique": [
-        "Jantes aluminium", "Phares LED", "Phares Xénon", "Phares antibrouillard avant", "Phares antibrouillard arrière",
-        "Rétroviseur électriques", "Peinture métallisée", "Attelage remorque", "Barres de toit"
-    ],
-    "Autres": [
-        "Limiteur de vitesse", "Régulateur de vitesse", "Feu automatique", "Balais essuie-glace automatique",
-        "Vendu avec deux clés", "Commande console centrale", "Feu de brouillard arrière",
-        "Volant réglable en hauteur et en profondeur", "Roue de secours", "Suspension adaptative",
-        "Ouverture/fermeture centralisée", "Allume cigare", "Détecteur de pluie", "Régulateur de vitesse adaptatif"
-    ]
-};
-
-// Standard description text to append
-const standardDescriptionText = `
-Tarif hors carte grise.
-<br>
-🧑🏼‍🔧 Garantie moteur et boîte 6 mois (extension de garantie possible).
-<br>
-🇫🇷🇫🇷HABILITÉE SERVICE CARTE GRISE 🇫🇷🇫🇷
-<br>
-Habilité par le Agence Nationale des Titres Sécurisés.
-<br>
-Nous nous occupons de toutes les démarches administratives d'immatriculation !
-<br>
-Pour faciliter les démarches administratives pensez a vous munir des pièces suivantes lors de votre visite :
-🔸Pièce d'identité en cours de validité.
-🔸Permis de conduire en cours de validité.
-🔸Justificatif de domicile moins de 3 mois (facture ou avis d'imposition).
-🔸En cas d'hébergement : une attestation d'hébergement et la copie de la carte d'identité de l'hébergeur.
-`;
-
-function renderShopManagementOptionsCheckboxes(selectedOptions = []) {
-    const optionsContainer = document.getElementById('admin-options-checkboxes-container');
-    if (!optionsContainer) return;
-
-    optionsContainer.innerHTML = ''; // Clear previous content
-
-    for (const category in categorizedOptions) {
-        const categoryOptions = categorizedOptions[category];
-        const categoryId = category.replace(/\s+/g, '-').toLowerCase();
-
-        const accordionSection = document.createElement('div');
-        accordionSection.className = 'rounded-lg shadow-sm border border-blue-200';
-
-        const header = document.createElement('button');
-        header.type = 'button';
-        header.className = 'accordion-header';
-        header.innerHTML = `
-            <span>${category}</span>
-            <svg class="accordion-arrow w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
-            </svg>
-        `;
-        accordionSection.appendChild(header);
-
-        const content = document.createElement('div');
-        content.className = 'accordion-content';
-        content.id = `accordion-content-${categoryId}`;
-        content.innerHTML = `<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2"></div>`; // Inner grid for checkboxes
-        accordionSection.appendChild(content);
-
-        const innerGrid = content.querySelector('div');
-
-        categoryOptions.forEach(option => {
-            const div = document.createElement('div');
-            div.className = 'flex items-center';
-            const checkboxId = `option-${option.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase()}`; // Sanitize ID
-            div.innerHTML = `
-                <input type="checkbox" id="${checkboxId}" name="options" value="${option}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                <label for="${checkboxId}" class="ml-2 block text-sm text-gray-900">${option}</label>
             `;
-            const checkbox = div.querySelector(`#${checkboxId}`);
-            if (selectedOptions.includes(option)) {
-                checkbox.checked = true;
+            
+            document.body.classList.add('modal-open');
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+
+            // --- Logique de la galerie d'images ---
+            const modalImage = document.getElementById('modal-image');
+            const prevBtn = document.getElementById('modal-image-prev');
+            const nextBtn = document.getElementById('modal-image-next');
+
+            function updateImage() {
+                modalImage.src = images[currentImageIndex];
             }
-            innerGrid.appendChild(div);
-        });
 
-        // Add event listener for accordion toggle
-        header.addEventListener('click', () => {
-            content.classList.toggle('active');
-            header.querySelector('.accordion-arrow').classList.toggle('rotate');
-        });
+            if (images.length > 1) {
+                prevBtn.addEventListener('click', () => {
+                    currentImageIndex = (currentImageIndex - 1 + images.length) % images.length;
+                    updateImage();
+                });
 
-        optionsContainer.appendChild(accordionSection);
-    }
-}
-
-// Function to render dynamic image URL inputs for shop management
-function renderShopManagementImageUrlsInputs(urls = []) {
-    if (!adminImageUrlsContainer) return;
-
-    adminImageUrlsContainer.innerHTML = ''; // Clear existing inputs
-
-    // Ensure there's at least one empty input if no URLs are provided and not editing
-    if (urls.length === 0 && editingVehicleId === null) {
-        urls.push('');
-    }
-
-    urls.forEach((url, index) => {
-        const div = document.createElement('div');
-        div.className = 'draggable-image-item'; // Add class for styling and D&D
-        div.draggable = true; // Make it draggable
-        div.dataset.index = index; // Store original index for D&D logic
-
-        // Add D&D event listeners directly to the element
-        div.addEventListener('dragstart', handleDragStart);
-        div.addEventListener('dragover', handleDragOver);
-        div.addEventListener('dragleave', handleDragLeave);
-        div.addEventListener('drop', handleDrop);
-        div.addEventListener('dragend', handleDragEnd);
-
-        const thumbnailUrl = url || 'https://placehold.co/64x64/E0E0E0/000000?text=No+Image'; // Placeholder for empty URL
-        
-        div.innerHTML = `
-            <img src="${thumbnailUrl}" alt="Thumbnail" class="w-28 h-28 object-cover rounded-lg" onerror="this.onerror=null;this.src='https://placehold.co/64x64/E0E0E0/000000?text=Error';">
-            <input type="url" class="image-url-input w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="URL de l'image" value="${url}">
-            <button type="button" class="remove-image-url-btn">X</button>
-        `;
-        adminImageUrlsContainer.appendChild(div);
-    });
-
-    // Add event listeners for remove buttons (ensure they are re-attached after re-rendering)
-    adminImageUrlsContainer.querySelectorAll('.remove-image-url-btn').forEach(button => {
-        button.addEventListener('click', (e) => {
-            e.target.closest('.draggable-image-item').remove(); // Remove the parent draggable item
-        });
-    });
-
-    // Add event listener for URL input changes to update thumbnail
-    adminImageUrlsContainer.querySelectorAll('.image-url-input').forEach(input => {
-        input.addEventListener('input', (e) => {
-            const imgElement = e.target.previousElementSibling; // The img element is the one before the input
-            if (imgElement && e.target.value) {
-                imgElement.src = e.target.value;
-                imgElement.onerror = function() {
-                    this.onerror = null;
-                    this.src = 'https://placehold.co/64x64/E0E0E0/000000?text=Error';
-                };
-            } else if (imgElement) {
-                imgElement.src = 'https://placehold.co/64x64/E0E0E0/000000?text=No+Image';
+                nextBtn.addEventListener('click', () => {
+                    currentImageIndex = (currentImageIndex + 1) % images.length;
+                    updateImage();
+                });
             }
-        });
-    });
-}
 
-function addShopManagementImageUrlInput() {
-    if (!adminImageUrlsContainer) return;
-    const div = document.createElement('div');
-    div.className = 'draggable-image-item';
-    div.draggable = true;
-    // No dataset.index initially, it will be re-evaluated on submit based on DOM order
-    
-    // Add D&D event listeners
-    div.addEventListener('dragstart', handleDragStart);
-    div.addEventListener('dragover', handleDragOver);
-    div.addEventListener('dragleave', handleDragLeave);
-    div.addEventListener('drop', handleDrop);
-    div.addEventListener('dragend', handleDragEnd);
-
-    div.innerHTML = `
-        <img src="https://placehold.co/64x64/E0E0E0/000000?text=No+Image" alt="Thumbnail" class="w-28 h-28 object-cover rounded-lg">
-        <input type="url" class="image-url-input w-full p-3 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="URL de l'image">
-        <button type="button" class="remove-image-url-btn">X</button>
-    `;
-    adminImageUrlsContainer.appendChild(div);
-    div.querySelector('.remove-image-url-btn').addEventListener('click', (e) => {
-        e.target.closest('.draggable-image-item').remove();
-    });
-    div.querySelector('.image-url-input').addEventListener('input', (e) => {
-        const imgElement = e.target.previousElementSibling;
-        if (imgElement && e.target.value) {
-            imgElement.src = e.target.value;
-            imgElement.onerror = function() {
-                this.onerror = null;
-                this.src = 'https://placehold.co/64x64/E0E0E0/000000?text=Error';
-            };
-        } else if (imgElement) {
-            imgElement.src = 'https://placehold.co/64x64/E0E0E0/000000?text=No+Image';
+            // --- Fermeture de la modale ---
+            document.getElementById('close-modal-button').addEventListener('click', closeModal);
+            document.getElementById('contact-us-button').addEventListener('click', closeModal);
         }
-    });
-}
 
-// --- Drag and Drop Functions ---
-function handleDragStart(e) {
-    draggedItem = this; // 'this' refers to the draggable-image-item div
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/html', this.outerHTML); // Store the entire HTML for potential re-insertion
-    this.classList.add('dragging');
-}
-
-function handleDragOver(e) {
-    e.preventDefault(); // Necessary to allow dropping
-    const dropTarget = e.target.closest('.draggable-image-item');
-    if (dropTarget && dropTarget !== draggedItem) {
-        // Remove drag-over from all items first
-        adminImageUrlsContainer.querySelectorAll('.draggable-image-item').forEach(item => {
-            item.classList.remove('drag-over');
-        });
-        // Add drag-over to the current target
-        dropTarget.classList.add('drag-over');
-    }
-}
-
-function handleDragLeave(e) {
-    if (e.target.closest('.draggable-image-item')) {
-        e.target.closest('.draggable-image-item').classList.remove('drag-over');
-    }
-}
-
-function handleDrop(e) {
-    e.preventDefault();
-    const dropTarget = e.target.closest('.draggable-image-item');
-
-    if (dropTarget && draggedItem && dropTarget !== draggedItem) {
-        // Determine if we're dropping before or after the target
-        const rect = dropTarget.getBoundingClientRect();
-        const offsetY = e.clientY - rect.top;
-        const insertBefore = offsetY < rect.height / 2;
-
-        if (insertBefore) {
-            adminImageUrlsContainer.insertBefore(draggedItem, dropTarget);
-        } else {
-            adminImageUrlsContainer.insertBefore(draggedItem, dropTarget.nextSibling);
+        function closeModal() {
+            modalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
+            }, 300);
         }
-    }
-    // Clean up drag-over class
-    adminImageUrlsContainer.querySelectorAll('.draggable-image-item').forEach(item => {
-        item.classList.remove('drag-over');
-    });
-}
 
-function handleDragEnd(e) {
-    this.classList.remove('dragging');
-    draggedItem = null; // Clear dragged item
-    // Ensure any lingering drag-over classes are removed
-    adminImageUrlsContainer.querySelectorAll('.draggable-image-item').forEach(item => {
-        item.classList.remove('drag-over');
-    });
-}
-
-
-function setupShopManagementTool() {
-    // Assign elements for shop management
-    shopManagementForm = document.getElementById('admin-vehicle-form');
-    shopManagementSubmitButton = document.getElementById('admin-submit-button');
-    shopManagementCancelEditButton = document.getElementById('admin-cancel-edit');
-    shopManagementFormTitle = document.getElementById('admin-form-title');
-    adminMakeSelect = document.getElementById('admin-make');
-    adminFuelTypeSelect = document.getElementById('admin-fuelType');
-    adminGearboxTypeSelect = document.getElementById('admin-gearboxType');
-    adminAddImageUrlButton = document.getElementById('admin-add-image-url-btn');
-    adminIsSoldCheckbox = document.getElementById('admin-is-sold');
-    adminImageUploadInput = document.getElementById('admin-image-upload');
-    adminUploadStatus = document.getElementById('admin-upload-status');
-    adminOptionsCheckboxesContainer = document.getElementById('admin-options-checkboxes-container'); // Updated ID
-    adminImageUrlsContainer = document.getElementById('admin-image-urls-container');
-    adminCustomOptionInput = document.getElementById('admin-custom-option-input');
-    adminAddCustomOptionButton = document.getElementById('admin-add-custom-option-btn');
-
-    // Populate dropdowns
-    function populateSelect(selectElement, optionsList, selectedValue = '') {
-        selectElement.innerHTML = '';
-        optionsList.forEach(option => {
-            const opt = document.createElement('option');
-            opt.value = option;
-            opt.textContent = option;
-            if (option === selectedValue) {
-                opt.selected = true;
+        // Fermer la modale en cliquant en dehors ou avec la touche Echap
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                closeModal();
             }
-            selectElement.appendChild(opt);
         });
-    }
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+                closeModal();
+            }
+        });
 
-    populateSelect(adminMakeSelect, predefinedMakes);
-    populateSelect(adminFuelTypeSelect, predefinedFuelTypes);
-    populateSelect(adminGearboxTypeSelect, predefinedGearboxTypes);
-
-    // Render options checkboxes and image URL inputs initially
-    renderShopManagementOptionsCheckboxes();
-    renderShopManagementImageUrlsInputs(); // This will now set up D&D listeners
-
-    if (shopManagementForm) {
-        shopManagementForm.addEventListener('submit', handleShopManagementSubmit);
-    }
-    if (shopManagementCancelEditButton) {
-        shopManagementCancelEditButton.addEventListener('click', resetShopManagementForm);
-    }
-    if (adminAddCustomOptionButton) {
-        adminAddCustomOptionButton.addEventListener('click', () => {
-            const customOption = adminCustomOptionInput.value.trim();
-            if (customOption) {
-                // Add to "Autres" category and re-render options
-                if (!categorizedOptions["Autres"]) {
-                    categorizedOptions["Autres"] = [];
+        // Ajouter les écouteurs d'événements sur les boutons "Détails"
+        document.getElementById('vehicle-list').addEventListener('click', (event) => {
+            const detailsButton = event.target.closest('.details-button');
+            if (detailsButton) {
+                const vehicleId = detailsButton.dataset.id;
+                const vehicle = allVehicles.find(v => v.id === vehicleId);
+                if (vehicle) {
+                    openModal(vehicle);
                 }
-                categorizedOptions["Autres"].push(customOption);
-                renderShopManagementOptionsCheckboxes(getCheckedOptions()); // Re-render with current selections + new option
-                adminCustomOptionInput.value = ''; // Clear input
             }
         });
-    }
-    if (adminAddImageUrlButton) {
-        adminAddImageUrlButton.addEventListener('click', addShopManagementImageUrlInput);
-    }
-}
-
-// Helper to get currently checked options (useful before re-rendering options)
-function getCheckedOptions() {
-    const checkedOptions = [];
-    document.querySelectorAll('#admin-options-checkboxes-container input[type="checkbox"]:checked').forEach(checkbox => {
-        checkedOptions.push(checkbox.value);
-    });
-    return checkedOptions;
-}
-
-async function loadShopManagementVehicles() {
-    const adminVehiclesTableBody = document.getElementById('admin-vehicles-table-body');
-    const adminNoVehiclesMessage = document.getElementById('admin-no-vehicles-message');
-    const adminError = document.getElementById('admin-error');
-
-    if (adminVehiclesTableBody) adminVehiclesTableBody.innerHTML = ''; // Clear table
-    if (adminNoVehiclesMessage) adminNoVehiclesMessage.classList.add('hidden');
-    if (adminError) adminError.classList.add('hidden');
-
-    const vehiclesCollectionRef = collection(db, `artifacts/${appId}/public/data/vehicles`);
-    onSnapshot(vehiclesCollectionRef, (snapshot) => {
-        vehicles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Sort vehicles by make and then model for consistent display
-        vehicles.sort((a, b) => {
-            const makeCompare = (a.make || '').localeCompare(b.make || '');
-            if (makeCompare !== 0) return makeCompare;
-            return (a.model || '').localeCompare(b.model || '');
-        });
-
-        if (adminVehiclesTableBody) adminVehiclesTableBody.innerHTML = ''; // Clear before re-rendering
-
-        if (vehicles.length === 0) {
-            if (adminNoVehiclesMessage) adminNoVehiclesMessage.classList.remove('hidden');
-        } else {
-            if (adminNoVehiclesMessage) adminNoVehiclesMessage.classList.add('hidden');
-            vehicles.forEach(vehicle => {
-                const row = adminVehiclesTableBody.insertRow();
-                row.innerHTML = `
-                    <td class="py-3 px-4 text-gray-800">${vehicle.make || 'N/A'}</td>
-                    <td class="py-3 px-4 text-gray-800">${vehicle.model || 'N/A'}</td>
-                    <td class="py-3 px-4 text-gray-800">${vehicle.year || 'N/A'}</td>
-                    <td class="py-3 px-4 text-gray-800">${new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(vehicle.price || 0)}</td>
-                    <td class="py-3 px-4 flex space-x-2">
-                        <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-300 ease-in-out transform hover:scale-105 edit-btn" data-id="${vehicle.id}">Modifier</button>
-                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-300 ease-in-out transform hover:scale-105 delete-btn" data-id="${vehicle.id}">Supprimer</button>
-                    </td>
-                `;
-            });
-
-            // Attach event listeners to new buttons
-            document.querySelectorAll('.edit-btn').forEach(button => {
-                button.addEventListener('click', (e) => handleShopManagementEdit(e.target.dataset.id));
-            });
-            document.querySelectorAll('.delete-btn').forEach(button => {
-                button.addEventListener('click', (e) => handleShopManagementDelete(e.target.dataset.id));
-            });
-        }
-    }, (err) => {
-        console.error("Erreur de récupération des véhicules pour l'admin:", err);
-        if (adminError) adminError.textContent = "Impossible de charger les véhicules.";
-        if (adminError) adminError.classList.remove('hidden');
-    });
-}
-
-async function handleShopManagementSubmit(e) {
-    e.preventDefault();
-    const formElements = e.target.elements;
-    
-    adminUploadStatus.textContent = 'Téléchargement des images...';
-    adminUploadStatus.classList.remove('hidden');
-    adminUploadStatus.classList.remove('text-red-600');
-    adminUploadStatus.classList.add('text-gray-600');
-
-
-    const uploadedImageUrls = [];
-    const files = adminImageUploadInput.files; // Get files from the input
-
-    for (const file of files) {
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
-
-        try {
-            const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`, {
-                method: 'POST',
-                body: formData
-            });
-            const result = await response.json();
-            if (result.secure_url) {
-                uploadedImageUrls.push(result.secure_url);
-            } else {
-                console.error("Erreur Cloudinary: Pas d'URL sécurisée", result);
-                adminUploadStatus.textContent = `Erreur de téléversement pour ${file.name}. Détails: ${result.error ? result.error.message : 'Inconnu'}`;
-                adminUploadStatus.classList.remove('text-gray-600');
-                adminUploadStatus.classList.add('text-red-600');
-                // Continue to try other files or break
-            }
-        } catch (uploadError) {
-            console.error("Erreur lors du téléversement de l'image vers Cloudinary:", file.name, uploadError);
-            adminUploadStatus.textContent = `Erreur de téléversement pour ${file.name}. Vérifiez votre configuration Cloudinary et la console.`;
-            adminUploadStatus.classList.remove('text-gray-600');
-            adminUploadStatus.classList.add('text-red-600');
-            // Continue to try other files or break
-        }
-    }
-    
-    // Collect existing URLs from dynamic inputs in their current DOM order
-    const currentImageUrlsInOrder = Array.from(adminImageUrlsContainer.querySelectorAll('.image-url-input'))
-                                    .map(input => input.value.trim())
-                                    .filter(url => url !== '');
-    const finalImageUrls = [...currentImageUrlsInOrder, ...uploadedImageUrls]; // New uploads are appended
-
-    // Collect selected options from checkboxes
-    const selectedOptions = Array.from(document.querySelectorAll('#admin-options-checkboxes-container input[type="checkbox"]:checked'))
-                               .map(checkbox => checkbox.value);
-
-    let descriptionContent = formElements.description.value.trim();
-    // Append standard text if not already present (simple check)
-    if (!descriptionContent.includes("Tarif hors carte grise.")) {
-        descriptionContent += standardDescriptionText;
-    }
-
-    const vehicleData = {
-        make: formElements.make.value,
-        model: formElements.model.value,
-        year: parseInt(formElements.year.value),
-        price: parseFloat(formElements.price.value),
-        description: descriptionContent, // Utilise la description complétée
-        imageUrls: finalImageUrls, // Utilise les URLs combinées (maintenant de Cloudinary)
-        mileage: parseInt(formElements.mileage.value) || 0,
-        engineType: formElements.engineType.value,
-        gearboxType: formElements.gearboxType.value,
-        fuelType: formElements.fuelType.value,
-        options: selectedOptions, // Utilise les options des checkboxes
-        taxHorsepower: parseInt(formElements.taxHorsepower.value) || 0,
-        steamHorsepower: parseInt(formElements.steamHorsepower.value) || 0,
-        isSold: formElements.isSold.checked // Get the value of the "Vendu" checkbox
-    };
-
-    try {
-        if (editingVehicleId) {
-            const vehicleDocRef = doc(db, `artifacts/${appId}/public/data/vehicles`, editingVehicleId);
-            await updateDoc(vehicleDocRef, vehicleData);
-            console.log("Véhicule mis à jour avec succès !");
-            adminUploadStatus.textContent = "Véhicule mis à jour avec succès !";
-        } else {
-            await addDoc(collection(db, `artifacts/${appId}/public/data/vehicles`), vehicleData);
-            console.log("Véhicule ajouté avec succès !");
-            adminUploadStatus.textContent = "Véhicule ajouté avec succès !";
-        }
-        adminUploadStatus.classList.remove('hidden');
-        adminUploadStatus.classList.remove('text-red-600');
-        adminUploadStatus.classList.add('text-green-600');
-        setTimeout(() => adminUploadStatus.classList.add('hidden'), 3000); // Hide after 3 seconds
-        resetShopManagementForm();
-    } catch (err) {
-        console.error("Erreur lors de la soumission du véhicule vers Firestore:", err);
-        adminUploadStatus.textContent = "Erreur lors de l'enregistrement du véhicule dans Firestore. Vérifiez la console.";
-        adminUploadStatus.classList.remove('hidden');
-        adminUploadStatus.classList.remove('text-green-600');
-        adminUploadStatus.classList.add('text-red-600');
-    }
-}
-
-function handleShopManagementEdit(id) {
-    editingVehicleId = id;
-    const vehicle = vehicles.find(v => v.id === id);
-    if (vehicle) {
-        shopManagementFormTitle.textContent = 'Modifier un Véhicule';
-        shopManagementSubmitButton.textContent = 'Mettre à jour le Véhicule';
-        shopManagementCancelEditButton.classList.remove('hidden');
-
-        document.getElementById('admin-model').value = vehicle.model || '';
-        document.getElementById('admin-year').value = vehicle.year || '';
-        document.getElementById('admin-price').value = vehicle.price || '';
-        document.getElementById('admin-description').value = vehicle.description || '';
-        // Populate dropdowns with current vehicle data
-        document.getElementById('admin-make').value = vehicle.make || '';
-        document.getElementById('admin-fuelType').value = vehicle.fuelType || '';
-        document.getElementById('admin-gearboxType').value = vehicle.gearboxType || '';
-
-        // Populate existing image URLs into dynamic inputs, now with D&D
-        renderShopManagementImageUrlsInputs(vehicle.imageUrls || []);
         
-        document.getElementById('admin-mileage').value = vehicle.mileage || '';
-        document.getElementById('admin-engineType').value = vehicle.engineType || '';
-        document.getElementById('admin-taxHorsepower').value = vehicle.taxHorsepower || '';
-        document.getElementById('admin-steamHorsepower').value = vehicle.steamHorsepower || '';
-        document.getElementById('admin-is-sold').checked = vehicle.isSold || false; // Set "Vendu" checkbox
+        // --- CHARGEMENT DES DONNÉES DEPUIS FIRESTORE ---
+        function listenForVehicles() {
+            const vehiclesCollection = collection(db, "vehicules");
+            const loadingSpinner = document.getElementById('loading-spinner');
+            const vehicleList = document.getElementById('vehicle-list');
 
-        // Pass existing options to render function to pre-check them
-        renderShopManagementOptionsCheckboxes(vehicle.options || []);
-        
-        // Clear the file input when editing, so user only uploads new files if needed
-        if (adminImageUploadInput) adminImageUploadInput.value = '';
-        if (adminUploadStatus) adminUploadStatus.classList.add('hidden');
-
-        document.getElementById('admin-form-section').scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-async function handleShopManagementDelete(id) {
-    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce véhicule ?");
-    if (confirmDelete) {
-        try {
-            await deleteDoc(doc(db, `artifacts/${appId}/public/data/vehicles`, id));
-            console.log("Véhicule supprimé avec succès !");
-        } catch (err) {
-            console.error("Erreur lors de la suppression du véhicule:", err);
-            alert("Erreur lors de la suppression du véhicule."); // Using alert for simplicity
-        }
-    }
-}
-
-function resetShopManagementForm() {
-    editingVehicleId = null;
-    shopManagementFormTitle.textContent = 'Ajouter un Nouveau Véhicule';
-    shopManagementSubmitButton.textContent = 'Ajouter le Véhicule';
-    shopManagementCancelEditButton.classList.add('hidden');
-    shopManagementForm.reset();
-    // Clear file input and status
-    if (adminImageUploadInput) adminImageUploadInput.value = '';
-    if (adminUploadStatus) adminUploadStatus.classList.add('hidden');
-    // Reset options checkboxes
-    renderShopManagementOptionsCheckboxes();
-    // Reset image URL inputs
-    renderShopManagementImageUrlsInputs();
-    // Reset "Vendu" checkbox
-    document.getElementById('admin-is-sold').checked = false;
-}
-
-// --- ANTS Tool Logic ---
-function setupAntsTool() {
-    antsMaVariableInput = document.getElementById("maVariable");
-    antsAccessDossierButton = document.getElementById("access-dossier-button");
-
-    if (antsMaVariableInput) {
-        antsMaVariableInput.addEventListener('keypress', handleAntsKeyPress);
-    }
-    if (antsAccessDossierButton) {
-        antsAccessDossierButton.addEventListener('click', modifierLien);
-    }
-}
-
-function modifierLien() {
-    const valeurSaisie = antsMaVariableInput.value;
-    if (valeurSaisie.trim() === "") {
-        console.warn("Le numéro de dossier ne peut pas être vide.");
-        alert("Veuillez entrer un numéro de dossier."); // Using alert for simplicity
-        return;
-    }
-    const lien = 'https://mesdemarches.siv.interieur.gouv.fr/siv-tp/#/reprise/' + valeurSaisie;
-    window.open(lien, '_blank'); // Open in new tab
-}
-
-function handleAntsKeyPress(event) {
-    if (event.key === 'Enter') {
-        modifierLien();
-    }
-}
-
-// --- Client Dossier Tool Logic (Admin Panel) ---
-let editingClientDossierId = null;
-
-function setupClientDossierTool() {
-    clientDossierForm = document.getElementById('client-dossier-form');
-    clientDossierSubmitButton = document.getElementById('client-dossier-submit-button');
-    clientDossierCancelEditButton = document.getElementById('client-dossier-cancel-edit');
-    clientDossierFormTitle = document.getElementById('client-dossier-form-title');
-    clientDossiersTableBody = document.getElementById('client-dossiers-table-body');
-    clientDossiersNoDataMessage = document.getElementById('client-dossiers-no-data-message');
-    clientDossiersError = document.getElementById('client-dossiers-error');
-
-    if (clientDossierForm) {
-        clientDossierForm.addEventListener('submit', handleClientDossierSubmit);
-    }
-    if (clientDossierCancelEditButton) {
-        clientDossierCancelEditButton.addEventListener('click', resetClientDossierForm);
-    }
-}
-
-async function loadClientDossiers() {
-    if (!isLoggedIn) {
-        console.warn("Utilisateur non connecté. Impossible de charger les dossiers clients.");
-        if (clientDossiersError) clientDossiersError.textContent = "Veuillez vous connecter pour accéder aux dossiers clients.";
-        if (clientDossiersError) clientDossiersError.classList.remove('hidden');
-        if (clientDossiersTableBody) clientDossiersTableBody.innerHTML = '';
-        if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.add('hidden');
-        return;
-    }
-
-    if (clientDossiersTableBody) clientDossiersTableBody.innerHTML = '';
-    if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.add('hidden');
-    if (clientDossiersError) clientDossiersError.classList.add('hidden');
-
-    const clientDossiersCollectionRef = collection(db, `artifacts/${appId}/public/data/client_dossiers`);
-    onSnapshot(clientDossiersCollectionRef, (snapshot) => {
-        clientDossiers = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        clientDossiers.sort((a, b) => (a.clientName || '').localeCompare(b.clientName || '')); // Sort by client name
-
-        if (clientDossiersTableBody) clientDossiersTableBody.innerHTML = '';
-
-        if (clientDossiers.length === 0) {
-            if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.remove('hidden');
-        } else {
-            if (clientDossiersNoDataMessage) clientDossiersNoDataMessage.classList.add('hidden');
-            clientDossiers.forEach(dossier => {
-                const row = clientDossiersTableBody.insertRow();
-                row.innerHTML = `
-                    <td class="py-3 px-4 text-gray-800">${dossier.clientName || 'N/A'}</td>
-                    <td class="py-3 px-4 text-gray-800">${dossier.vehicleMake || 'N/A'}</td>
-                    <td class="py-3 px-4 text-gray-800">${dossier.vehicleModel || 'N/A'}</td>
-                    <td class="py-3 px-4 text-gray-800">${dossier.invoiceNumber || 'N/A'}</td>
-                    <td class="py-3 px-4 text-gray-800">${dossier.status || 'N/A'}</td>
-                    <td class="py-3 px-4 flex space-x-2">
-                        <button class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-300 ease-in-out transform hover:scale-105 edit-client-dossier-btn" data-id="${dossier.id}">Modifier</button>
-                        <button class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded-lg text-sm transition duration-300 ease-in-out transform hover:scale-105 delete-client-dossier-btn" data-id="${dossier.id}">Supprimer</button>
-                    </td>
-                `;
-            });
-
-            document.querySelectorAll('.edit-client-dossier-btn').forEach(button => {
-                button.addEventListener('click', (e) => handleClientDossierEdit(e.target.dataset.id));
-            });
-            document.querySelectorAll('.delete-client-dossier-btn').forEach(button => {
-                button.addEventListener('click', (e) => handleClientDossierDelete(e.target.dataset.id));
+            onSnapshot(vehiclesCollection, (snapshot) => {
+                allVehicles = []; // Vider la liste pour la reconstruire
+                snapshot.forEach((doc) => {
+                    allVehicles.push({ id: doc.id, ...doc.data() });
+                });
+                displayVehicles(allVehicles);
+                loadingSpinner.style.display = 'none';
+            }, (error) => {
+                console.error("Erreur lors de la récupération des véhicules: ", error);
+                loadingSpinner.style.display = 'none';
+                vehicleList.innerHTML = `<p class="text-center col-span-full text-red-500">Impossible de charger les véhicules. Vérifiez la console pour plus de détails.</p>`;
             });
         }
-    }, (err) => {
-        console.error("Erreur de récupération des dossiers clients:", err);
-        if (clientDossiersError) clientDossiersError.textContent = "Impossible de charger les dossiers clients.";
-        if (clientDossiersError) clientDossiers.classList.remove('hidden');
-    });
-}
 
-async function handleClientDossierSubmit(e) {
-    e.preventDefault();
-    const formElements = e.target.elements;
+        // Démarrer l'écoute des données
+        listenForVehicles();
 
-    const dossierData = {
-        clientName: formElements.clientName.value,
-        vehicleMake: formElements.vehicleMake.value,
-        vehicleModel: formElements.vehicleModel.value,
-        vin: formElements.vin.value,
-        invoiceNumber: formElements.invoiceNumber.value,
-        status: formElements.status.value,
-        notes: formElements.notes.value
-    };
-
-    try {
-        if (editingClientDossierId) {
-            const dossierDocRef = doc(db, `artifacts/${appId}/public/data/client_dossiers`, editingClientDossierId);
-            await updateDoc(dossierDocRef, dossierData);
-            console.log("Dossier client mis à jour avec succès !");
-        } else {
-            await addDoc(collection(db, `artifacts/${appId}/public/data/client_dossiers`), dossierData);
-            console.log("Dossier client ajouté avec succès !");
-        }
-        resetClientDossierForm();
-    } catch (err) {
-        console.error("Erreur lors de la soumission du dossier client:", err);
-        alert("Erreur lors de l'enregistrement du dossier client. Vérifiez la console pour plus de détails.");
-    }
-}
-
-function handleClientDossierEdit(id) {
-    editingClientDossierId = id;
-    const dossier = clientDossiers.find(d => d.id === id);
-    if (dossier) {
-        clientDossierFormTitle.textContent = 'Modifier un Dossier Client';
-        clientDossierSubmitButton.textContent = 'Mettre à jour le Dossier';
-        clientDossierCancelEditButton.classList.remove('hidden');
-
-        document.getElementById('client-name').value = dossier.clientName || '';
-        document.getElementById('client-vehicle-make').value = dossier.vehicleMake || '';
-        document.getElementById('client-vehicle-model').value = dossier.vehicleModel || '';
-        document.getElementById('client-vin').value = dossier.vin || '';
-        document.getElementById('client-invoice-number').value = dossier.invoiceNumber || '';
-        document.getElementById('client-status').value = dossier.status || '';
-        document.getElementById('client-notes').value = dossier.notes || '';
-
-        document.getElementById('client-dossier-tool-container').scrollIntoView({ behavior: 'smooth' });
-    }
-}
-
-async function handleClientDossierDelete(id) {
-    const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce dossier client ?");
-    if (confirmDelete) {
-        try {
-            await deleteDoc(doc(db, `artifacts/${appId}/public/data/client_dossiers`, id));
-            console.log("Dossier client supprimé avec succès !");
-        } catch (err) {
-            console.error("Erreur lors de la suppression du dossier client:", err);
-            alert("Erreur lors de la suppression du dossier client.");
-        }
-    }
-}
-
-function resetClientDossierForm() {
-    editingClientDossierId = null;
-    clientDossierFormTitle.textContent = 'Ajouter un Nouveau Dossier Client';
-    clientDossierSubmitButton.textContent = 'Ajouter le Dossier';
-    clientDossierCancelEditButton.classList.add('hidden');
-    clientDossierForm.reset();
-}
-
-// --- Client Dossier Page Logic (for Clients) ---
-function setupDossierPage() {
-    dossierSearchInput = document.getElementById('dossier-search-input');
-    dossierDetailsDisplay = document.getElementById('dossier-details-display');
-    dossierAccountInfoDisplay = document.getElementById('dossier-account-info-display');
-    const dossierErrorMessage = document.getElementById('dossier-error-message');
-    const dossierSearchButton = document.getElementById('dossier-search-button');
-
-    // Display user's account info
-    if (dossierAccountInfoDisplay) {
-        document.getElementById('account-name').textContent = userName;
-        document.getElementById('account-email').textContent = userEmail;
-        document.getElementById('account-role').textContent = userRole.charAt(0).toUpperCase() + userRole.slice(1); // Capitalize first letter
-    }
-
-    if (dossierSearchButton) {
-        dossierSearchButton.addEventListener('click', searchClientDossier);
-    }
-    if (dossierSearchInput) {
-        dossierSearchInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                searchClientDossier();
-            }
-        });
-    }
-}
-
-async function searchClientDossier() {
-    if (!isLoggedIn) {
-        dossierErrorMessage.textContent = "Vous devez être connecté pour rechercher un dossier.";
-        dossierErrorMessage.classList.remove('hidden');
-        return;
-    }
-
-    const dossierNumber = dossierSearchInput.value.trim();
-    dossierDetailsDisplay.classList.add('hidden');
-    dossierDetailsDisplay.innerHTML = '';
-    dossierErrorMessage.classList.add('hidden');
-
-    if (!dossierNumber) {
-        dossierErrorMessage.textContent = "Veuillez entrer un numéro de facture.";
-        dossierErrorMessage.classList.remove('hidden');
-        return;
-    }
-
-    if (!currentUser || !userName) {
-        dossierErrorMessage.textContent = "Vous devez être connecté pour rechercher un dossier.";
-        dossierErrorMessage.classList.remove('hidden');
-        return;
-    }
-
-    try {
-        // Query by invoiceNumber and clientName (which is the logged-in user's name)
-        const q = query(collection(db, `artifacts/${appId}/public/data/client_dossiers`),
-                        where("invoiceNumber", "==", dossierNumber),
-                        where("clientName", "==", userName));
-        const querySnapshot = await getDocs(q);
-
-        if (querySnapshot.empty) {
-            dossierErrorMessage.textContent = "Aucun dossier trouvé avec ce numéro de facture pour votre compte.";
-            dossierErrorMessage.classList.remove('hidden');
-        } else {
-            querySnapshot.forEach((doc) => {
-                const dossier = doc.data();
-                dossierDetailsDisplay.innerHTML = `
-                    <h3 class="text-xl font-semibold text-blue-700 mb-2">Détails du Dossier : ${dossier.invoiceNumber}</h3>
-                    <p class="text-lg"><strong class="text-blue-600">Client:</strong> ${dossier.clientName}</p>
-                    <p class="text-lg"><strong class="text-blue-600">Véhicule:</strong> ${dossier.vehicleMake || 'N/A'} ${dossier.vehicleModel || 'N/A'}</p>
-                    <p class="text-lg"><strong class="text-blue-600">VIN:</strong> ${dossier.vin || 'N/A'}</p>
-                    <p class="text-lg"><strong class="text-blue-600">Statut:</strong> ${dossier.status}</p>
-                    <p class="text-lg"><strong class="text-blue-600">Notes:</strong> ${dossier.notes || 'Aucune'}</p>
-                `;
-                dossierDetailsDisplay.classList.remove('hidden');
-            });
-        }
-    } catch (error) {
-        console.error("Erreur lors de la recherche du dossier client:", error);
-        dossierErrorMessage.textContent = "Erreur lors de la recherche du dossier. Veuillez réessayer.";
-        dossierErrorMessage.classList.remove('hidden');
-    }
-}
-
-// --- Home Page Featured Vehicles Logic ---
-function loadFeaturedVehicles() {
-    const featuredVehiclesContainer = document.getElementById('featured-vehicles-container');
-    const noFeaturedVehiclesMessage = document.getElementById('no-featured-vehicles-message');
-
-    if (!featuredVehiclesContainer) return;
-
-    featuredVehiclesContainer.innerHTML = ''; // Clear previous featured vehicles
-
-    // Filter out sold vehicles for featured display
-    const availableVehicles = vehicles.filter(v => !v.isSold);
-
-    if (availableVehicles.length === 0) {
-        if (noFeaturedVehiclesMessage) noFeaturedVehiclesMessage.classList.remove('hidden');
-        return;
-    } else {
-        if (noFeaturedVehiclesMessage) noFeaturedVehiclesMessage.classList.add('hidden');
-    }
-
-    // Shuffle vehicles and pick top 3
-    const shuffledVehicles = [...availableVehicles].sort(() => 0.5 - Math.random());
-    const selectedFeatured = shuffledVehicles.slice(0, 3);
-
-    selectedFeatured.forEach(vehicle => {
-        const vehicleCardHtml = generateVehicleCardHtml(vehicle, true); // Use helper with isFeatured = true
-        const tempDiv = document.createElement('div');
-        tempDiv.innerHTML = vehicleCardHtml;
-        const vehicleCard = tempDiv.firstElementChild;
-        vehicleCard.addEventListener('click', (event) => {
-            // Prevent opening detail modal if clicking on a child element that has its own action
-            if (event.target.tagName === 'A' || event.target.tagName === 'BUTTON') {
-                return;
-            }
-            // Redirect to shop page and then open the detail modal
-            currentPage = 'shop';
-            renderPage();
-            // Delay opening modal slightly to ensure shop page is rendered
-            setTimeout(() => showVehicleDetailModal(vehicle.id), 100);
-        });
-        featuredVehiclesContainer.appendChild(vehicleCard);
-    });
-}
-
-// --- Review System Logic (Homepage) ---
-function setupReviewForm() {
-    reviewForm = document.getElementById('review-form');
-    reviewRatingInput = document.getElementById('review-rating');
-    reviewCommentInput = document.getElementById('review-comment');
-    reviewSubmitButton = document.getElementById('review-submit-button');
-    reviewStatusMessage = document.getElementById('review-status-message');
-
-    if (reviewForm) {
-        reviewForm.addEventListener('submit', submitReview);
-    }
-}
-
-async function submitReview(e) {
-    e.preventDefault();
-    reviewStatusMessage.classList.add('hidden');
-
-    if (!currentUser) {
-        reviewStatusMessage.textContent = "Vous devez être connecté pour soumettre un avis.";
-        reviewStatusMessage.classList.remove('hidden');
-        reviewStatusMessage.classList.remove('text-green-600');
-        reviewStatusMessage.classList.add('text-red-600');
-        return;
-    }
-
-    const rating = parseInt(reviewRatingInput.value);
-    const comment = reviewCommentInput.value.trim();
-
-    if (isNaN(rating) || rating < 1 || rating > 5) {
-        reviewStatusMessage.textContent = "Veuillez donner une note entre 1 et 5 étoiles.";
-        reviewStatusMessage.classList.remove('hidden');
-        reviewStatusMessage.classList.remove('text-green-600');
-        reviewStatusMessage.classList.add('text-red-600');
-        return;
-    }
-    if (!comment) {
-        reviewStatusMessage.textContent = "Veuillez écrire un commentaire.";
-        reviewStatusMessage.classList.remove('hidden');
-        reviewStatusMessage.classList.remove('text-green-600');
-        reviewStatusMessage.classList.add('text-red-600');
-        return;
-    }
-
-    try {
-        await addDoc(collection(db, `artifacts/${appId}/public/data/reviews`), {
-            userName: userName, // Use the display name of the logged-in user
-            rating: rating,
-            comment: comment,
-            timestamp: new Date()
-        });
-        reviewStatusMessage.textContent = "Votre avis a été soumis avec succès !";
-        reviewStatusMessage.classList.remove('hidden');
-        reviewStatusMessage.classList.remove('text-red-600');
-        reviewStatusMessage.classList.add('text-green-600');
-        reviewForm.reset();
-        loadReviews(); // Reload reviews to show the new one
-    } catch (error) {
-        console.error("Erreur lors de la soumission de l'avis:", error);
-        reviewStatusMessage.textContent = "Erreur lors de la soumission de l'avis. Veuillez réessayer.";
-        reviewStatusMessage.classList.remove('hidden');
-        reviewStatusMessage.classList.remove('text-green-600');
-        reviewStatusMessage.classList.add('text-red-600');
-    }
-}
-
-function loadReviews() {
-    googleReviewsContainer = document.getElementById('google-reviews-container');
-    if (!googleReviewsContainer) return;
-
-    // Clear existing reviews (including the hardcoded examples)
-    googleReviewsContainer.innerHTML = '';
-
-    const reviewsCollectionRef = collection(db, `artifacts/${appId}/public/data/reviews`);
-    onSnapshot(reviewsCollectionRef, (snapshot) => {
-        reviews = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        // Sort by newest first
-        reviews.sort((a, b) => b.timestamp.toDate() - a.timestamp.toDate());
-
-        if (reviews.length === 0) {
-            googleReviewsContainer.innerHTML = `<p class="text-center text-gray-600 col-span-full">Aucun avis pour le moment. Soyez le premier à en laisser un !</p>`;
-        } else {
-            reviews.forEach(review => {
-                const reviewCard = document.createElement('div');
-                reviewCard.className = 'bg-white p-4 rounded-lg shadow-sm';
-                reviewCard.innerHTML = `
-                    <div class="flex items-center mb-2">
-                        ${generateStars(review.rating)}
-                        <span class="ml-2 font-semibold">${review.userName || 'Anonyme'}</span>
-                    </div>
-                    <p class="text-gray-700 text-sm">${review.comment}</p>
-                    <p class="text-gray-500 text-xs mt-1">${review.timestamp ? new Date(review.timestamp.toDate()).toLocaleDateString('fr-FR') : ''}</p>
-                `;
-                googleReviewsContainer.appendChild(reviewCard);
-            });
-        }
-    }, (error) => {
-        console.error("Erreur lors du chargement des avis:", error);
-        googleReviewsContainer.innerHTML = `<p class="text-red-600 text-center col-span-full">Impossible de charger les avis.</p>`;
-    });
-}
-
-// --- Page Content Management Logic (Admin Panel) ---
-// originalPageContent is no longer needed as editing is removed
-// let originalPageContent = {}; 
-
-async function fetchPageContent() {
-    const pageContentCollectionRef = collection(db, `artifacts/${appId}/public/data/page_content`);
-    try {
-        const snapshot = await getDocs(pageContentCollectionRef);
-        pageContent = {}; // Clear previous content
-        snapshot.forEach(doc => {
-            pageContent[doc.id] = doc.data();
-        });
-        console.log("Contenu des pages chargé:", pageContent);
-    } catch (error) {
-        console.error("Erreur lors du chargement du contenu des pages:", error);
-    }
-}
-
-async function initializePageContentDefaults() {
-    const defaultContent = {
-        home: {
-            title: "Bienvenue chez CENTRAL CARS : Votre Partenaire Automobile de Confiance",
-            paragraph1: "Chez CENTRAL CARS, nous sommes bien plus qu'un simple garage. Nous sommes une équipe de professionnels passionnés, dédiés à vous offrir une expérience automobile exceptionnelle. Que vous cherchiez votre prochaine voiture, ayez besoin d'un entretien fiable ou de conseils experts, nous sommes là pour vous accompagner avec transparence et efficacité. Découvrez notre sélection de véhicules rigoureusement inspectés et nos services de qualité supérieure, conçus pour votre tranquillité d'esprit.",
-            featured_vehicles_title: "Nos Véhicules en Vedette : Des Offres à Ne Pas Manquer !",
-            reviews_title: "Ce que nos Clients Disent de Nous : Votre Satisfaction, Notre Priorité",
-            add_review_title: "Partagez Votre Expérience : Laissez un Avis !"
-        },
-        about: {
-            title: "À Propos de CENTRAL CARS : Notre Engagement envers l'Excellence",
-            paragraph1: "Depuis notre création, CENTRAL CARS s'est imposé comme une référence dans le secteur automobile. Notre mission est simple : fournir des véhicules d'occasion de haute qualité et des services d'entretien irréprochables, tout en bâtissant des relations durables basées sur la confiance et le respect. Chaque véhicule que nous proposons est soigneusement sélectionné et inspecté pour garantir votre sécurité et votre satisfaction.",
-            mission_title: "Notre Mission",
-            mission_text: "Assurer votre mobilité en toute sérénité en vous offrant des véhicules fiables et des services automobiles de premier ordre, adaptés à vos besoins et à votre budget.",
-            vision_title: "Notre Vision",
-            vision_text: "Devenir le garage automobile de choix dans la région, reconnu pour notre expertise, notre intégrité et notre service client inégalé. Nous aspirons à être votre partenaire de confiance pour toutes vos démarches automobiles.",
-            commitments_title: "Nos Engagements : La Qualité au Cœur de Notre Service",
-            commitment1: "Transparence totale : Un historique clair et un état précis pour chaque véhicule.",
-            commitment2: "Conseils personnalisés : Une écoute attentive pour vous guider vers le choix idéal.",
-            commitment3: "Expertise technique : Des entretiens et réparations effectués par des professionnels qualifiés.",
-            commitment4: "Service après-vente réactif : Un accompagnement continu pour toutes vos questions et besoins."
-        },
-        contact: {
-            title: "Contactez CENTRAL CARS : Nous Sommes Là Pour Vous !",
-            contact_info_title: "Informations de Contact",
-            address: "576 rue Marcel Sembat, 59690 Vieux Condé, France",
-            phone: "06 98 97 94 63",
-            email: "contact@centralcars.fr",
-            hours_title: "Nos Horaires d'Ouverture :",
-            hours_mon_fri: "Lundi - Vendredi: 09h00 - 12h00 et 14h00 - 17h30",
-            hours_sat: "Samedi: 09h00 - 12h00",
-            hours_sun: "Dimanche: Fermé",
-            map_title: "Retrouvez-nous Facilement sur la Carte :",
-            message_section_title: "Envoyez-nous un Message : Nous Vous Répondrons Rapidement !"
-        }
-    };
-
-    for (const pageId in defaultContent) {
-        const docRef = doc(db, `artifacts/${appId}/public/data/page_content`, pageId);
-        const docSnap = await getDoc(docRef);
-        if (!docSnap.exists()) {
-            await setDoc(docRef, defaultContent[pageId]);
-            console.log(`Contenu par défaut pour la page '${pageId}' ajouté à Firestore.`);
-        }
-    }
-}
-
-function setupPageManagementTool() {
-    // Display current content
-    for (const pageId of ['home', 'about', 'contact']) {
-        const container = document.getElementById(`page-content-${pageId}`);
-        if (container) {
-            container.innerHTML = ''; // Clear loading message
-
-            const pageData = pageContent[pageId] || {};
-            let htmlContent = '';
-
-            // Dynamically generate display fields based on the pageData structure
-            if (pageId === 'home') {
-                htmlContent += createDisplayField(pageId, 'title', pageData.title, 'h1', true);
-                htmlContent += createDisplayField(pageId, 'paragraph1', pageData.paragraph1, 'p');
-                htmlContent += createDisplayField(pageId, 'featured_vehicles_title', pageData.featured_vehicles_title, 'h2');
-                htmlContent += createDisplayField(pageId, 'reviews_title', pageData.reviews_title, 'h2');
-                htmlContent += createDisplayField(pageId, 'add_review_title', pageData.add_review_title, 'h2');
-            } else if (pageId === 'about') {
-                htmlContent += createDisplayField(pageId, 'title', pageData.title, 'h1', true);
-                htmlContent += createDisplayField(pageId, 'paragraph1', pageData.paragraph1, 'p');
-                htmlContent += `<div class="mt-4">`;
-                htmlContent += createDisplayField(pageId, 'mission_title', pageData.mission_title, 'h3');
-                htmlContent += createDisplayField(pageId, 'mission_text', pageData.mission_text, 'p');
-                htmlContent += createDisplayField(pageId, 'vision_title', pageData.vision_title, 'h3');
-                htmlContent += createDisplayField(pageId, 'vision_text', pageData.vision_text, 'p');
-                htmlContent += `</div>`;
-                htmlContent += createDisplayField(pageId, 'commitments_title', pageData.commitments_title, 'h2');
-                htmlContent += `<ul class="list-disc list-inside ml-4 space-y-2">`;
-                htmlContent += `<li>${createDisplayField(pageId, 'commitment1', pageData.commitment1, 'span', false, 'list-item-text')}</li>`;
-                htmlContent += `<li>${createDisplayField(pageId, 'commitment2', pageData.commitment2, 'span', false, 'list-item-text')}</li>`;
-                htmlContent += `<li>${createDisplayField(pageId, 'commitment3', pageData.commitment3, 'span', false, 'list-item-text')}</li>`;
-                htmlContent += `<li>${createDisplayField(pageId, 'commitment4', pageData.commitment4, 'span', false, 'list-item-text')}</li>`;
-                htmlContent += `</ul>`;
-            } else if (pageId === 'contact') {
-                htmlContent += createDisplayField(pageId, 'title', pageData.title, 'h1', true);
-                htmlContent += createDisplayField(pageId, 'contact_info_title', pageData.contact_info_title, 'h2');
-                htmlContent += `<p class="mb-3 text-lg"><strong class="info-label">Adresse:</strong> ${createDisplayField('contact', 'address', pageData.address, 'span', false, 'info-text')}</p>`;
-                htmlContent += `<p class="mb-3 text-lg"><strong class="info-label">Téléphone:</strong> ${createDisplayField('contact', 'phone', pageData.phone, 'span', false, 'info-text')}</p>`;
-                htmlContent += `<p class="mb-3 text-lg"><strong class="info-label">Email:</strong> ${createDisplayField('contact', 'email', pageData.email, 'span', false, 'info-text')}</p>`;
-                htmlContent += `<p class="mb-3 text-lg">${createDisplayField('contact', 'hours_title', pageData.hours_title, 'strong', false, 'info-label')}</p>`;
-                htmlContent += `<ul class="list-disc list-inside ml-4 space-y-2 text-lg">`;
-                htmlContent += `<li>${createDisplayField('contact', 'hours_mon_fri', pageData.hours_mon_fri, 'span', false, 'list-item-text')}</li>`;
-                htmlContent += `<li>${createDisplayField('contact', 'hours_sat', pageData.hours_sat, 'span', false, 'list-item-text')}</li>`;
-                htmlContent += `<li>${createDisplayField('contact', 'hours_sun', pageData.hours_sun, 'span', false, 'list-item-text')}</li>`;
-                htmlContent += `</ul>`;
-                htmlContent += `<div class="mt-8">`;
-                htmlContent += createDisplayField('contact', 'map_title', pageData.map_title, 'h3');
-                htmlContent += `</div>`; // Closing div for map_title
-                htmlContent += createDisplayField('contact', 'message_section_title', pageData.message_section_title, 'h2');
-            }
-            container.innerHTML = htmlContent;
-        }
-    }
-    // No event listeners for editable fields as they are removed
-}
-
-
-// --- Event Listeners ---
-document.getElementById('nav-home').addEventListener('click', () => { currentPage = 'home'; renderPage(); });
-document.getElementById('nav-shop').addEventListener('click', () => { currentPage = 'shop'; renderPage(); });
-document.getElementById('nav-about').addEventListener('click', () => { currentPage = 'about'; renderPage(); }); // Changed ID
-document.getElementById('nav-contact').addEventListener('click', () => { currentPage = 'contact'; renderPage(); });
-document.getElementById('nav-dossier').addEventListener('click', () => { currentPage = 'dossier'; renderPage(); });
-
-// Updated: nav-login-signup always opens auth modal
-navLoginSignupButton.addEventListener('click', () => showAuthModal('login'));
-
-// New: nav-admin-panel button
-if (navAdminPanelButton) {
-    navAdminPanelButton.addEventListener('click', () => {
-        currentPage = 'admin-tools';
-        renderPage();
-    });
-}
-
-document.getElementById('nav-logout').addEventListener('click', handleLogout);
-
-// Auth modal event listeners
-if (authForm) {
-    authForm.addEventListener('submit', handleAuthFormSubmit);
-}
-if (authToggleModeButton) {
-    authToggleModeButton.addEventListener('click', (e) => {
-        e.preventDefault();
-        showAuthModal(isLoginMode ? 'signup' : 'login');
-    });
-}
-if (authCloseButton) {
-    authCloseButton.addEventListener('click', hideAuthModal);
-}
-
-// Vehicle detail modal event listeners
-detailCloseButton.addEventListener('click', hideVehicleDetailModal);
-detailCloseButtonBottom.addEventListener('click', hideVehicleDetailModal);
-prevImageButton.addEventListener('click', () => {
-    currentImageIndex = (currentImageIndex - 1 + selectedVehicle.imageUrls.length) % selectedVehicle.imageUrls.length;
-    updateDetailImage();
-});
-nextImageButton.addEventListener('click', () => {
-    currentImageIndex = (currentImageIndex + 1) % selectedVehicle.imageUrls.length;
-    updateDetailImage();
-});
-detailImage.addEventListener('click', () => {
-    if (selectedVehicle && selectedVehicle.imageUrls && selectedVehicle.imageUrls.length > 0) {
-        showFullscreenImage(selectedVehicle.imageUrls[currentImageIndex]);
-    }
-});
-
-fullscreenCloseButton.addEventListener('click', hideFullscreenImage);
-
-// Initial setup and render when script loads
-document.addEventListener('DOMContentLoaded', async () => {
-    await initializePageContentDefaults(); // Ensure default content exists
-    setupAuth(); // Initialize Firebase Auth listener (will call renderPage)
-});
-</script>
+    </script>
 </body>
 </html>
