@@ -51,7 +51,7 @@
         <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Générateur d'Annonces Central Cars</h1>
 
         <form id="adForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <!-- Informations Générales -->
+            <!-- General Information -->
             <div class="md:col-span-2">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Informations du Véhicule</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -86,7 +86,7 @@
                 </div>
             </div>
 
-            <!-- Entretiens Effectués -->
+            <!-- Maintenance Performed -->
             <div class="md:col-span-2">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Entretiens Effectués</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="maintenanceCheckboxes">
@@ -104,9 +104,14 @@
                     <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Pneus arrière" class="checkbox-input"><span>Pneus arrière</span></label>
                     <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Contrôle technique OK" class="checkbox-input"><span>Contrôle technique OK</span></label>
                 </div>
+                <!-- Custom Maintenance Input -->
+                <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="customMaintenanceInput" class="input-field flex-grow" placeholder="Ajouter un entretien personnalisé">
+                    <button type="button" id="addCustomMaintenanceBtn" class="btn btn-secondary whitespace-nowrap">Ajouter l'entretien</button>
+                </div>
             </div>
 
-            <!-- Suivi Kilométrique / Carnet d'Entretiens -->
+            <!-- Kilometer Tracking / Service Book -->
             <div class="md:col-span-2">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Suivi du Véhicule</h2>
                 <div class="flex flex-col sm:flex-row gap-4">
@@ -121,7 +126,7 @@
                 </div>
             </div>
 
-            <!-- Équipements Extérieur/Intérieur -->
+            <!-- Exterior/Interior Features -->
             <div class="md:col-span-2">
                 <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Équipements Extérieur/Intérieur</h2>
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="featuresCheckboxes">
@@ -159,6 +164,11 @@
                     <label class="checkbox-label"><input type="checkbox" name="feature" value="Détecteur de pluie" class="checkbox-input"><span>Détecteur de pluie</span></label>
                     <label class="checkbox-label"><input type="checkbox" name="feature" value="Allumage automatique des feux" class="checkbox-input"><span>Allumage automatique des feux</span></label>
                 </div>
+                <!-- Custom Feature Input -->
+                <div class="mt-4 flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="customFeatureInput" class="input-field flex-grow" placeholder="Ajouter un équipement personnalisé">
+                    <button type="button" id="addCustomFeatureBtn" class="btn btn-secondary whitespace-nowrap">Ajouter l'équipement</button>
+                </div>
             </div>
 
             <div class="md:col-span-2 flex flex-col sm:flex-row justify-center gap-4 mt-6">
@@ -181,8 +191,51 @@
             const adOutput = document.getElementById('adOutput');
             const copyMessage = document.getElementById('copyMessage');
 
+            const customMaintenanceInput = document.getElementById('customMaintenanceInput');
+            const addCustomMaintenanceBtn = document.getElementById('addCustomMaintenanceBtn');
+            const maintenanceCheckboxesDiv = document.getElementById('maintenanceCheckboxes');
+
+            const customFeatureInput = document.getElementById('customFeatureInput');
+            const addCustomFeatureBtn = document.getElementById('addCustomFeatureBtn');
+            const featuresCheckboxesDiv = document.getElementById('featuresCheckboxes');
+
             generateBtn.addEventListener('click', generateAd);
             copyBtn.addEventListener('click', copyAd);
+
+            addCustomMaintenanceBtn.addEventListener('click', () => addCustomOption(customMaintenanceInput, maintenanceCheckboxesDiv, 'maintenance', '🔸'));
+            addCustomFeatureBtn.addEventListener('click', () => addCustomOption(customFeatureInput, featuresCheckboxesDiv, 'feature', '✅'));
+
+            /**
+             * Adds a custom checkbox option to the specified container.
+             * @param {HTMLInputElement} inputElement - The input field where the custom text is entered.
+             * @param {HTMLElement} containerElement - The div where the new checkbox will be appended.
+             * @param {string} nameAttribute - The 'name' attribute for the new checkbox (e.g., 'maintenance', 'feature').
+             * @param {string} symbol - The symbol to prepend to the text (e.g., '🔸', '✅').
+             */
+            function addCustomOption(inputElement, containerElement, nameAttribute, symbol) {
+                const customText = inputElement.value.trim();
+                if (customText) {
+                    const label = document.createElement('label');
+                    label.className = 'checkbox-label';
+
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = nameAttribute;
+                    input.value = customText;
+                    input.className = 'checkbox-input';
+                    input.checked = true; // Check the new option by default
+
+                    const span = document.createElement('span');
+                    span.textContent = customText;
+
+                    label.appendChild(input);
+                    label.appendChild(span);
+                    containerElement.appendChild(label);
+
+                    inputElement.value = ''; // Clear the input field
+                    generateAd(); // Regenerate ad to include the new option
+                }
+            }
 
             /**
              * Automatically adjusts the height of the textarea to fit its content.
