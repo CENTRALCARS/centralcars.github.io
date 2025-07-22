@@ -33,6 +33,35 @@
         .modal-open {
             overflow: hidden;
         }
+        /* Style pour le menu déroulant du compte */
+        .account-menu {
+            position: absolute;
+            top: calc(100% + 10px); /* Position sous le bouton */
+            right: 0;
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            min-width: 180px;
+            z-index: 60; /* Au-dessus du header */
+        }
+        .account-menu a, .account-menu button {
+            display: block;
+            padding: 0.75rem 1rem;
+            text-align: left;
+            width: 100%;
+            color: #4a5568; /* gray-700 */
+            transition: background-color 0.2s;
+        }
+        .account-menu a:hover, .account-menu button:hover {
+            background-color: #f7fafc; /* gray-100 */
+        }
+        .account-menu button.logout-button {
+            color: #e53e3e; /* red-600 */
+            font-weight: 600;
+        }
+        .account-menu button.logout-button:hover {
+            background-color: #ffebeb; /* red-100 */
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -43,104 +72,211 @@
             <a href="#" class="text-2xl font-bold text-gray-900">
                 <i class="fas fa-car-side text-red-600"></i> CENTRAL <span class="text-red-600">CARS</span>
             </a>
-            <div class="hidden md:flex space-x-8">
+            <div class="hidden md:flex space-x-8 items-center relative">
                 <a href="#accueil" class="text-gray-600 hover:text-red-600 transition duration-300">Accueil</a>
                 <a href="#vehicules" class="text-gray-600 hover:text-red-600 transition duration-300">Nos Véhicules</a>
                 <a href="#contact" class="text-gray-600 hover:text-red-600 transition duration-300">Contact</a>
+                
+                <!-- Bouton de connexion/inscription pour les grands écrans (non connecté) -->
+                <button id="login-signup-button-desktop" class="text-gray-600 hover:text-red-600 focus:outline-none">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                </button>
+
+                <!-- Bouton/Icône de l'utilisateur connecté pour les grands écrans -->
+                <button id="authenticated-user-menu-toggle-desktop" class="text-red-600 hover:text-red-700 focus:outline-none hidden">
+                    <i class="fas fa-user-check text-2xl"></i>
+                </button>
+
+                <!-- Menu du compte (pour les grands écrans) -->
+                <div id="account-menu-desktop" class="account-menu hidden">
+                    <div class="px-4 py-2 border-b text-sm text-gray-500" id="user-email-display-desktop"></div>
+                    <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mon profil</a>
+                    <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
+                    <button id="admin-gestion-pro-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gestion pro</button>
+                    <button id="logout-button-desktop" class="logout-button text-sm">Se déconnecter</button>
+                </div>
             </div>
-            <button id="mobile-menu-button" class="md:hidden text-gray-600 hover:text-red-600 focus:outline-none">
-                <i class="fas fa-bars text-2xl"></i>
-            </button>
+            <div class="md:hidden flex items-center space-x-4 relative">
+                <!-- Bouton de connexion/inscription pour les petits écrans (non connecté) -->
+                <button id="login-signup-button-mobile" class="text-gray-600 hover:text-red-600 focus:outline-none">
+                    <i class="fas fa-user-circle text-2xl"></i>
+                </button>
+
+                <!-- Bouton/Icône de l'utilisateur connecté pour les petits écrans -->
+                <button id="authenticated-user-menu-toggle-mobile" class="text-red-600 hover:text-red-700 focus:outline-none hidden">
+                    <i class="fas fa-user-check text-2xl"></i>
+                </button>
+
+                <button id="mobile-menu-button" class="text-gray-600 hover:text-red-600 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+
+                <!-- Menu du compte (pour les petits écrans, affiché via le menu mobile ou popover) -->
+                <div id="account-menu-mobile" class="account-menu hidden">
+                    <div class="px-4 py-2 border-b text-sm text-gray-500" id="user-email-display-mobile"></div>
+                    <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mon profil</a>
+                    <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
+                    <button id="admin-gestion-pro-mobile" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gestion pro</button>
+                    <button id="logout-button-mobile" class="logout-button text-sm">Se déconnecter</button>
+                </div>
+            </div>
         </nav>
         <!-- Mobile Menu -->
         <div id="mobile-menu" class="hidden md:hidden bg-white">
             <a href="#accueil" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Accueil</a>
             <a href="#vehicules" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Nos Véhicules</a>
             <a href="#contact" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Contact</a>
+            <!-- Les options du menu mobile pourraient inclure la déconnexion ici aussi si le menu popover n'est pas utilisé -->
         </div>
     </header>
 
     <main>
-        <!-- Section Accueil (Hero) -->
-        <section id="accueil" class="h-screen bg-cover bg-center bg-fixed flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=2025&auto=format&fit=crop');">
-            <div class="absolute inset-0 bg-black opacity-50"></div>
-            <div class="text-center text-white z-10 p-4">
-                <h1 class="text-4xl md:text-6xl font-bold mb-4">CENTRAL CARS</h1>
-                <p class="text-lg md:text-2xl mb-8">Votre partenaire confiance pour les véhicules d'occasion à Vieux-Condé.</p>
-                <a href="#vehicules" class="bg-red-600 text-white font-bold py-3 px-8 rounded-full hover:bg-red-700 transition duration-300 transform hover:scale-105">Découvrir nos voitures</a>
-            </div>
-        </section>
-
-        <!-- Section Véhicules -->
-        <section id="vehicules" class="py-20 bg-white">
-            <div class="container mx-auto px-6">
-                <h2 class="text-3xl font-bold text-center mb-2">Nos Véhicules d'Occasion</h2>
-                <p class="text-center text-gray-500 mb-12">Des voitures sélectionnées et garanties pour votre sérénité.</p>
-                
-                <div id="vehicle-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    <!-- Les fiches de véhicules seront injectées ici par JavaScript -->
+        <!-- Wrapper pour les sections de contenu principal -->
+        <div id="main-content-sections">
+            <!-- Section Accueil (Hero) -->
+            <section id="accueil" class="h-screen bg-cover bg-center bg-fixed flex items-center justify-center" style="background-image: url('https://images.unsplash.com/photo-1553440569-bcc63803a83d?q=80&w=2025&auto=format&fit=crop');">
+                <div class="absolute inset-0 bg-black opacity-50"></div>
+                <div class="text-center text-white z-10 p-4">
+                    <h1 class="text-4xl md:text-6xl font-bold mb-4">CENTRAL CARS</h1>
+                    <p class="text-lg md:text-2xl mb-8">Votre partenaire confiance pour les véhicules d'occasion à Vieux-Condé.</p>
+                    <a href="#vehicules" class="bg-red-600 text-white font-bold py-3 px-8 rounded-full hover:bg-red-700 transition duration-300 transform hover:scale-105">Découvrir nos voitures</a>
                 </div>
-                 <div id="loading-spinner" class="text-center py-8">
+            </section>
+
+            <!-- Section Véhicules -->
+            <section id="vehicules" class="py-20 bg-white">
+                <div class="container mx-auto px-6">
+                    <h2 class="text-3xl font-bold text-center mb-2">Nos Véhicules d'Occasion</h2>
+                    <p class="text-center text-gray-500 mb-12">Des voitures sélectionnées et garanties pour votre sérénité.</p>
+                    
+                    <div id="vehicle-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <!-- Les fiches de véhicules seront injectées ici par JavaScript -->
+                    </div>
+                    <div id="loading-spinner" class="text-center py-8">
+                        <i class="fas fa-spinner fa-spin text-red-600 text-4xl"></i>
+                        <p class="mt-2 text-gray-600">Chargement des véhicules...</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section Contact -->
+            <section id="contact" class="py-20 bg-gray-100">
+                <div class="container mx-auto px-6">
+                    <h2 class="text-3xl font-bold text-center mb-12">Contactez-nous</h2>
+                    <div class="flex flex-wrap -mx-4">
+                        <!-- Formulaire de contact -->
+                        <div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">
+                            <div class="bg-white p-8 rounded-lg shadow-lg">
+                                <h3 class="text-2xl font-bold mb-6">Envoyez-nous un message</h3>
+                                <form>
+                                    <div class="mb-4">
+                                        <label for="name" class="block text-gray-700 font-semibold mb-2">Nom complet</label>
+                                        <input type="text" id="name" name="name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre nom">
+                                    </div>
+                                    <div class="mb-4">
+                                        <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
+                                        <input type="email" id="email" name="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre email">
+                                    </div>
+                                    <div class="mb-6">
+                                        <label for="message" class="block text-gray-700 font-semibold mb-2">Message</label>
+                                        <textarea id="message" name="message" rows="5" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre message..."></textarea>
+                                    </div>
+                                    <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300">Envoyer</button>
+                                </form>
+                            </div>
+                        </div>
+                        <!-- Informations de contact -->
+                        <div class="w-full lg:w-1/2 px-4">
+                            <div class="bg-white p-8 rounded-lg shadow-lg h-full">
+                                <h3 class="text-2xl font-bold mb-6">Nos Coordonnées</h3>
+                                <div class="space-y-6 text-lg">
+                                    <p class="flex items-start">
+                                        <i class="fas fa-map-marker-alt text-red-600 mt-1 mr-4 w-6 text-center"></i>
+                                        <span>CENTRAL CARS<br>123 Rue de la République<br>59690 Vieux-Condé, France</span>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-phone text-red-600 mr-4 w-6 text-center"></i>
+                                        <a href="tel:+33123456789" class="hover:text-red-600">01 23 45 67 89</a>
+                                    </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-envelope text-red-600 mr-4 w-6 text-center"></i>
+                                        <a href="mailto:contact@centralcars.fr" class="hover:text-red-600">contact@centralcars.fr</a>
+                                     </p>
+                                    <p class="flex items-center">
+                                        <i class="fas fa-id-card text-red-600 mr-4 w-6 text-center"></i>
+                                        <span>SIRET: 78992754800022</span>
+                                    </p>
+                                </div>
+                                <div class="mt-8">
+                                    <h4 class="text-xl font-bold mb-4">Horaires d'ouverture</h4>
+                                    <ul class="space-y-2">
+                                        <li><strong>Lundi - Vendredi :</strong> 9h00 - 18h00</li>
+                                        <li><strong>Samedi :</strong> 9h00 - 12h00</li>
+                                        <li><strong>Dimanche :</strong> Fermé</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Admin Panel Section -->
+        <section id="admin-panel" class="py-20 bg-gray-100 hidden">
+            <div class="container mx-auto px-6">
+                <h2 class="text-3xl font-bold text-center mb-12">Gestion des Véhicules (Admin)</h2>
+
+                <!-- Formulaire d'ajout/modification de véhicule -->
+                <div class="bg-white p-8 rounded-lg shadow-lg mb-12">
+                    <h3 class="text-2xl font-bold mb-6" id="vehicle-form-title">Ajouter un nouveau véhicule</h3>
+                    <form id="vehicle-form" class="space-y-4">
+                        <input type="hidden" id="vehicle-id">
+                        <div>
+                            <label for="vehicle-nom" class="block text-gray-700 font-semibold mb-2">Nom du véhicule</label>
+                            <input type="text" id="vehicle-nom" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                        </div>
+                        <div>
+                            <label for="vehicle-annee" class="block text-gray-700 font-semibold mb-2">Année</label>
+                            <input type="number" id="vehicle-annee" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                        </div>
+                        <div>
+                            <label for="vehicle-kilometrage" class="block text-gray-700 font-semibold mb-2">Kilométrage</label>
+                            <input type="number" id="vehicle-kilometrage" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                        </div>
+                        <div>
+                            <label for="vehicle-carburant" class="block text-gray-700 font-semibold mb-2">Carburant</label>
+                            <input type="text" id="vehicle-carburant" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                        </div>
+                        <div>
+                            <label for="vehicle-prix" class="block text-gray-700 font-semibold mb-2">Prix (€)</label>
+                            <input type="number" id="vehicle-prix" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" step="0.01" required>
+                        </div>
+                        <div>
+                            <label for="vehicle-description" class="block text-gray-700 font-semibold mb-2">Description</label>
+                            <textarea id="vehicle-description" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
+                        </div>
+                        <div>
+                            <label for="vehicle-images" class="block text-gray-700 font-semibold mb-2">URLs des images (séparées par des virgules)</label>
+                            <input type="text" id="vehicle-images" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="URL1, URL2, URL3">
+                        </div>
+                        <div>
+                            <label for="vehicle-options" class="block text-gray-700 font-semibold mb-2">Options (séparées par des virgules)</label>
+                            <input type="text" id="vehicle-options" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Option1, Option2">
+                        </div>
+                        <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300" id="submit-vehicle-button">Ajouter le véhicule</button>
+                        <button type="button" class="w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition duration-300 mt-2 hidden" id="cancel-edit-button">Annuler la modification</button>
+                    </form>
+                </div>
+
+                <!-- Liste des véhicules existants pour l'admin -->
+                <h3 class="text-2xl font-bold text-center mb-6">Véhicules existants</h3>
+                <div id="admin-vehicle-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Les fiches de véhicules pour l'admin seront injectées ici par JavaScript -->
+                </div>
+                <div id="admin-loading-spinner" class="text-center py-8">
                     <i class="fas fa-spinner fa-spin text-red-600 text-4xl"></i>
                     <p class="mt-2 text-gray-600">Chargement des véhicules...</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- Section Contact -->
-        <section id="contact" class="py-20 bg-gray-100">
-            <div class="container mx-auto px-6">
-                <h2 class="text-3xl font-bold text-center mb-12">Contactez-nous</h2>
-                <div class="flex flex-wrap -mx-4">
-                    <!-- Formulaire de contact -->
-                    <div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">
-                        <div class="bg-white p-8 rounded-lg shadow-lg">
-                            <h3 class="text-2xl font-bold mb-6">Envoyez-nous un message</h3>
-                            <form>
-                                <div class="mb-4">
-                                    <label for="name" class="block text-gray-700 font-semibold mb-2">Nom complet</label>
-                                    <input type="text" id="name" name="name" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre nom">
-                                </div>
-                                <div class="mb-4">
-                                    <label for="email" class="block text-gray-700 font-semibold mb-2">Email</label>
-                                    <input type="email" id="email" name="email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre email">
-                                </div>
-                                <div class="mb-6">
-                                    <label for="message" class="block text-gray-700 font-semibold mb-2">Message</label>
-                                    <textarea id="message" name="message" rows="5" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre message..."></textarea>
-                                </div>
-                                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300">Envoyer</button>
-                            </form>
-                        </div>
-                    </div>
-                    <!-- Informations de contact -->
-                    <div class="w-full lg:w-1/2 px-4">
-                        <div class="bg-white p-8 rounded-lg shadow-lg h-full">
-                            <h3 class="text-2xl font-bold mb-6">Nos Coordonnées</h3>
-                            <div class="space-y-6 text-lg">
-                                <p class="flex items-start">
-                                    <i class="fas fa-map-marker-alt text-red-600 mt-1 mr-4 w-6 text-center"></i>
-                                    <span>CENTRAL CARS<br>123 Rue de la République<br>59690 Vieux-Condé, France</span>
-                                </p>
-                                <p class="flex items-center">
-                                    <i class="fas fa-phone text-red-600 mr-4 w-6 text-center"></i>
-                                    <a href="tel:+33123456789" class="hover:text-red-600">01 23 45 67 89</a>
-                                </p>
-                                <p class="flex items-center">
-                                    <i class="fas fa-envelope text-red-600 mr-4 w-6 text-center"></i>
-                                    <a href="mailto:contact@centralcars.fr" class="hover:text-red-600">contact@centralcars.fr</a>
-                                 </p>
-                            </div>
-                            <div class="mt-8">
-                                <h4 class="text-xl font-bold mb-4">Horaires d'ouverture</h4>
-                                <ul class="space-y-2">
-                                    <li><strong>Lundi - Vendredi :</strong> 9h00 - 18h00</li>
-                                    <li><strong>Samedi :</strong> 9h00 - 12h00</li>
-                                    <li><strong>Dimanche :</strong> Fermé</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
         </section>
@@ -161,10 +297,92 @@
         </div>
     </div>
 
+    <!-- Modale de connexion/inscription -->
+    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-2xl w-11/12 md:w-1/2 lg:w-1/3 p-8 relative transform transition-all duration-300 scale-95 opacity-0" id="auth-modal-content">
+            <button id="close-auth-modal-button" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-2xl">&times;</button>
+            <h2 class="text-3xl font-bold text-center mb-6" id="auth-modal-title">Connexion</h2>
+            
+            <!-- Formulaire de connexion -->
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label for="login-email" class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre email" required>
+                </div>
+                <div>
+                    <label for="login-password" class="block text-gray-700 font-semibold mb-2">Mot de passe</label>
+                    <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre mot de passe" required>
+                </div>
+                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300">Se connecter</button>
+            </form>
+
+            <!-- Formulaire d'inscription (caché par défaut) -->
+            <form id="signup-form" class="space-y-4 hidden">
+                <div>
+                    <label for="signup-email" class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre email" required>
+                </div>
+                <div>
+                    <label for="signup-password" class="block text-gray-700 font-semibold mb-2">Mot de passe</label>
+                    <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Votre mot de passe" required>
+                </div>
+                <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300">S'inscrire</button>
+            </form>
+
+            <p class="text-center mt-4">
+                <button id="toggle-auth-mode" class="text-red-600 hover:underline">Pas encore de compte ? S'inscrire</button>
+            </p>
+        </div>
+    </div>
+
+    <!-- CUSTOM ALERT MODAL -->
+    <div id="custom-alert" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[999] hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center relative">
+            <p id="custom-alert-message" class="text-lg font-semibold mb-4"></p>
+            <button id="custom-alert-close" class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">OK</button>
+        </div>
+    </div>
+
+    <!-- CUSTOM CONFIRM MODAL -->
+    <div id="custom-confirm" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[999] hidden">
+        <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center relative">
+            <p id="custom-confirm-message" class="text-lg font-semibold mb-4"></p>
+            <div class="flex justify-center space-x-4">
+                <button id="custom-confirm-ok" class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">Oui</button>
+                <button id="custom-confirm-cancel" class="bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500 transition duration-300">Annuler</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module">
+        // NOTE IMPORTANTE : Pour que la gestion des rôles fonctionne correctement,
+        // vous devez configurer les règles de sécurité Firebase Firestore.
+        // Exemple de règles pour la collection 'users' et 'vehicules':
+        /*
+        rules_version = '2';
+        service cloud.firestore {
+            match /databases/{database}/documents {
+                // Règle pour les profils utilisateurs (rôles)
+                match /artifacts/{appId}/users/{userId}/profile/{document=**} {
+                    allow read, write: if request.auth != null && request.auth.uid == userId;
+                }
+
+                // Règle pour les véhicules
+                match /vehicules/{vehicleId} {
+                    // Les clients peuvent lire
+                    allow read: if true;
+                    // Seuls les administrateurs peuvent créer, mettre à jour, supprimer
+                    allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/artifacts/$(appId)/users/$(request.auth.uid)/profile/user_data).data.role == 'admin';
+                }
+            }
+        }
+        */
+
         // --- IMPORTS ET CONFIGURATION FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, addDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
 
         // Configuration Firebase fournie
         const __app_id = 'central-cars-a37ae';
@@ -183,9 +401,11 @@
         // Initialiser Firebase
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+        const auth = getAuth(app);
 
         // --- VARIABLES GLOBALES ---
         let allVehicles = []; // Pour stocker tous les véhicules récupérés
+        window.currentUserRole = null; // Variable globale pour le rôle de l'utilisateur
 
         // --- GESTION DU MENU MOBILE ---
         const mobileMenuButton = document.getElementById('mobile-menu-button');
@@ -194,7 +414,7 @@
             mobileMenu.classList.toggle('hidden');
         });
 
-        // --- FONCTION POUR AFFICHER LES VÉHICULES ---
+        // --- FONCTION POUR AFFICHER LES VÉHICULES (Côté client) ---
         function displayVehicles(vehicles) {
             const vehicleList = document.getElementById('vehicle-list');
             const loadingSpinner = document.getElementById('loading-spinner');
@@ -229,16 +449,16 @@
              loadingSpinner.style.display = 'none';
         }
 
-        // --- GESTION DE LA MODALE ---
-        const modal = document.getElementById('vehicle-modal');
-        const modalContent = document.getElementById('modal-content');
+        // --- GESTION DE LA MODALE DE DÉTAILS DU VÉHICULE ---
+        const vehicleModal = document.getElementById('vehicle-modal');
+        const vehicleModalContent = document.getElementById('modal-content');
 
-        function openModal(vehicle) {
+        function openVehicleModal(vehicle) {
             let currentImageIndex = 0;
             const images = vehicle.images && vehicle.images.length > 0 ? vehicle.images : ['https://placehold.co/800x600/cccccc/ffffff?text=Image+Indisponible'];
 
-            modalContent.innerHTML = `
-                <button id="close-modal-button" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center text-2xl hover:bg-opacity-75 z-20">&times;</button>
+            vehicleModalContent.innerHTML = `
+                <button id="close-vehicle-modal-button" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center text-2xl hover:bg-opacity-75 z-20">&times;</button>
                 
                 <div class="w-full h-64 md:h-96 relative">
                     <img id="modal-image" src="${images[0]}" alt="Image principale de ${vehicle.nom}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/800x600/cccccc/ffffff?text=Image+Invalide';">
@@ -271,9 +491,9 @@
             `;
             
             document.body.classList.add('modal-open');
-            modal.classList.remove('hidden');
+            vehicleModal.classList.remove('hidden');
             setTimeout(() => {
-                modalContent.classList.remove('scale-95', 'opacity-0');
+                vehicleModalContent.classList.remove('scale-95', 'opacity-0');
             }, 10);
 
             // --- Logique de la galerie d'images ---
@@ -298,27 +518,27 @@
             }
 
             // --- Fermeture de la modale ---
-            document.getElementById('close-modal-button').addEventListener('click', closeModal);
-            document.getElementById('contact-us-button').addEventListener('click', closeModal);
+            document.getElementById('close-vehicle-modal-button').addEventListener('click', closeVehicleModal);
+            document.getElementById('contact-us-button').addEventListener('click', closeVehicleModal);
         }
 
-        function closeModal() {
-            modalContent.classList.add('scale-95', 'opacity-0');
+        function closeVehicleModal() {
+            vehicleModalContent.classList.add('scale-95', 'opacity-0');
             setTimeout(() => {
-                modal.classList.add('hidden');
+                vehicleModal.classList.add('hidden');
                 document.body.classList.remove('modal-open');
             }, 300);
         }
 
         // Fermer la modale en cliquant en dehors ou avec la touche Echap
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                closeModal();
+        vehicleModal.addEventListener('click', (event) => {
+            if (event.target === vehicleModal) {
+                closeVehicleModal();
             }
         });
         window.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
-                closeModal();
+            if (event.key === 'Escape' && !vehicleModal.classList.contains('hidden')) {
+                closeVehicleModal();
             }
         });
 
@@ -329,7 +549,7 @@
                 const vehicleId = detailsButton.dataset.id;
                 const vehicle = allVehicles.find(v => v.id === vehicleId);
                 if (vehicle) {
-                    openModal(vehicle);
+                    openVehicleModal(vehicle);
                 }
             }
         });
@@ -357,6 +577,495 @@
         // Démarrer l'écoute des données
         listenForVehicles();
 
+        // --- GESTION DE LA MODALE DE CONNEXION/INSCRIPTION ---
+        const authModal = document.getElementById('auth-modal');
+        const authModalContent = document.getElementById('auth-modal-content');
+        const closeAuthModalButton = document.getElementById('close-auth-modal-button');
+        const loginSignupButtonDesktop = document.getElementById('login-signup-button-desktop');
+        const loginSignupButtonMobile = document.getElementById('login-signup-button-mobile');
+        const authModalTitle = document.getElementById('auth-modal-title');
+        const loginForm = document.getElementById('login-form');
+        const signupForm = document.getElementById('signup-form');
+        const toggleAuthModeButton = document.getElementById('toggle-auth-mode');
+
+        function openAuthModal() {
+            document.body.classList.add('modal-open');
+            authModal.classList.remove('hidden');
+            setTimeout(() => {
+                authModalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeAuthModal() {
+            authModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                authModal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
+            }, 300);
+        }
+
+        loginSignupButtonDesktop.addEventListener('click', openAuthModal);
+        loginSignupButtonMobile.addEventListener('click', openAuthModal);
+        closeAuthModalButton.addEventListener('click', closeAuthModal);
+
+        authModal.addEventListener('click', (event) => {
+            if (event.target === authModal) {
+                closeAuthModal();
+            }
+        });
+
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !authModal.classList.contains('hidden')) {
+                closeAuthModal();
+            }
+        });
+
+        toggleAuthModeButton.addEventListener('click', () => {
+            if (loginForm.classList.contains('hidden')) {
+                // Passer au mode connexion
+                authModalTitle.textContent = 'Connexion';
+                loginForm.classList.remove('hidden');
+                signupForm.classList.add('hidden');
+                toggleAuthModeButton.textContent = 'Pas encore de compte ? S\'inscrire';
+            } else {
+                // Passer au mode inscription
+                authModalTitle.textContent = 'Inscription';
+                loginForm.classList.add('hidden');
+                signupForm.classList.remove('hidden');
+                toggleAuthModeButton.textContent = 'Déjà un compte ? Se connecter';
+            }
+        });
+
+        // --- GESTION DE L'AUTHENTIFICATION FIREBASE ---
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = loginForm['login-email'].value;
+            const password = loginForm['login-password'].value;
+
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                closeAuthModal();
+                // Gérer la connexion réussie (ex: afficher un message, rediriger)
+                console.log("Connexion réussie !");
+            } catch (error) {
+                console.error("Erreur de connexion:", error.message);
+                // Afficher un message d'erreur à l'utilisateur
+                // Utiliser une modale personnalisée en production au lieu d'alert
+                const errorMessage = error.message.includes('auth/invalid-email') ? 'Adresse email invalide.' :
+                                     error.message.includes('auth/user-not-found') ? 'Aucun utilisateur trouvé avec cet email.' :
+                                     error.message.includes('auth/wrong-password') ? 'Mot de passe incorrect.' :
+                                     'Erreur de connexion. Veuillez réessayer.';
+                showCustomAlert(errorMessage);
+            }
+        });
+
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = signupForm['signup-email'].value;
+            const password = signupForm['signup-password'].value;
+
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                // Créer un document utilisateur avec un rôle par défaut 'client'
+                await setDoc(doc(db, `artifacts/${__app_id}/users/${user.uid}/profile`, 'user_data'), {
+                    email: user.email,
+                    role: 'client' // Rôle par défaut
+                });
+                closeAuthModal();
+                // Gérer l'inscription réussie
+                console.log("Inscription réussie !");
+            } catch (error) {
+                console.error("Erreur d'inscription:", error.message);
+                // Afficher un message d'erreur à l'utilisateur
+                // Utiliser une modale personnalisée en production au lieu d'alert
+                const errorMessage = error.message.includes('auth/email-already-in-use') ? 'Cet email est déjà utilisé.' :
+                                     error.message.includes('auth/weak-password') ? 'Le mot de passe doit contenir au moins 6 caractères.' :
+                                     'Erreur d\'inscription. Veuillez réessayer.';
+                showCustomAlert(errorMessage);
+            }
+        });
+
+        // --- GESTION DU MENU DU COMPTE UTILISATEUR ET DU RÔLE ---
+        const authenticatedUserMenuToggleDesktop = document.getElementById('authenticated-user-menu-toggle-desktop');
+        const authenticatedUserMenuToggleMobile = document.getElementById('authenticated-user-menu-toggle-mobile');
+        const accountMenuDesktop = document.getElementById('account-menu-desktop');
+        const accountMenuMobile = document.getElementById('account-menu-mobile');
+        const logoutButtonDesktop = document.getElementById('logout-button-desktop');
+        const logoutButtonMobile = document.getElementById('logout-button-mobile');
+        const userEmailDisplayDesktop = document.getElementById('user-email-display-desktop');
+        const userEmailDisplayMobile = document.getElementById('user-email-display-mobile');
+        const adminGestionProDesktop = document.getElementById('admin-gestion-pro-desktop');
+        const adminGestionProMobile = document.getElementById('admin-gestion-pro-mobile');
+
+
+        function toggleAccountMenu(menuElement) {
+            menuElement.classList.toggle('hidden');
+        }
+
+        authenticatedUserMenuToggleDesktop.addEventListener('click', (event) => {
+            event.stopPropagation(); // Empêche la fermeture immédiate par le document listener
+            toggleAccountMenu(accountMenuDesktop);
+            accountMenuMobile.classList.add('hidden'); // S'assurer que l'autre menu est fermé
+        });
+
+        authenticatedUserMenuToggleMobile.addEventListener('click', (event) => {
+            event.stopPropagation(); // Empêche la fermeture immédiate par le document listener
+            toggleAccountMenu(accountMenuMobile);
+            accountMenuDesktop.classList.add('hidden'); // S'assurer que l'autre menu est fermé
+        });
+
+        // Fermer les menus si on clique en dehors
+        document.addEventListener('click', (event) => {
+            if (!accountMenuDesktop.contains(event.target) && !authenticatedUserMenuToggleDesktop.contains(event.target)) {
+                accountMenuDesktop.classList.add('hidden');
+            }
+            if (!accountMenuMobile.contains(event.target) && !authenticatedUserMenuToggleMobile.contains(event.target)) {
+                accountMenuMobile.classList.add('hidden');
+            }
+        });
+
+        // Boutons de déconnexion
+        logoutButtonDesktop.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                console.log("Déconnexion réussie !");
+                accountMenuDesktop.classList.add('hidden'); // Cacher le menu après déconnexion
+                showCustomAlert("Vous avez été déconnecté.");
+            } catch (error) {
+                console.error("Erreur de déconnexion:", error.message);
+                showCustomAlert("Erreur lors de la déconnexion. Veuillez réessayer.");
+            }
+        });
+
+        logoutButtonMobile.addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+                console.log("Déconnexion réussie !");
+                accountMenuMobile.classList.add('hidden'); // Cacher le menu après déconnexion
+                showCustomAlert("Vous avez été déconnecté.");
+            } catch (error) {
+                console.error("Erreur de déconnexion:", error.message);
+                showCustomAlert("Erreur lors de la déconnexion. Veuillez réessayer.");
+            }
+        });
+
+
+        // Gérer l'état de l'authentification (optionnel, pour afficher/masquer des éléments)
+        onAuthStateChanged(auth, async (user) => { // Rendre la fonction async
+            if (user) {
+                console.log("Utilisateur connecté:", user.email);
+                
+                const userRef = doc(db, `artifacts/${__app_id}/users/${user.uid}/profile`, 'user_data');
+                let userRole = 'client'; // Rôle par défaut
+
+                try {
+                    const userDoc = await getDoc(userRef);
+                    if (userDoc.exists()) {
+                        userRole = userDoc.data().role || 'client';
+                    } else {
+                        // Si le document n'existe pas (nouvel utilisateur ou ancien sans rôle), le créer avec 'client'
+                        await setDoc(userRef, { email: user.email, role: 'client' });
+                        userRole = 'client';
+                    }
+                } catch (error) {
+                    console.error("Erreur lors de la récupération/création du rôle utilisateur:", error);
+                }
+
+                window.currentUserRole = userRole; // Rendre le rôle accessible globalement
+
+                // Afficher les éléments pour utilisateur connecté
+                loginSignupButtonDesktop.classList.add('hidden');
+                loginSignupButtonMobile.classList.add('hidden');
+                authenticatedUserMenuToggleDesktop.classList.remove('hidden');
+                authenticatedUserMenuToggleMobile.classList.remove('hidden');
+                userEmailDisplayDesktop.textContent = user.email;
+                userEmailDisplayMobile.textContent = user.email;
+
+                // Afficher le bouton "Gestion pro" si l'utilisateur est admin
+                if (userRole === 'admin') {
+                    adminGestionProDesktop.classList.remove('hidden');
+                    adminGestionProMobile.classList.remove('hidden');
+                } else {
+                    adminGestionProDesktop.classList.add('hidden');
+                    adminGestionProMobile.classList.add('hidden');
+                }
+
+            } else {
+                console.log("Aucun utilisateur connecté.");
+                // Afficher les éléments pour utilisateur non connecté
+                loginSignupButtonDesktop.classList.remove('hidden');
+                loginSignupButtonMobile.classList.remove('hidden');
+                authenticatedUserMenuToggleDesktop.classList.add('hidden');
+                authenticatedUserMenuToggleMobile.classList.add('hidden');
+                accountMenuDesktop.classList.add('hidden'); // S'assurer que le menu est caché
+                accountMenuMobile.classList.add('hidden'); // S'assurer que le menu est caché
+                adminGestionProDesktop.classList.add('hidden'); // Cacher le bouton "Gestion pro"
+                adminGestionProMobile.classList.add('hidden'); // Cacher le bouton "Gestion pro"
+
+                window.currentUserRole = null; // Effacer le rôle
+                // Cacher le panneau d'administration si l'utilisateur se déconnecte
+                hideAdminPanel();
+            }
+        });
+
+        // --- CUSTOM ALERT MODAL (remplace alert()) ---
+        function showCustomAlert(message) {
+            let customAlert = document.getElementById('custom-alert');
+            if (!customAlert) {
+                customAlert = document.createElement('div');
+                customAlert.id = 'custom-alert';
+                customAlert.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[999] hidden';
+                customAlert.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center relative">
+                        <p id="custom-alert-message" class="text-lg font-semibold mb-4"></p>
+                        <button id="custom-alert-close" class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">OK</button>
+                    </div>
+                `;
+                document.body.appendChild(customAlert);
+
+                document.getElementById('custom-alert-close').addEventListener('click', () => {
+                    customAlert.classList.add('hidden');
+                });
+                customAlert.addEventListener('click', (event) => {
+                    if (event.target === customAlert) {
+                        customAlert.classList.add('hidden');
+                    }
+                });
+            }
+            document.getElementById('custom-alert-message').textContent = message;
+            customAlert.classList.remove('hidden');
+        }
+
+        // --- CUSTOM CONFIRM MODAL (remplace confirm()) ---
+        function showCustomConfirm(message, onConfirm) {
+            let customConfirm = document.getElementById('custom-confirm');
+            if (!customConfirm) {
+                customConfirm = document.createElement('div');
+                customConfirm.id = 'custom-confirm';
+                customConfirm.className = 'fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[999] hidden';
+                customConfirm.innerHTML = `
+                    <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm w-full text-center relative">
+                        <p id="custom-confirm-message" class="text-lg font-semibold mb-4"></p>
+                        <div class="flex justify-center space-x-4">
+                            <button id="custom-confirm-ok" class="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">Oui</button>
+                            <button id="custom-confirm-cancel" class="bg-gray-400 text-white py-2 px-4 rounded-lg hover:bg-gray-500 transition duration-300">Annuler</button>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(customConfirm);
+
+                document.getElementById('custom-confirm-ok').addEventListener('click', () => {
+                    customConfirm.classList.add('hidden');
+                    onConfirm(true);
+                });
+                document.getElementById('custom-confirm-cancel').addEventListener('click', () => {
+                    customConfirm.classList.add('hidden');
+                    onConfirm(false);
+                });
+                customConfirm.addEventListener('click', (event) => {
+                    if (event.target === customConfirm) {
+                        customConfirm.classList.add('hidden');
+                        onConfirm(false);
+                    }
+                });
+            }
+            document.getElementById('custom-confirm-message').textContent = message;
+            customConfirm.classList.remove('hidden');
+        }
+
+        // --- GESTION DU PANNEAU D'ADMINISTRATION ---
+        const adminPanel = document.getElementById('admin-panel');
+        const mainContentSections = document.getElementById('main-content-sections'); // Nouveau wrapper
+        const vehicleForm = document.getElementById('vehicle-form');
+        const vehicleIdInput = document.getElementById('vehicle-id');
+        const vehicleNomInput = document.getElementById('vehicle-nom');
+        const vehicleAnneeInput = document.getElementById('vehicle-annee');
+        const vehicleKilometrageInput = document.getElementById('vehicle-kilometrage');
+        const vehicleCarburantInput = document.getElementById('vehicle-carburant');
+        const vehiclePrixInput = document.getElementById('vehicle-prix');
+        const vehicleDescriptionInput = document.getElementById('vehicle-description');
+        const vehicleImagesInput = document.getElementById('vehicle-images');
+        const vehicleOptionsInput = document.getElementById('vehicle-options');
+        const submitVehicleButton = document.getElementById('submit-vehicle-button');
+        const cancelEditButton = document.getElementById('cancel-edit-button');
+        const vehicleFormTitle = document.getElementById('vehicle-form-title');
+        const adminVehicleList = document.getElementById('admin-vehicle-list');
+        const adminLoadingSpinner = document.getElementById('admin-loading-spinner');
+
+        // Fonction pour afficher le panneau d'administration et masquer le contenu principal
+        function showAdminPanel() {
+            mainContentSections.classList.add('hidden');
+            adminPanel.classList.remove('hidden');
+            // Fermer toutes les modales ouvertes
+            closeVehicleModal();
+            closeAuthModal();
+            // Rafraîchir la liste des véhicules dans le panneau d'administration
+            listenForAdminVehicles();
+        }
+
+        // Fonction pour masquer le panneau d'administration et afficher le contenu principal
+        function hideAdminPanel() {
+            adminPanel.classList.add('hidden');
+            mainContentSections.classList.remove('hidden');
+        }
+
+        // Écouteurs d'événements pour les boutons "Gestion pro"
+        adminGestionProDesktop.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.currentUserRole === 'admin') {
+                showAdminPanel();
+                accountMenuDesktop.classList.add('hidden'); // Fermer le menu
+            } else {
+                showCustomAlert("Vous n'avez pas les permissions pour accéder à cette section.");
+            }
+        });
+        adminGestionProMobile.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.currentUserRole === 'admin') {
+                showAdminPanel();
+                accountMenuMobile.classList.add('hidden'); // Fermer le menu
+            } else {
+                showCustomAlert("Vous n'avez pas les permissions pour accéder à cette section.");
+            }
+        });
+
+
+        // Fonction pour afficher les véhicules dans le panneau d'administration
+        function displayAdminVehicles(vehicles) {
+            adminVehicleList.innerHTML = '';
+            if (vehicles.length === 0) {
+                adminVehicleList.innerHTML = `<p class="text-center col-span-full">Aucun véhicule à gérer pour le moment.</p>`;
+            } else {
+                vehicles.forEach(vehicle => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden';
+                    const imageUrl = vehicle.images && vehicle.images.length > 0 ? vehicle.images[0] : 'https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';
+                    card.innerHTML = `
+                        <img src="${imageUrl}" alt="Image de ${vehicle.nom}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Invalide';">
+                        <div class="p-4">
+                            <h4 class="text-xl font-bold mb-2">${vehicle.nom || 'N/A'}</h4>
+                            <p class="text-gray-600 text-sm mb-2">${vehicle.annee || 'N/A'} | ${vehicle.kilometrage ? vehicle.kilometrage.toLocaleString('fr-FR') : 'N/A'} km | ${vehicle.carburant || 'N/A'}</p>
+                            <p class="text-2xl font-bold text-red-600 mb-4">${vehicle.prix ? vehicle.prix.toLocaleString('fr-FR') : 'N/A'} €</p>
+                            <div class="flex space-x-2">
+                                <button data-id="${vehicle.id}" class="edit-vehicle-button flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Modifier</button>
+                                <button data-id="${vehicle.id}" class="delete-vehicle-button flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">Supprimer</button>
+                            </div>
+                        </div>
+                    `;
+                    adminVehicleList.appendChild(card);
+                });
+            }
+            adminLoadingSpinner.style.display = 'none';
+        }
+
+        // Écoute les changements de véhicules pour le panneau d'administration
+        function listenForAdminVehicles() {
+            const vehiclesCollection = collection(db, "vehicules");
+            adminLoadingSpinner.style.display = 'block';
+            onSnapshot(vehiclesCollection, (snapshot) => {
+                const adminVehicles = [];
+                snapshot.forEach((doc) => {
+                    adminVehicles.push({ id: doc.id, ...doc.data() });
+                });
+                displayAdminVehicles(adminVehicles);
+            }, (error) => {
+                console.error("Erreur lors de la récupération des véhicules pour l'admin: ", error);
+                adminLoadingSpinner.style.display = 'none';
+                adminVehicleList.innerHTML = `<p class="text-center col-span-full text-red-500">Impossible de charger les véhicules pour la gestion.</p>`;
+            });
+        }
+
+        // Gérer la soumission du formulaire (Ajouter/Mettre à jour un véhicule)
+        vehicleForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const vehicleId = vehicleIdInput.value;
+            const vehicleData = {
+                nom: vehicleNomInput.value,
+                annee: parseInt(vehicleAnneeInput.value),
+                kilometrage: parseInt(vehicleKilometrageInput.value),
+                carburant: vehicleCarburantInput.value,
+                prix: parseFloat(vehiclePrixInput.value),
+                description: vehicleDescriptionInput.value,
+                images: vehicleImagesInput.value.split(',').map(url => url.trim()).filter(url => url !== ''),
+                options: vehicleOptionsInput.value.split(',').map(opt => opt.trim()).filter(opt => opt !== '')
+            };
+
+            try {
+                if (vehicleId) {
+                    // Mettre à jour le véhicule existant
+                    await setDoc(doc(db, "vehicules", vehicleId), vehicleData);
+                    showCustomAlert("Véhicule modifié avec succès !");
+                } else {
+                    // Ajouter un nouveau véhicule
+                    await addDoc(collection(db, "vehicules"), vehicleData);
+                    showCustomAlert("Véhicule ajouté avec succès !");
+                }
+                vehicleForm.reset(); // Effacer le formulaire
+                vehicleIdInput.value = ''; // Effacer l'ID caché
+                submitVehicleButton.textContent = 'Ajouter le véhicule';
+                vehicleFormTitle.textContent = 'Ajouter un nouveau véhicule';
+                cancelEditButton.classList.add('hidden');
+            } catch (error) {
+                console.error("Erreur lors de l'opération sur le véhicule:", error);
+                showCustomAlert("Erreur lors de l'opération sur le véhicule. Veuillez réessayer.");
+            }
+        });
+
+        // Modifier le véhicule - Remplir le formulaire
+        adminVehicleList.addEventListener('click', (event) => {
+            const editButton = event.target.closest('.edit-vehicle-button');
+            if (editButton) {
+                const idToEdit = editButton.dataset.id;
+                const vehicleToEdit = allVehicles.find(v => v.id === idToEdit);
+                if (vehicleToEdit) {
+                    vehicleIdInput.value = vehicleToEdit.id;
+                    vehicleNomInput.value = vehicleToEdit.nom;
+                    vehicleAnneeInput.value = vehicleToEdit.annee;
+                    vehicleKilometrageInput.value = vehicleToEdit.kilometrage;
+                    vehicleCarburantInput.value = vehicleToEdit.carburant;
+                    vehiclePrixInput.value = vehicleToEdit.prix;
+                    vehicleDescriptionInput.value = vehicleToEdit.description;
+                    vehicleImagesInput.value = vehicleToEdit.images ? vehicleToEdit.images.join(', ') : '';
+                    vehicleOptionsInput.value = vehicleToEdit.options ? vehicleToEdit.options.join(', ') : '';
+
+                    submitVehicleButton.textContent = 'Modifier le véhicule';
+                    vehicleFormTitle.textContent = 'Modifier le véhicule existant';
+                    cancelEditButton.classList.remove('hidden');
+                    // Faire défiler jusqu'au formulaire
+                    vehicleForm.scrollIntoView({ behavior: 'smooth' });
+                }
+            }
+        });
+
+        // Annuler la modification
+        cancelEditButton.addEventListener('click', () => {
+            vehicleForm.reset();
+            vehicleIdInput.value = '';
+            submitVehicleButton.textContent = 'Ajouter le véhicule';
+            vehicleFormTitle.textContent = 'Ajouter un nouveau véhicule';
+            cancelEditButton.classList.add('hidden');
+        });
+
+        // Supprimer le véhicule
+        adminVehicleList.addEventListener('click', async (event) => {
+            const deleteButton = event.target.closest('.delete-vehicle-button');
+            if (deleteButton) {
+                const idToDelete = deleteButton.dataset.id;
+                showCustomConfirm("Êtes-vous sûr de vouloir supprimer ce véhicule ?", async (confirmed) => {
+                    if (confirmed) {
+                        try {
+                            await deleteDoc(doc(db, "vehicules", idToDelete));
+                            showCustomAlert("Véhicule supprimé avec succès !");
+                        } catch (error) {
+                            console.error("Erreur lors de la suppression du véhicule:", error);
+                            showCustomAlert("Erreur lors de la suppression du véhicule. Veuillez réessayer.");
+                        }
+                    }
+                });
+            }
+        });
     </script>
 </body>
 </html>
