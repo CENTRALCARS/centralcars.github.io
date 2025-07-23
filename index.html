@@ -62,6 +62,10 @@
         .account-menu button.logout-button:hover {
             background-color: #ffebeb; /* red-100 */
         }
+        /* Correction : Supprimer !important pour permettre aux classes Tailwind de fonctionner */
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -233,12 +237,28 @@
                     <form id="vehicle-form" class="space-y-4">
                         <input type="hidden" id="vehicle-id">
                         <div>
-                            <label for="vehicle-nom" class="block text-gray-700 font-semibold mb-2">Nom du véhicule</label>
-                            <input type="text" id="vehicle-nom" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                            <label for="vehicle-titre-annonce" class="block text-gray-700 font-semibold mb-2">Titre de l'annonce</label>
+                            <input type="text" id="vehicle-titre-annonce" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
                         </div>
                         <div>
-                            <label for="vehicle-annee" class="block text-gray-700 font-semibold mb-2">Année</label>
-                            <input type="number" id="vehicle-annee" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                            <label for="vehicle-marque" class="block text-gray-700 font-semibold mb-2">Marque</label>
+                            <select id="vehicle-marque" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                                <option value="">Sélectionner une marque</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="vehicle-modele" class="block text-gray-700 font-semibold mb-2">Modèle</label>
+                            <select id="vehicle-modele" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                                <option value="">Sélectionner un modèle</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="vehicle-annee-modele" class="block text-gray-700 font-semibold mb-2">Année du modèle</label>
+                            <input type="number" id="vehicle-annee-modele" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" min="1900" max="2099" required>
+                        </div>
+                        <div>
+                            <label for="vehicle-date-circulation" class="block text-gray-700 font-semibold mb-2">Date de première mise en circulation (MM/AAAA)</label>
+                            <input type="text" id="vehicle-date-circulation" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="MM/AAAA" pattern="(0[1-9]|1[0-2])\/(19|20)\d{2}" required>
                         </div>
                         <div>
                             <label for="vehicle-kilometrage" class="block text-gray-700 font-semibold mb-2">Kilométrage</label>
@@ -246,7 +266,48 @@
                         </div>
                         <div>
                             <label for="vehicle-carburant" class="block text-gray-700 font-semibold mb-2">Carburant</label>
-                            <input type="text" id="vehicle-carburant" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                            <select id="vehicle-carburant" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                                <option value="">Sélectionner un type de carburant</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="vehicle-boite-vitesse" class="block text-gray-700 font-semibold mb-2">Boîte de vitesse</label>
+                            <select id="vehicle-boite-vitesse" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" required>
+                                <option value="">Sélectionner un type de boîte</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="vehicle-couleur" class="block text-gray-700 font-semibold mb-2">Couleur</label>
+                            <input type="text" id="vehicle-couleur" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                        </div>
+                        <div>
+                            <label for="vehicle-nb-places" class="block text-gray-700 font-semibold mb-2">Nombre de places</label>
+                            <input type="number" id="vehicle-nb-places" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" min="1" max="9">
+                        </div>
+                        <div>
+                            <label for="vehicle-nb-portes" class="block text-gray-700 font-semibold mb-2">Nombre de portes</label>
+                            <input type="number" id="vehicle-nb-portes" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" min="1" max="5">
+                        </div>
+                        <div>
+                            <label for="vehicle-puissance-fiscale" class="block text-gray-700 font-semibold mb-2">Puissance fiscale (CV)</label>
+                            <input type="number" id="vehicle-puissance-fiscale" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" min="1">
+                        </div>
+                        <div>
+                            <label for="vehicle-puissance-din" class="block text-gray-700 font-semibold mb-2">Puissance DIN (ch)</label>
+                            <input type="number" id="vehicle-puissance-din" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" min="1">
+                        </div>
+                        <div>
+                            <label for="vehicle-critair" class="block text-gray-700 font-semibold mb-2">Crit'Air</label>
+                            <select id="vehicle-critair" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                                <option value="">Sélectionner une vignette</option>
+                                <option value="0">0 (Vert)</option>
+                                <option value="1">1</option>
+                                <option value="2">2</option>
+                                <option value="3">3</option>
+                                <option value="4">4</option>
+                                <option value="5">5</option>
+                                <option value="Non classé">Non classé</option>
+                            </select>
                         </div>
                         <div>
                             <label for="vehicle-prix" class="block text-gray-700 font-semibold mb-2">Prix (€)</label>
@@ -256,14 +317,29 @@
                             <label for="vehicle-description" class="block text-gray-700 font-semibold mb-2">Description</label>
                             <textarea id="vehicle-description" rows="4" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500"></textarea>
                         </div>
-                        <div>
-                            <label for="vehicle-images" class="block text-gray-700 font-semibold mb-2">URLs des images (séparées par des virgules)</label>
-                            <input type="text" id="vehicle-images" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="URL1, URL2, URL3">
+                        
+                        <!-- Section Options -->
+                        <div class="border-t pt-4 mt-4">
+                            <h4 class="text-xl font-bold mb-4">Options</h4>
+                            <div id="vehicle-options-checkboxes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Les options seront générées ici par JavaScript -->
+                            </div>
                         </div>
-                        <div>
-                            <label for="vehicle-options" class="block text-gray-700 font-semibold mb-2">Options (séparées par des virgules)</label>
-                            <input type="text" id="vehicle-options" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Option1, Option2">
+
+                        <!-- Section Images -->
+                        <div class="border-t pt-4 mt-4">
+                            <h4 class="text-xl font-bold mb-4">Images du véhicule</h4>
+                            <input type="file" id="vehicle-image-upload" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" multiple accept="image/*">
+                            <div id="image-upload-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <!-- Les aperçus des images seront ici -->
+                            </div>
+                            <div id="image-upload-spinner" class="text-center py-4 hidden">
+                                <i class="fas fa-spinner fa-spin text-red-600 text-2xl"></i>
+                                <p class="mt-2 text-gray-600">Téléchargement des images...</p>
+                            </div>
+                            <input type="hidden" id="vehicle-images-urls"> <!-- Pour stocker les URLs Cloudinary -->
                         </div>
+
                         <button type="submit" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300" id="submit-vehicle-button">Ajouter le véhicule</button>
                         <button type="button" class="w-full bg-gray-500 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-600 transition duration-300 mt-2 hidden" id="cancel-edit-button">Annuler la modification</button>
                     </form>
@@ -452,9 +528,10 @@
                     card.innerHTML = `
                         <img src="${imageUrl}" alt="Image de ${vehicle.nom}" class="w-full h-56 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Invalide';">
                         <div class="p-6">
-                            <h3 class="text-2xl font-bold mb-2">${vehicle.nom || 'Nom non disponible'}</h3>
+                            <h3 class="text-2xl font-bold mb-2">${vehicle.titreAnnonce || vehicle.nom || 'Titre non disponible'}</h3>
+                            <p class="text-gray-600 mb-2">${vehicle.marque || 'N/A'} - ${vehicle.modele || 'N/A'}</p>
                             <div class="text-gray-600 mb-4 space-y-1">
-                                <p><i class="fas fa-calendar-alt w-6 text-red-500"></i> ${vehicle.annee || 'N/A'}</p>
+                                <p><i class="fas fa-calendar-alt w-6 text-red-500"></i> ${vehicle.anneeModele || 'N/A'}</p>
                                 <p><i class="fas fa-tachometer-alt w-6 text-red-500"></i> ${vehicle.kilometrage ? vehicle.kilometrage.toLocaleString('fr-FR') : 'N/A'} km</p>
                                 <p><i class="fas fa-gas-pump w-6 text-red-500"></i> ${vehicle.carburant || 'N/A'}</p>
                             </div>
@@ -482,19 +559,28 @@
                 <button id="close-vehicle-modal-button" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center text-2xl hover:bg-opacity-75 z-20">&times;</button>
                 
                 <div class="w-full h-64 md:h-96 relative">
-                    <img id="modal-image" src="${images[0]}" alt="Image principale de ${vehicle.nom}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/800x600/cccccc/ffffff?text=Image+Invalide';">
+                    <img id="modal-image" src="${images[0]}" alt="Image principale de ${vehicle.titreAnnonce || vehicle.nom}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/800x600/cccccc/ffffff?text=Image+Invalide';">
                     <div id="modal-image-prev" class="absolute left-0 top-1/2 -translate-y-1/2 p-2 m-2 bg-black bg-opacity-50 text-white rounded-full cursor-pointer hover:bg-opacity-75 ${images.length <= 1 ? 'hidden' : ''}"><i class="fas fa-chevron-left"></i></div>
                     <div id="modal-image-next" class="absolute right-0 top-1/2 -translate-y-1/2 p-2 m-2 bg-black bg-opacity-50 text-white rounded-full cursor-pointer hover:bg-opacity-75 ${images.length <= 1 ? 'hidden' : ''}"><i class="fas fa-chevron-right"></i></div>
                 </div>
 
                 <div class="p-6 md:p-8">
-                    <h2 class="text-3xl font-bold mb-2">${vehicle.nom || 'Nom non disponible'}</h2>
+                    <h2 class="text-3xl font-bold mb-2">${vehicle.titreAnnonce || vehicle.nom || 'Titre non disponible'}</h2>
+                    <p class="text-xl text-gray-700 mb-4">${vehicle.marque || 'N/A'} - ${vehicle.modele || 'N/A'}</p>
                     <p class="text-4xl font-bold text-red-600 mb-6">${vehicle.prix ? vehicle.prix.toLocaleString('fr-FR') : 'N/A'} €</p>
                     
                     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 text-center mb-6">
-                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.annee || 'N/A'}</div><div class="text-sm text-gray-600">Année</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.anneeModele || 'N/A'}</div><div class="text-sm text-gray-600">Année Modèle</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.dateCirculation || 'N/A'}</div><div class="text-sm text-gray-600">1ère circulation</div></div>
                         <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.kilometrage ? vehicle.kilometrage.toLocaleString('fr-FR') : 'N/A'}</div><div class="text-sm text-gray-600">Km</div></div>
                         <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.carburant || 'N/A'}</div><div class="text-sm text-gray-600">Carburant</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.boiteVitesse || 'N/A'}</div><div class="text-sm text-gray-600">Boîte</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.couleur || 'N/A'}</div><div class="text-sm text-gray-600">Couleur</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.nbPlaces || 'N/A'}</div><div class="text-sm text-gray-600">Places</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.nbPortes || 'N/A'}</div><div class="text-sm text-gray-600">Portes</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.puissanceFiscale || 'N/A'} CV</div><div class="text-sm text-gray-600">Puissance Fisc.</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.puissanceDIN || 'N/A'} ch</div><div class="text-sm text-gray-600">Puissance DIN</div></div>
+                        <div class="bg-gray-100 p-3 rounded-lg"><div class="font-bold text-lg">${vehicle.critAir || 'N/A'}</div><div class="text-sm text-gray-600">Crit'Air</div></div>
                     </div>
 
                     <h3 class="text-xl font-bold mb-3 border-b pb-2">Description</h3>
@@ -839,6 +925,8 @@
         // --- CUSTOM ALERT MODAL (remplace alert()) ---
         function showCustomAlert(message) {
             let customAlert = document.getElementById('custom-alert');
+            let closeButton;
+
             if (!customAlert) {
                 customAlert = document.createElement('div');
                 customAlert.id = 'custom-alert';
@@ -850,28 +938,48 @@
                     </div>
                 `;
                 document.body.appendChild(customAlert);
-
-                // Attacher l'écouteur d'événements au bouton de fermeture de l'alerte
-                const closeButton = customAlert.querySelector('#custom-alert-close');
-                if (closeButton) {
-                    closeButton.addEventListener('click', () => {
-                        console.log("Custom alert close button clicked!");
-                        customAlert.classList.add('hidden');
-                        console.log("Custom alert hidden. Current classList:", customAlert.classList);
-                    });
-                } else {
-                    console.error("Custom alert close button not found within the modal structure.");
-                }
-
-                // Attacher l'écouteur pour le clic sur le fond de la modale
-                customAlert.addEventListener('click', (event) => {
-                    if (event.target === customAlert) { // Clic sur le fond de la modale
-                        console.log("Closing custom alert via backdrop click.");
-                        customAlert.classList.add('hidden');
-                    }
-                });
             }
-            console.log("Showing custom alert with message:", message); // Log pour le débogage
+
+            // Toujours obtenir la référence la plus récente au bouton de fermeture
+            closeButton = customAlert.querySelector('#custom-alert-close');
+
+            // Supprimer l'écouteur existant pour éviter les doublons si la fonction est appelée plusieurs fois
+            // Ceci est une programmation défensive ; idéalement, il n'est ajouté qu'une seule fois.
+            const oldClickListener = customAlert._closeClickListener; // Stocker la référence à l'ancien écouteur
+            if (oldClickListener) {
+                closeButton.removeEventListener('click', oldClickListener);
+            }
+
+            const newClickListener = () => {
+                console.log("Bouton de fermeture de l'alerte personnalisée cliqué !");
+                customAlert.classList.add('hidden');
+                console.log("Alerte personnalisée masquée. classList actuelle :", customAlert.classList);
+            };
+
+            if (closeButton) {
+                closeButton.addEventListener('click', newClickListener);
+                customAlert._closeClickListener = newClickListener; // Stocker le nouvel écouteur
+            } else {
+                console.error("Bouton de fermeture de l'alerte personnalisée introuvable dans la structure modale.");
+            }
+
+            // Supprimer l'écouteur de fond existant pour éviter les doublons
+            const oldBackdropListener = customAlert._backdropClickListener;
+            if (oldBackdropListener) {
+                customAlert.removeEventListener('click', oldBackdropListener);
+            }
+
+            const newBackdropListener = (event) => {
+                if (event.target === customAlert) { // Clic sur le fond de la modale
+                    console.log("Fermeture de l'alerte personnalisée via le clic sur le fond.");
+                    customAlert.classList.add('hidden');
+                }
+            };
+            customAlert.addEventListener('click', newBackdropListener);
+            customAlert._backdropClickListener = newBackdropListener;
+
+
+            console.log("Affichage de l'alerte personnalisée avec le message :", message); // Log pour le débogage
             document.getElementById('custom-alert-message').textContent = message;
             customAlert.classList.remove('hidden');
         }
@@ -918,19 +1026,285 @@
         const mainContentSections = document.getElementById('main-content-sections'); // Nouveau wrapper
         const vehicleForm = document.getElementById('vehicle-form');
         const vehicleIdInput = document.getElementById('vehicle-id');
-        const vehicleNomInput = document.getElementById('vehicle-nom');
-        const vehicleAnneeInput = document.getElementById('vehicle-annee');
+        const vehicleTitreAnnonceInput = document.getElementById('vehicle-titre-annonce');
+        const vehicleMarqueSelect = document.getElementById('vehicle-marque');
+        const vehicleModeleSelect = document.getElementById('vehicle-modele');
+        const vehicleAnneeModeleInput = document.getElementById('vehicle-annee-modele');
+        const vehicleDateCirculationInput = document.getElementById('vehicle-date-circulation');
         const vehicleKilometrageInput = document.getElementById('vehicle-kilometrage');
-        const vehicleCarburantInput = document.getElementById('vehicle-carburant');
+        const vehicleCarburantSelect = document.getElementById('vehicle-carburant');
+        const vehicleBoiteVitesseSelect = document.getElementById('vehicle-boite-vitesse');
+        const vehicleCouleurInput = document.getElementById('vehicle-couleur');
+        const vehicleNbPlacesInput = document.getElementById('vehicle-nb-places');
+        const vehicleNbPortesInput = document.getElementById('vehicle-nb-portes');
+        const vehiclePuissanceFiscaleInput = document.getElementById('vehicle-puissance-fiscale');
+        const vehiclePuissanceDINInput = document.getElementById('vehicle-puissance-din');
+        const vehicleCritAirSelect = document.getElementById('vehicle-critair');
         const vehiclePrixInput = document.getElementById('vehicle-prix');
         const vehicleDescriptionInput = document.getElementById('vehicle-description');
-        const vehicleImagesInput = document.getElementById('vehicle-images');
-        const vehicleOptionsInput = document.getElementById('vehicle-options');
+        const vehicleImageUploadInput = document.getElementById('vehicle-image-upload');
+        const imageUploadPreview = document.getElementById('image-upload-preview');
+        const imageUploadSpinner = document.getElementById('image-upload-spinner');
+        const vehicleImagesUrlsInput = document.getElementById('vehicle-images-urls'); // Champ caché pour les URLs Cloudinary
+        const vehicleOptionsCheckboxesDiv = document.getElementById('vehicle-options-checkboxes');
+
         const submitVehicleButton = document.getElementById('submit-vehicle-button');
         const cancelEditButton = document.getElementById('cancel-edit-button');
         const vehicleFormTitle = document.getElementById('vehicle-form-title');
         const adminVehicleList = document.getElementById('admin-vehicle-list');
         const adminLoadingSpinner = document.getElementById('admin-loading-spinner');
+
+        // --- Données pour les listes déroulantes et options ---
+        const carData = {
+            "Renault": ["Clio", "Mégane", "Captur", "Kadjar", "Austral", "Arkana", "Twingo", "Zoe", "Scénic", "Talisman", "Espace", "Koleos", "Kangoo"],
+            "Peugeot": ["208", "308", "2008", "3008", "5008", "508", "108", "Rifter", "Partner", "Traveller", "Expert"],
+            "Citroën": ["C3", "C4", "C5 Aircross", "C3 Aircross", "Berlingo", "C1", "C4 Cactus", "C5 X", "Jumpy", "Spacetourer"],
+            "Volkswagen": ["Golf", "Polo", "Tiguan", "Passat", "T-Roc", "Arteon", "Up!", "ID.3", "ID.4", "ID.5", "ID.Buzz", "Touran", "Touareg", "Caddy"],
+            "Audi": ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q4 e-tron", "Q5", "Q7", "Q8", "e-tron", "TT", "R8"],
+            "BMW": ["Série 1", "Série 2", "Série 3", "Série 4", "Série 5", "Série 6", "Série 7", "Série 8", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "Z4", "i3", "i4", "iX", "iX3", "i5", "i7"],
+            "Mercedes-Benz": ["Classe A", "Classe B", "Classe C", "Classe E", "Classe S", "CLA", "CLS", "GLA", "GLC", "GLE", "GLS", "EQA", "EQB", "EQC", "EQE", "EQS", "AMG GT", "Citan", "Vito", "Sprinter"],
+            "Ford": ["Fiesta", "Focus", "Puma", "Kuga", "Mustang Mach-E", "Explorer", "Edge", "Mondeo", "Galaxy", "S-Max", "Ranger", "Transit Custom", "Tourneo Custom"],
+            "Toyota": ["Yaris", "Corolla", "C-HR", "RAV4", "Aygo", "Mirai", "Camry", "Prius", "Highlander", "Land Cruiser", "Hilux", "Proace"],
+            "Nissan": ["Qashqai", "Juke", "X-Trail", "Micra", "Leaf", "Ariya", "Navara", "Townstar"],
+            "Hyundai": ["i10", "i20", "i30", "Kona", "Tucson", "Santa Fe", "Bayon", "Ioniq 5", "Ioniq 6", "Nexo"],
+            "Kia": ["Picanto", "Rio", "Ceed", "Sportage", "Niro", "EV6", "Stonic", "Xceed", "Sorento", "Soul EV"],
+            "Opel": ["Corsa", "Astra", "Mokka", "Grandland", "Crossland", "Combo Life", "Zafira Life", "Vivaro"],
+            "Skoda": ["Fabia", "Octavia", "Superb", "Kamiq", "Karoq", "Kodiaq", "Enyaq iV", "Scala"],
+            "Seat": ["Ibiza", "Leon", "Ateca", "Arona", "Tarraco", "Toledo", "Alhambra"],
+            "Fiat": ["500", "Panda", "Tipo", "500X", "500e", "Ducato", "Talento"],
+            "Volvo": ["S60", "V60", "S90", "V90", "XC40", "XC60", "XC90", "C40 Recharge", "EX30", "EX90"],
+            "Tesla": ["Model 3", "Model Y", "Model S", "Model X", "Cybertruck"],
+            "Dacia": ["Sandero", "Duster", "Spring", "Jogger", "Lodgy", "Logan"],
+            "Mazda": ["Mazda2", "Mazda3", "Mazda6", "CX-30", "CX-5", "CX-60", "CX-80", "MX-30", "MX-5"],
+            "Honda": ["Civic", "CR-V", "Jazz", "HR-V", "e", "ZR-V"],
+            "Suzuki": ["Swift", "Vitara", "Ignis", "S-Cross", "Jimny", "Across"],
+            "Jeep": ["Renegade", "Compass", "Wrangler", "Grand Cherokee", "Avenger"],
+            "Land Rover": ["Range Rover Evoque", "Discovery Sport", "Defender", "Range Rover Sport", "Discovery", "Range Rover"],
+            "Porsche": ["911", "Cayenne", "Macan", "Panamera", "Taycan", "718 Boxster", "718 Cayman"],
+            "Alfa Romeo": ["Giulia", "Stelvio", "Tonale"],
+            "Lexus": ["IS", "ES", "LS", "RC", "LC", "UX", "NX", "RX", "RZ"],
+            "Mini": ["Mini 3 Portes", "Mini 5 Portes", "Countryman", "Clubman", "Cabrio", "Aceman"],
+            "Cupra": ["Formentor", "Born", "Leon", "Ateca", "Tavascan"],
+            "Polestar": ["Polestar 2", "Polestar 3", "Polestar 4"],
+            "MG": ["ZS EV", "MG4 EV", "HS", "MG5 EV", "Cyberster"]
+        };
+
+        const carburants = ["Essence", "Diesel", "Électrique", "Hybride", "Hybride Rechargeable", "GPL", "E85"];
+        const boiteVitesse = ["Manuelle", "Automatique"];
+        const critAirOptions = ["0 (Vert)", "1", "2", "3", "4", "5", "Non classé"];
+
+        const vehicleOptionsData = {
+            "Sécurité": [
+                "ABS", "ESP", "Airbags frontaux", "Airbags latéraux", "Airbags rideaux",
+                "Aide au freinage d'urgence", "Contrôle de la pression des pneus",
+                "Fixations ISOFIX", "Détecteur d'angle mort", "Alerte de franchissement de ligne",
+                "Régulateur de vitesse adaptatif", "Caméra de recul", "Radars de stationnement avant",
+                "Radars de stationnement arrière", "Phares LED", "Feux de jour LED",
+                "Système de surveillance de la vigilance du conducteur", "Freinage automatique d'urgence"
+            ],
+            "Intérieur": [
+                "Climatisation manuelle", "Climatisation automatique bi-zone", "Sièges chauffants",
+                "Sièges en cuir", "Volant multifonction", "Volant chauffant", "Accoudoir central",
+                "Vitres électriques avant", "Vitres électriques arrière", "Rétroviseurs électriques",
+                "Écran tactile", "GPS", "Bluetooth", "Apple CarPlay", "Android Auto",
+                "Prise USB", "Prise 12V", "Toit ouvrant panoramique", "Instrumentation numérique",
+                "Éclairage d'ambiance", "Sellerie tissu", "Sellerie semi-cuir", "Sièges sport"
+            ],
+            "Extérieur": [
+                "Jantes alliage", "Peinture métallisée", "Phares antibrouillard", "Barres de toit",
+                "Attelage", "Vitres teintées", "Rétroviseurs rabattables électriquement",
+                "Capteur de pluie", "Capteur de luminosité", "Hayon électrique", "Phares Xénon",
+                "Toit ouvrant", "Becquet arrière", "Échappement sport"
+            ],
+            "Confort": [
+                "Démarrage sans clé", "Accès mains libres", "Aide au démarrage en côte",
+                "Frein de parking électrique", "Direction assistée", "Verrouillage centralisé à distance",
+                "Régulateur de vitesse", "Limiteur de vitesse", "Aide au stationnement", "Sièges réglables en hauteur"
+            ],
+            "Autres": [
+                "Carnet d'entretien", "Double des clés", "Non-fumeur", "Garantie constructeur",
+                "Roue de secours", "Kit de réparation pneus", "Pack sport", "Suspension sport"
+            ]
+        };
+
+        // Cloudinary configuration
+        const CLOUDINARY_CLOUD_NAME = 'dxneu57c0';
+        const CLOUDINARY_UPLOAD_PRESET = 'central_cars_unsigned_upload';
+        const CLOUDINARY_UPLOAD_URL = `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`;
+
+
+        // --- Fonctions d'initialisation des listes déroulantes et options ---
+        function populateMarques() {
+            for (const marque in carData) {
+                const option = document.createElement('option');
+                option.value = marque;
+                option.textContent = marque;
+                vehicleMarqueSelect.appendChild(option);
+            }
+        }
+
+        function populateModeles(selectedMarque) {
+            vehicleModeleSelect.innerHTML = '<option value="">Sélectionner un modèle</option>'; // Réinitialiser les modèles
+            if (selectedMarque && carData[selectedMarque]) {
+                carData[selectedMarque].forEach(modele => {
+                    const option = document.createElement('option');
+                    option.value = modele;
+                    option.textContent = modele;
+                    vehicleModeleSelect.appendChild(option);
+                });
+            }
+        }
+
+        function populateCarburants() {
+            carburants.forEach(carburant => {
+                const option = document.createElement('option');
+                option.value = carburant;
+                option.textContent = carburant;
+                vehicleCarburantSelect.appendChild(option);
+            });
+        }
+
+        function populateBoiteVitesse() {
+            boiteVitesse.forEach(boite => {
+                const option = document.createElement('option');
+                option.value = boite;
+                option.textContent = boite;
+                vehicleBoiteVitesseSelect.appendChild(option);
+            });
+        }
+
+        function populateCritAir() {
+            critAirOptions.forEach(critair => {
+                const option = document.createElement('option');
+                option.value = critair;
+                option.textContent = critair;
+                vehicleCritAirSelect.appendChild(option);
+            });
+        }
+
+        function generateOptionsCheckboxes() {
+            vehicleOptionsCheckboxesDiv.innerHTML = '';
+            for (const category in vehicleOptionsData) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'col-span-1';
+                categoryDiv.innerHTML = `<h5 class="font-semibold text-gray-700 mb-2">${category}</h5>`;
+                
+                vehicleOptionsData[category].forEach(optionText => {
+                    const checkboxId = `option-${optionText.replace(/\s+/g, '-').toLowerCase()}`;
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'flex items-center mb-1';
+                    checkboxDiv.innerHTML = `
+                        <input type="checkbox" id="${checkboxId}" name="vehicle-option" value="${optionText}" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                        <label for="${checkboxId}" class="ml-2 text-gray-700 text-sm">${optionText}</label>
+                    `;
+                    categoryDiv.appendChild(checkboxDiv);
+                });
+                vehicleOptionsCheckboxesDiv.appendChild(categoryDiv);
+            }
+        }
+
+        // Initialiser les listes et options au chargement
+        document.addEventListener('DOMContentLoaded', () => {
+            populateMarques();
+            populateCarburants();
+            populateBoiteVitesse();
+            populateCritAir();
+            generateOptionsCheckboxes();
+        });
+
+        // Écouteur pour la sélection de la marque afin de mettre à jour les modèles
+        vehicleMarqueSelect.addEventListener('change', (event) => {
+            populateModeles(event.target.value);
+        });
+
+
+        // --- Fonctions d'upload d'images Cloudinary ---
+        let uploadedImageUrls = []; // Stocke les URLs des images déjà uploadées pour le formulaire actuel
+
+        vehicleImageUploadInput.addEventListener('change', async (event) => {
+            const files = event.target.files;
+            if (files.length === 0) return;
+
+            imageUploadSpinner.classList.remove('hidden');
+            imageUploadPreview.innerHTML = ''; // Clear previous previews
+            uploadedImageUrls = []; // Reset for new uploads
+
+            for (const file of files) {
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+
+                try {
+                    const response = await fetch(CLOUDINARY_UPLOAD_URL, {
+                        method: 'POST',
+                        body: formData,
+                    });
+                    const data = await response.json();
+                    if (data.secure_url) {
+                        uploadedImageUrls.push(data.secure_url);
+                        // Add preview image
+                        const imgDiv = document.createElement('div');
+                        imgDiv.className = 'relative group';
+                        imgDiv.innerHTML = `
+                            <img src="${data.secure_url}" class="w-full h-24 object-cover rounded-lg shadow-md">
+                            <button type="button" data-url="${data.secure_url}" class="remove-image-button absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
+                        `;
+                        imageUploadPreview.appendChild(imgDiv);
+                    } else {
+                        console.error("Cloudinary upload error:", data);
+                        showCustomAlert(`Erreur lors du téléchargement de l'image ${file.name}.`);
+                    }
+                } catch (error) {
+                    console.error("Erreur réseau lors du téléchargement Cloudinary:", error);
+                    showCustomAlert(`Erreur réseau lors du téléchargement de l'image ${file.name}.`);
+                }
+            }
+            vehicleImagesUrlsInput.value = uploadedImageUrls.join(','); // Mettre à jour le champ caché
+            imageUploadSpinner.classList.add('hidden');
+        });
+
+        // Gérer la suppression d'images de l'aperçu
+        imageUploadPreview.addEventListener('click', (event) => {
+            const removeButton = event.target.closest('.remove-image-button');
+            if (removeButton) {
+                const imageUrlToRemove = removeButton.dataset.url;
+                uploadedImageUrls = uploadedImageUrls.filter(url => url !== imageUrlToRemove);
+                vehicleImagesUrlsInput.value = uploadedImageUrls.join(',');
+                removeButton.parentElement.remove(); // Supprimer l'élément de l'aperçu
+            }
+        });
+
+
+        // Fonction pour afficher les véhicules dans le panneau d'administration
+        function displayAdminVehicles(vehicles) {
+            adminVehicleList.innerHTML = '';
+            if (vehicles.length === 0) {
+                adminVehicleList.innerHTML = `<p class="text-center col-span-full">Aucun véhicule à gérer pour le moment.</p>`;
+            } else {
+                vehicles.forEach(vehicle => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden';
+                    const imageUrl = vehicle.images && vehicle.images.length > 0 ? vehicle.images[0] : 'https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';
+                    card.innerHTML = `
+                        <img src="${imageUrl}" alt="Image de ${vehicle.titreAnnonce || vehicle.nom}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Invalide';">
+                        <div class="p-4">
+                            <h4 class="text-xl font-bold mb-2">${vehicle.titreAnnonce || vehicle.nom || 'N/A'}</h4>
+                            <p class="text-gray-600 text-sm mb-2">${vehicle.marque || 'N/A'} - ${vehicle.modele || 'N/A'}</p>
+                            <p class="text-2xl font-bold text-red-600 mb-4">${vehicle.prix ? vehicle.prix.toLocaleString('fr-FR') : 'N/A'} €</p>
+                            <div class="flex space-x-2">
+                                <button data-id="${vehicle.id}" class="edit-vehicle-button flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Modifier</button>
+                                <button data-id="${vehicle.id}" class="delete-vehicle-button flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">Supprimer</button>
+                            </div>
+                        </div>
+                    `;
+                    adminVehicleList.appendChild(card);
+                });
+            }
+            adminLoadingSpinner.style.display = 'none';
+        }
+
+        // --- GESTION DU PANNEAU D'ADMINISTRATION ---
+        // (Le reste de votre code JavaScript pour le panneau d'administration, les modales, etc., suit ici)
 
         // Fonction pour afficher le panneau d'administration et masquer le contenu principal
         function showAdminPanel() {
@@ -941,6 +1315,8 @@
             closeAuthModal();
             // Rafraîchir la liste des véhicules dans le panneau d'administration
             listenForAdminVehicles();
+            // Réinitialiser le formulaire quand on ouvre le panneau d'admin
+            resetVehicleForm();
         }
 
         // Fonction pour masquer le panneau d'administration et afficher le contenu principal
@@ -970,34 +1346,6 @@
         });
 
 
-        // Fonction pour afficher les véhicules dans le panneau d'administration
-        function displayAdminVehicles(vehicles) {
-            adminVehicleList.innerHTML = '';
-            if (vehicles.length === 0) {
-                adminVehicleList.innerHTML = `<p class="text-center col-span-full">Aucun véhicule à gérer pour le moment.</p>`;
-            } else {
-                vehicles.forEach(vehicle => {
-                    const card = document.createElement('div');
-                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden';
-                    const imageUrl = vehicle.images && vehicle.images.length > 0 ? vehicle.images[0] : 'https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';
-                    card.innerHTML = `
-                        <img src="${imageUrl}" alt="Image de ${vehicle.nom}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Invalide';">
-                        <div class="p-4">
-                            <h4 class="text-xl font-bold mb-2">${vehicle.nom || 'N/A'}</h4>
-                            <p class="text-gray-600 text-sm mb-2">${vehicle.annee || 'N/A'} | ${vehicle.kilometrage ? vehicle.kilometrage.toLocaleString('fr-FR') : 'N/A'} km | ${vehicle.carburant || 'N/A'}</p>
-                            <p class="text-2xl font-bold text-red-600 mb-4">${vehicle.prix ? vehicle.prix.toLocaleString('fr-FR') : 'N/A'} €</p>
-                            <div class="flex space-x-2">
-                                <button data-id="${vehicle.id}" class="edit-vehicle-button flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Modifier</button>
-                                <button data-id="${vehicle.id}" class="delete-vehicle-button flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">Supprimer</button>
-                            </div>
-                        </div>
-                    `;
-                    adminVehicleList.appendChild(card);
-                });
-            }
-            adminLoadingSpinner.style.display = 'none';
-        }
-
         // Écoute les changements de véhicules pour le panneau d'administration
         function listenForAdminVehicles() {
             const vehiclesCollection = collection(db, "vehicules");
@@ -1020,15 +1368,28 @@
             e.preventDefault();
 
             const vehicleId = vehicleIdInput.value;
+            const selectedOptions = Array.from(document.querySelectorAll('#vehicle-options-checkboxes input[name="vehicle-option"]:checked'))
+                                        .map(checkbox => checkbox.value);
+
             const vehicleData = {
-                nom: vehicleNomInput.value,
-                annee: parseInt(vehicleAnneeInput.value),
+                titreAnnonce: vehicleTitreAnnonceInput.value,
+                marque: vehicleMarqueSelect.value,
+                modele: vehicleModeleSelect.value,
+                anneeModele: parseInt(vehicleAnneeModeleInput.value),
+                dateCirculation: vehicleDateCirculationInput.value,
                 kilometrage: parseInt(vehicleKilometrageInput.value),
-                carburant: vehicleCarburantInput.value,
+                carburant: vehicleCarburantSelect.value,
+                boiteVitesse: vehicleBoiteVitesseSelect.value,
+                couleur: vehicleCouleurInput.value,
+                nbPlaces: parseInt(vehicleNbPlacesInput.value),
+                nbPortes: parseInt(vehicleNbPortesInput.value),
+                puissanceFiscale: parseInt(vehiclePuissanceFiscaleInput.value),
+                puissanceDIN: parseInt(vehiclePuissanceDINInput.value),
+                critAir: vehicleCritAirSelect.value,
                 prix: parseFloat(vehiclePrixInput.value),
                 description: vehicleDescriptionInput.value,
-                images: vehicleImagesInput.value.split(',').map(url => url.trim()).filter(url => url !== ''),
-                options: vehicleOptionsInput.value.split(',').map(opt => opt.trim()).filter(opt => opt !== '')
+                images: uploadedImageUrls, // Utiliser les URLs de Cloudinary
+                options: selectedOptions
             };
 
             try {
@@ -1041,16 +1402,33 @@
                     await addDoc(collection(db, "vehicules"), vehicleData);
                     showCustomAlert("Véhicule ajouté avec succès !");
                 }
-                vehicleForm.reset(); // Effacer le formulaire
-                vehicleIdInput.value = ''; // Effacer l'ID caché
-                submitVehicleButton.textContent = 'Ajouter le véhicule';
-                vehicleFormTitle.textContent = 'Ajouter un nouveau véhicule';
-                cancelEditButton.classList.add('hidden');
+                resetVehicleForm(); // Réinitialiser le formulaire après succès
             } catch (error) {
                 console.error("Erreur lors de l'opération sur le véhicule:", error);
-                showCustomAlert("Erreur lors de l'opération sur le véhicule. Veuillez réessayer.");
+                showCustomAlert("Erreur lors de l'opération sur le véhicule. Vérifiez les permissions Firebase.");
             }
         });
+
+        // Fonction pour réinitialiser le formulaire
+        function resetVehicleForm() {
+            vehicleForm.reset();
+            vehicleIdInput.value = '';
+            submitVehicleButton.textContent = 'Ajouter le véhicule';
+            vehicleFormTitle.textContent = 'Ajouter un nouveau véhicule';
+            cancelEditButton.classList.add('hidden');
+            imageUploadPreview.innerHTML = ''; // Clear image previews
+            uploadedImageUrls = []; // Reset uploaded image URLs
+            // Désélectionner toutes les options
+            document.querySelectorAll('#vehicle-options-checkboxes input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            // Réinitialiser les listes déroulantes dynamiques
+            populateModeles(''); // Vide le modèle
+            vehicleMarqueSelect.value = ''; // Réinitialise la marque
+            vehicleCarburantSelect.value = ''; // Réinitialise le carburant
+            vehicleBoiteVitesseSelect.value = ''; // Réinitialise la boîte de vitesse
+            vehicleCritAirSelect.value = ''; // Réinitialise Crit'Air
+        }
 
         // Modifier le véhicule - Remplir le formulaire
         adminVehicleList.addEventListener('click', (event) => {
@@ -1060,14 +1438,45 @@
                 const vehicleToEdit = allVehicles.find(v => v.id === idToEdit);
                 if (vehicleToEdit) {
                     vehicleIdInput.value = vehicleToEdit.id;
-                    vehicleNomInput.value = vehicleToEdit.nom;
-                    vehicleAnneeInput.value = vehicleToEdit.annee;
-                    vehicleKilometrageInput.value = vehicleToEdit.kilometrage;
-                    vehicleCarburantInput.value = vehicleToEdit.carburant;
-                    vehiclePrixInput.value = vehicleToEdit.prix;
-                    vehicleDescriptionInput.value = vehicleToEdit.description;
-                    vehicleImagesInput.value = vehicleToEdit.images ? vehicleToEdit.images.join(', ') : '';
-                    vehicleOptionsInput.value = vehicleToEdit.options ? vehicleToEdit.options.join(', ') : '';
+                    vehicleTitreAnnonceInput.value = vehicleToEdit.titreAnnonce || '';
+                    vehicleMarqueSelect.value = vehicleToEdit.marque || '';
+                    populateModeles(vehicleToEdit.marque); // Populer les modèles en fonction de la marque
+                    vehicleModeleSelect.value = vehicleToEdit.modele || '';
+                    vehicleAnneeModeleInput.value = vehicleToEdit.anneeModele || '';
+                    vehicleDateCirculationInput.value = vehicleToEdit.dateCirculation || '';
+                    vehicleKilometrageInput.value = vehicleToEdit.kilometrage || '';
+                    vehicleCarburantSelect.value = vehicleToEdit.carburant || '';
+                    vehicleBoiteVitesseSelect.value = vehicleToEdit.boiteVitesse || '';
+                    vehicleCouleurInput.value = vehicleToEdit.couleur || '';
+                    vehicleNbPlacesInput.value = vehicleToEdit.nbPlaces || '';
+                    vehicleNbPortesInput.value = vehicleToEdit.nbPortes || '';
+                    vehiclePuissanceFiscaleInput.value = vehicleToEdit.puissanceFiscale || '';
+                    vehiclePuissanceDINInput.value = vehicleToEdit.puissanceDIN || '';
+                    vehicleCritAirSelect.value = vehicleToEdit.critAir || '';
+                    vehiclePrixInput.value = vehicleToEdit.prix || '';
+                    vehicleDescriptionInput.value = vehicleToEdit.description || '';
+                    
+                    // Gérer les images existantes pour l'édition
+                    imageUploadPreview.innerHTML = '';
+                    uploadedImageUrls = [];
+                    if (vehicleToEdit.images && vehicleToEdit.images.length > 0) {
+                        vehicleToEdit.images.forEach(url => {
+                            uploadedImageUrls.push(url);
+                            const imgDiv = document.createElement('div');
+                            imgDiv.className = 'relative group';
+                            imgDiv.innerHTML = `
+                                <img src="${url}" class="w-full h-24 object-cover rounded-lg shadow-md">
+                                <button type="button" data-url="${url}" class="remove-image-button absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
+                            `;
+                            imageUploadPreview.appendChild(imgDiv);
+                        });
+                    }
+                    vehicleImagesUrlsInput.value = uploadedImageUrls.join(',');
+
+                    // Gérer les options sélectionnées
+                    document.querySelectorAll('#vehicle-options-checkboxes input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = vehicleToEdit.options && vehicleToEdit.options.includes(checkbox.value);
+                    });
 
                     submitVehicleButton.textContent = 'Modifier le véhicule';
                     vehicleFormTitle.textContent = 'Modifier le véhicule existant';
@@ -1080,11 +1489,7 @@
 
         // Annuler la modification
         cancelEditButton.addEventListener('click', () => {
-            vehicleForm.reset();
-            vehicleIdInput.value = '';
-            submitVehicleButton.textContent = 'Ajouter le véhicule';
-            vehicleFormTitle.textContent = 'Ajouter un nouveau véhicule';
-            cancelEditButton.classList.add('hidden');
+            resetVehicleForm();
         });
 
         // Supprimer le véhicule
