@@ -66,6 +66,21 @@
         .hidden {
             display: none;
         }
+
+        /* Styles pour le drag and drop des images */
+        .image-preview-item {
+            position: relative;
+            cursor: grab;
+            border: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .image-preview-item.dragging {
+            opacity: 0.5;
+            border-color: #ef4444; /* red-500 */
+        }
+        .image-preview-item.drag-over {
+            border-color: #3b82f6; /* blue-500 */
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -96,7 +111,7 @@
                     <div class="px-4 py-2 border-b text-sm text-gray-500" id="user-email-display-desktop"></div>
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mon profil</a>
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
-                    <button id="admin-gestion-pro-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gestion pro</button>
+                    <button id="admin-gerer-boutique-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gérer boutique</button>
                     <button id="logout-button-desktop" class="logout-button text-sm">Se déconnecter</button>
                 </div>
             </div>
@@ -120,7 +135,7 @@
                     <div class="px-4 py-2 border-b text-sm text-gray-500" id="user-email-display-mobile"></div>
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mon profil</a>
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
-                    <button id="admin-gestion-pro-mobile" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gestion pro</button>
+                    <button id="admin-gerer-boutique-mobile" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gérer boutique</button>
                     <button id="logout-button-mobile" class="logout-button text-sm">Se déconnecter</button>
                 </div>
             </div>
@@ -229,7 +244,14 @@
         <!-- Admin Panel Section -->
         <section id="admin-panel" class="py-20 bg-gray-100 hidden">
             <div class="container mx-auto px-6">
-                <h2 class="text-3xl font-bold text-center mb-12">Gestion des Véhicules (Admin)</h2>
+                <h2 class="text-3xl font-bold text-center mb-12">Gérer boutique</h2>
+
+                <!-- Bouton pour revenir à l'accueil -->
+                <div class="flex justify-start mb-8">
+                    <button id="back-to-home-button" class="bg-gray-600 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-700 transition duration-300">
+                        <i class="fas fa-arrow-left mr-2"></i> Retour à l'accueil
+                    </button>
+                </div>
 
                 <!-- Formulaire d'ajout/modification de véhicule -->
                 <div class="bg-white p-8 rounded-lg shadow-lg mb-12">
@@ -326,9 +348,15 @@
                             </div>
                         </div>
 
+                        <!-- Champ "Vendu" -->
+                        <div class="flex items-center mt-4">
+                            <input type="checkbox" id="vehicle-vendu" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                            <label for="vehicle-vendu" class="ml-2 block text-gray-700 font-semibold">Véhicule vendu</label>
+                        </div>
+
                         <!-- Section Images -->
                         <div class="border-t pt-4 mt-4">
-                            <h4 class="text-xl font-bold mb-4">Images du véhicule</h4>
+                            <h4 class="text-xl font-bold mb-4">Images du véhicule (glisser-déposer pour réordonner)</h4>
                             <input type="file" id="vehicle-image-upload" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" multiple accept="image/*">
                             <div id="image-upload-preview" class="mt-4 grid grid-cols-2 md:grid-cols-3 gap-4">
                                 <!-- Les aperçus des images seront ici -->
@@ -522,10 +550,17 @@
             } else {
                 vehicles.forEach(vehicle => {
                     const card = document.createElement('div');
-                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300';
+                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 relative'; // Added relative for badge positioning
                     // Utilise une image de secours si la première image n'est pas définie
                     const imageUrl = vehicle.images && vehicle.images.length > 0 ? vehicle.images[0] : 'https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';
+                    
+                    // Add "Vendu" badge if vehicle is sold
+                    const soldBadge = vehicle.vendu ? `
+                        <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10">VENDU</span>
+                    ` : '';
+
                     card.innerHTML = `
+                        ${soldBadge}
                         <img src="${imageUrl}" alt="Image de ${vehicle.nom}" class="w-full h-56 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Invalide';">
                         <div class="p-6">
                             <h3 class="text-2xl font-bold mb-2">${vehicle.titreAnnonce || vehicle.nom || 'Titre non disponible'}</h3>
@@ -555,10 +590,16 @@
             let currentImageIndex = 0;
             const images = vehicle.images && vehicle.images.length > 0 ? vehicle.images : ['https://placehold.co/800x600/cccccc/ffffff?text=Image+Indisponible'];
 
+            // Add "Vendu" badge if vehicle is sold
+            const soldBadgeModal = vehicle.vendu ? `
+                <span class="absolute top-4 left-4 bg-red-600 text-white text-lg font-bold px-4 py-2 rounded-full z-10">VENDU</span>
+            ` : '';
+
             vehicleModalContent.innerHTML = `
                 <button id="close-vehicle-modal-button" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center text-2xl hover:bg-opacity-75 z-20">&times;</button>
                 
                 <div class="w-full h-64 md:h-96 relative">
+                    ${soldBadgeModal}
                     <img id="modal-image" src="${images[0]}" alt="Image principale de ${vehicle.titreAnnonce || vehicle.nom}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/800x600/cccccc/ffffff?text=Image+Invalide';">
                     <div id="modal-image-prev" class="absolute left-0 top-1/2 -translate-y-1/2 p-2 m-2 bg-black bg-opacity-50 text-white rounded-full cursor-pointer hover:bg-opacity-75 ${images.length <= 1 ? 'hidden' : ''}"><i class="fas fa-chevron-left"></i></div>
                     <div id="modal-image-next" class="absolute right-0 top-1/2 -translate-y-1/2 p-2 m-2 bg-black bg-opacity-50 text-white rounded-full cursor-pointer hover:bg-opacity-75 ${images.length <= 1 ? 'hidden' : ''}"><i class="fas fa-chevron-right"></i></div>
@@ -590,6 +631,29 @@
                     <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-gray-700">
                         ${(vehicle.options && vehicle.options.length > 0) ? vehicle.options.map(opt => `<li><i class="fas fa-check-circle text-green-500 mr-2"></i>${opt}</li>`).join('') : '<li>Aucune option spécifiée.</li>'}
                     </ul>
+
+                    <div class="mt-8 pt-4 border-t border-gray-200 text-sm text-gray-700 leading-relaxed">
+                        <p>Tarif hors carte grise.</p>
+                        <p class="mt-2">🧑🏼‍🔧 Garantie moteur et boîte 6 mois (extension de garantie possible).</p>
+                        <p class="mt-2">🇫🇷🇫🇷HABILITÉE SERVICE CARTE GRISE 🇫🇷🇫🇷</p>
+                        <p>Habilité par le Agence Nationale des Titres Sécurisés.</p>
+                        <p>Nous nous occupons de toutes les démarches administratives d'immatriculation !</p>
+                        <p class="mt-4 font-semibold">Pour faciliter les démarches administratives pensez a vous munir des pièces suivantes lors de votre visite : </p>
+                        <ul class="list-disc list-inside ml-4">
+                            <li>🔸Pièce d'identité en cours de validité.</li>
+                            <li>🔸Permis de conduire en cours de validité.</li>
+                            <li>🔸Justificatif de domicile moins de 3 mois (facture ou avis d'imposition).</li>
+                            <li>🔸En cas d'hébergement : une attestation d'hébergement et la copie de la carte d'identité de l'hébergeur.</li>
+                        </ul>
+                        <p class="mt-4 font-bold text-lg text-center">🟥🟦 CENTRAL CARS 🟥🟦</p>
+                        <p class="text-center">📫576 Rue Marcel Sembat</p>
+                        <p class="text-center">59690 Vieux-condé</p>
+                        <p class="mt-4 font-bold text-center">⏰HORAIRES D'OUVERTURE⏰</p>
+                        <p class="text-center">- Du lundi au vendredi : 09H00-12H00 / 14H00-17h30</p>
+                        <p class="text-center">- SAMEDI : 9h30 -12h 14h30 - 17H00</p>
+                        <p class="mt-4 text-red-600 font-semibold text-center">⚠ Merci de prendre rendez-vous par téléphone avant votre venue afin de mieux pouvoir vous accueillir et de vous assurez de la disponibilité du véhicule ⚠</p>
+                        <p class="mt-4 text-xs text-gray-500 text-center">*sous réserve d’erreurs lors de l’édition des annonce.</p>
+                    </div>
 
                      <div class="mt-8 text-center">
                         <a href="#contact" id="contact-us-button" class="bg-red-600 text-white font-bold py-3 px-8 rounded-full hover:bg-red-700 transition duration-300">Ce véhicule m'intéresse</a>
@@ -802,8 +866,8 @@
         const logoutButtonMobile = document.getElementById('logout-button-mobile');
         const userEmailDisplayDesktop = document.getElementById('user-email-display-desktop');
         const userEmailDisplayMobile = document.getElementById('user-email-display-mobile');
-        const adminGestionProDesktop = document.getElementById('admin-gestion-pro-desktop');
-        const adminGestionProMobile = document.getElementById('admin-gestion-pro-mobile');
+        const adminGererBoutiqueDesktop = document.getElementById('admin-gerer-boutique-desktop');
+        const adminGererBoutiqueMobile = document.getElementById('admin-gerer-boutique-mobile');
 
 
         function toggleAccountMenu(menuElement) {
@@ -895,13 +959,13 @@
                 userEmailDisplayDesktop.textContent = user.email;
                 userEmailDisplayMobile.textContent = user.email;
 
-                // Afficher le bouton "Gestion pro" si l'utilisateur est admin
+                // Afficher le bouton "Gérer boutique" si l'utilisateur est admin
                 if (userRole === 'admin') {
-                    adminGestionProDesktop.classList.remove('hidden');
-                    adminGestionProMobile.classList.remove('hidden');
+                    adminGererBoutiqueDesktop.classList.remove('hidden');
+                    adminGererBoutiqueMobile.classList.remove('hidden');
                 } else {
-                    adminGestionProDesktop.classList.add('hidden');
-                    adminGestionProMobile.classList.add('hidden');
+                    adminGererBoutiqueDesktop.classList.add('hidden');
+                    adminGererBoutiqueMobile.classList.add('hidden');
                 }
 
             } else {
@@ -913,8 +977,8 @@
                 authenticatedUserMenuToggleMobile.classList.add('hidden');
                 accountMenuDesktop.classList.add('hidden'); // S'assurer que le menu est caché
                 accountMenuMobile.classList.add('hidden'); // S'assurer que le menu est caché
-                adminGestionProDesktop.classList.add('hidden'); // Cacher le bouton "Gestion pro"
-                adminGestionProMobile.classList.add('hidden'); // Cacher le bouton "Gestion pro"
+                adminGererBoutiqueDesktop.classList.add('hidden'); // Cacher le bouton "Gérer boutique"
+                adminGererBoutiqueMobile.classList.add('hidden'); // Cacher le bouton "Gérer boutique"
 
                 window.currentUserRole = null; // Effacer le rôle
                 // Cacher le panneau d'administration si l'utilisateur se déconnecte
@@ -1047,12 +1111,14 @@
         const imageUploadSpinner = document.getElementById('image-upload-spinner');
         const vehicleImagesUrlsInput = document.getElementById('vehicle-images-urls'); // Champ caché pour les URLs Cloudinary
         const vehicleOptionsCheckboxesDiv = document.getElementById('vehicle-options-checkboxes');
+        const vehicleVenduCheckbox = document.getElementById('vehicle-vendu'); // Nouveau: case à cocher vendu
 
         const submitVehicleButton = document.getElementById('submit-vehicle-button');
         const cancelEditButton = document.getElementById('cancel-edit-button');
         const vehicleFormTitle = document.getElementById('vehicle-form-title');
         const adminVehicleList = document.getElementById('admin-vehicle-list');
         const adminLoadingSpinner = document.getElementById('admin-loading-spinner');
+        const backToHomeButton = document.getElementById('back-to-home-button'); // Nouveau bouton
 
         // --- Données pour les listes déroulantes et options ---
         const carData = {
@@ -1218,17 +1284,36 @@
         });
 
 
-        // --- Fonctions d'upload d'images Cloudinary ---
+        // --- Fonctions d'upload d'images Cloudinary et Drag & Drop ---
         let uploadedImageUrls = []; // Stocke les URLs des images déjà uploadées pour le formulaire actuel
+        let draggedItem = null; // Pour le drag and drop
+
+        // Fonction pour rendre les aperçus des images
+        function renderImagePreviews() {
+            imageUploadPreview.innerHTML = ''; // Clear previous previews
+            uploadedImageUrls.forEach((url, index) => {
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'image-preview-item relative group cursor-grab border-2 border-transparent rounded-lg overflow-hidden';
+                imgDiv.draggable = true;
+                imgDiv.dataset.url = url; // Store URL on the element for drag-drop
+                imgDiv.dataset.index = index; // Store index for reordering
+
+                imgDiv.innerHTML = `
+                    <img src="${url}" class="w-full h-24 object-cover rounded-lg shadow-md">
+                    <button type="button" data-url="${url}" class="remove-image-button absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
+                `;
+                imageUploadPreview.appendChild(imgDiv);
+            });
+            vehicleImagesUrlsInput.value = uploadedImageUrls.join(','); // Update hidden input
+        }
 
         vehicleImageUploadInput.addEventListener('change', async (event) => {
             const files = event.target.files;
             if (files.length === 0) return;
 
             imageUploadSpinner.classList.remove('hidden');
-            imageUploadPreview.innerHTML = ''; // Clear previous previews
-            uploadedImageUrls = []; // Reset for new uploads
-
+            // uploadedImageUrls = []; // Keep existing images if not editing a new vehicle
+            
             for (const file of files) {
                 const formData = new FormData();
                 formData.append('file', file);
@@ -1242,14 +1327,6 @@
                     const data = await response.json();
                     if (data.secure_url) {
                         uploadedImageUrls.push(data.secure_url);
-                        // Add preview image
-                        const imgDiv = document.createElement('div');
-                        imgDiv.className = 'relative group';
-                        imgDiv.innerHTML = `
-                            <img src="${data.secure_url}" class="w-full h-24 object-cover rounded-lg shadow-md">
-                            <button type="button" data-url="${data.secure_url}" class="remove-image-button absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
-                        `;
-                        imageUploadPreview.appendChild(imgDiv);
                     } else {
                         console.error("Cloudinary upload error:", data);
                         showCustomAlert(`Erreur lors du téléchargement de l'image ${file.name}.`);
@@ -1259,7 +1336,7 @@
                     showCustomAlert(`Erreur réseau lors du téléchargement de l'image ${file.name}.`);
                 }
             }
-            vehicleImagesUrlsInput.value = uploadedImageUrls.join(','); // Mettre à jour le champ caché
+            renderImagePreviews(); // Re-render all previews after upload
             imageUploadSpinner.classList.add('hidden');
         });
 
@@ -1269,9 +1346,68 @@
             if (removeButton) {
                 const imageUrlToRemove = removeButton.dataset.url;
                 uploadedImageUrls = uploadedImageUrls.filter(url => url !== imageUrlToRemove);
-                vehicleImagesUrlsInput.value = uploadedImageUrls.join(',');
-                removeButton.parentElement.remove(); // Supprimer l'élément de l'aperçu
+                renderImagePreviews(); // Re-render after removal
             }
+        });
+
+        // Drag and Drop Handlers
+        imageUploadPreview.addEventListener('dragstart', (e) => {
+            draggedItem = e.target.closest('.image-preview-item');
+            if (draggedItem) {
+                e.dataTransfer.setData('text/plain', draggedItem.dataset.url);
+                setTimeout(() => {
+                    draggedItem.classList.add('dragging');
+                }, 0);
+            }
+        });
+
+        imageUploadPreview.addEventListener('dragover', (e) => {
+            e.preventDefault(); // Allow drop
+            const targetItem = e.target.closest('.image-preview-item');
+            if (targetItem && targetItem !== draggedItem) {
+                targetItem.classList.add('drag-over');
+            }
+        });
+
+        imageUploadPreview.addEventListener('dragleave', (e) => {
+            const targetItem = e.target.closest('.image-preview-item');
+            if (targetItem) {
+                targetItem.classList.remove('drag-over');
+            }
+        });
+
+        imageUploadPreview.addEventListener('drop', (e) => {
+            e.preventDefault();
+            const targetItem = e.target.closest('.image-preview-item');
+            if (draggedItem && targetItem && draggedItem !== targetItem) {
+                const draggedUrl = draggedItem.dataset.url;
+                const targetUrl = targetItem.dataset.url;
+
+                const draggedIndex = uploadedImageUrls.indexOf(draggedUrl);
+                const targetIndex = uploadedImageUrls.indexOf(targetUrl);
+
+                if (draggedIndex > -1 && targetIndex > -1) {
+                    const [removed] = uploadedImageUrls.splice(draggedIndex, 1);
+                    uploadedImageUrls.splice(targetIndex, 0, removed);
+                    renderImagePreviews(); // Re-render with new order
+                }
+            }
+            if (targetItem) {
+                targetItem.classList.remove('drag-over');
+            }
+            if (draggedItem) {
+                draggedItem.classList.remove('dragging');
+            }
+        });
+
+        imageUploadPreview.addEventListener('dragend', () => {
+            if (draggedItem) {
+                draggedItem.classList.remove('dragging');
+            }
+            document.querySelectorAll('.image-preview-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+            draggedItem = null;
         });
 
 
@@ -1283,9 +1419,16 @@
             } else {
                 vehicles.forEach(vehicle => {
                     const card = document.createElement('div');
-                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden';
+                    card.className = 'bg-white rounded-lg shadow-lg overflow-hidden relative'; // Added relative for badge positioning
                     const imageUrl = vehicle.images && vehicle.images.length > 0 ? vehicle.images[0] : 'https://placehold.co/600x400/cccccc/ffffff?text=Image+Indisponible';
+                    
+                    // Add "Vendu" badge if vehicle is sold
+                    const soldBadge = vehicle.vendu ? `
+                        <span class="absolute top-2 left-2 bg-red-600 text-white text-xs font-bold px-3 py-1 rounded-full z-10">VENDU</span>
+                    ` : '';
+
                     card.innerHTML = `
+                        ${soldBadge}
                         <img src="${imageUrl}" alt="Image de ${vehicle.titreAnnonce || vehicle.nom}" class="w-full h-48 object-cover" onerror="this.onerror=null;this.src='https://placehold.co/600x400/cccccc/ffffff?text=Image+Invalide';">
                         <div class="p-4">
                             <h4 class="text-xl font-bold mb-2">${vehicle.titreAnnonce || vehicle.nom || 'N/A'}</h4>
@@ -1325,8 +1468,8 @@
             mainContentSections.classList.remove('hidden');
         }
 
-        // Écouteurs d'événements pour les boutons "Gestion pro"
-        adminGestionProDesktop.addEventListener('click', (e) => {
+        // Écouteurs d'événements pour les boutons "Gérer boutique"
+        adminGererBoutiqueDesktop.addEventListener('click', (e) => {
             e.preventDefault();
             if (window.currentUserRole === 'admin') {
                 showAdminPanel();
@@ -1335,7 +1478,7 @@
                 showCustomAlert("Vous n'avez pas les permissions pour accéder à cette section.");
             }
         });
-        adminGestionProMobile.addEventListener('click', (e) => {
+        adminGererBoutiqueMobile.addEventListener('click', (e) => {
             e.preventDefault();
             if (window.currentUserRole === 'admin') {
                 showAdminPanel();
@@ -1343,6 +1486,12 @@
             } else {
                 showCustomAlert("Vous n'avez pas les permissions pour accéder à cette section.");
             }
+        });
+
+        // Écouteur pour le nouveau bouton "Retour à l'accueil"
+        backToHomeButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            hideAdminPanel();
         });
 
 
@@ -1389,7 +1538,8 @@
                 prix: parseFloat(vehiclePrixInput.value),
                 description: vehicleDescriptionInput.value,
                 images: uploadedImageUrls, // Utiliser les URLs de Cloudinary
-                options: selectedOptions
+                options: selectedOptions,
+                vendu: vehicleVenduCheckbox.checked // Nouveau: statut vendu
             };
 
             try {
@@ -1422,6 +1572,8 @@
             document.querySelectorAll('#vehicle-options-checkboxes input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
+            // Réinitialiser la case "Vendu"
+            vehicleVenduCheckbox.checked = false;
             // Réinitialiser les listes déroulantes dynamiques
             populateModeles(''); // Vide le modèle
             vehicleMarqueSelect.value = ''; // Réinitialise la marque
@@ -1457,26 +1609,16 @@
                     vehicleDescriptionInput.value = vehicleToEdit.description || '';
                     
                     // Gérer les images existantes pour l'édition
-                    imageUploadPreview.innerHTML = '';
-                    uploadedImageUrls = [];
-                    if (vehicleToEdit.images && vehicleToEdit.images.length > 0) {
-                        vehicleToEdit.images.forEach(url => {
-                            uploadedImageUrls.push(url);
-                            const imgDiv = document.createElement('div');
-                            imgDiv.className = 'relative group';
-                            imgDiv.innerHTML = `
-                                <img src="${url}" class="w-full h-24 object-cover rounded-lg shadow-md">
-                                <button type="button" data-url="${url}" class="remove-image-button absolute top-1 right-1 bg-red-600 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity">&times;</button>
-                            `;
-                            imageUploadPreview.appendChild(imgDiv);
-                        });
-                    }
-                    vehicleImagesUrlsInput.value = uploadedImageUrls.join(',');
+                    uploadedImageUrls = vehicleToEdit.images ? [...vehicleToEdit.images] : []; // Copy array
+                    renderImagePreviews(); // Render existing images for drag-drop
 
                     // Gérer les options sélectionnées
                     document.querySelectorAll('#vehicle-options-checkboxes input[type="checkbox"]').forEach(checkbox => {
                         checkbox.checked = vehicleToEdit.options && vehicleToEdit.options.includes(checkbox.value);
                     });
+
+                    // Gérer la case "Vendu"
+                    vehicleVenduCheckbox.checked = vehicleToEdit.vendu || false;
 
                     submitVehicleButton.textContent = 'Modifier le véhicule';
                     vehicleFormTitle.textContent = 'Modifier le véhicule existant';
