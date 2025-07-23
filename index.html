@@ -355,28 +355,49 @@
     </div>
 
     <script type="module">
-        // NOTE IMPORTANTE : Pour que la gestion des rôles fonctionne correctement,
-        // vous devez configurer les règles de sécurité Firebase Firestore.
-        // Exemple de règles pour la collection 'users' et 'vehicules':
+        // ====================================================================================================
+        // IMPORTANT : CONFIGURATION DES RÈGLES DE SÉCURITÉ FIREBASE FIRESTORE
+        //
+        // L'erreur "Missing or insufficient permissions" indique que les règles de sécurité de votre base de données
+        // Firebase ne permettent pas à l'utilisateur actuel d'effectuer l'opération demandée.
+        //
+        // VOUS DEVEZ APPLIQUER CES RÈGLES DANS VOTRE CONSOLE FIREBASE :
+        // 1. Allez sur https://console.firebase.google.com/
+        // 2. Sélectionnez votre projet.
+        // 3. Dans le menu de gauche, cliquez sur "Firestore Database".
+        // 4. Cliquez sur l'onglet "Règles".
+        // 5. REMPLACEZ LE CONTENU EXISTANT par les règles ci-dessous :
         /*
         rules_version = '2';
         service cloud.firestore {
             match /databases/{database}/documents {
+
                 // Règle pour les profils utilisateurs (rôles)
-                match /artifacts/{appId}/users/{userId}/profile/{document=**} {
+                // Chaque utilisateur peut lire et écrire son propre document 'user_data'
+                match /artifacts/{appId}/users/{userId}/profile/user_data {
                     allow read, write: if request.auth != null && request.auth.uid == userId;
                 }
 
-                // Règle pour les véhicules
+                // Règle pour la collection 'vehicules'
                 match /vehicules/{vehicleId} {
-                    // Les clients peuvent lire
+                    // Tous les utilisateurs (authentifiés ou non) peuvent lire les véhicules
                     allow read: if true;
-                    // Seuls les administrateurs peuvent créer, mettre à jour, supprimer
+
+                    // Seuls les administrateurs peuvent créer, mettre à jour et supprimer des véhicules
+                    // Pour vérifier le rôle, nous lisons le document 'user_data' de l'utilisateur connecté.
                     allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/artifacts/$(appId)/users/$(request.auth.uid)/profile/user_data).data.role == 'admin';
                 }
             }
         }
         */
+        // 6. Cliquez sur "Publier" pour sauvegarder les règles.
+        //
+        // ASSUREZ-VOUS ÉGALEMENT QU'UN UTILISATEUR A BIEN LE RÔLE 'admin' DANS FIRESTORE :
+        // Pour qu'un utilisateur puisse utiliser le panneau d'administration, son rôle doit être 'admin'.
+        // Après vous être connecté avec un compte, allez dans Firestore Database -> onglet "Données" :
+        // artifacts -> votre_app_id -> users -> {UID_DE_L_UTILISATEUR} -> profile -> user_data
+        // Modifiez le champ 'role' à 'admin'.
+        // ====================================================================================================
 
         // --- IMPORTS ET CONFIGURATION FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -757,16 +778,22 @@
                 console.log("Utilisateur connecté:", user.email);
                 
                 const userRef = doc(db, `artifacts/${__app_id}/users/${user.uid}/profile`, 'user_data');
+                console.log("Chemin du document de rôle utilisateur:", userRef.path); // Pour le débogage
+                console.log("ID de l'application (__app_id):", __app_id); // Pour le débogage
+                console.log("UID de l'utilisateur:", user.uid); // Pour le débogage
+
                 let userRole = 'client'; // Rôle par défaut
 
                 try {
                     const userDoc = await getDoc(userRef);
                     if (userDoc.exists()) {
                         userRole = userDoc.data().role || 'client';
+                        console.log("Rôle de l'utilisateur récupéré:", userRole); // Pour le débogage
                     } else {
                         // Si le document n'existe pas (nouvel utilisateur ou ancien sans rôle), le créer avec 'client'
                         await setDoc(userRef, { email: user.email, role: 'client' });
                         userRole = 'client';
+                        console.log("Document de rôle utilisateur créé avec le rôle par défaut 'client'."); // Pour le débogage
                     }
                 } catch (error) {
                     console.error("Erreur lors de la récupération/création du rôle utilisateur:", error);
@@ -824,15 +851,27 @@
                 `;
                 document.body.appendChild(customAlert);
 
-                document.getElementById('custom-alert-close').addEventListener('click', () => {
-                    customAlert.classList.add('hidden');
-                });
+                // Attacher l'écouteur d'événements au bouton de fermeture de l'alerte
+                const closeButton = customAlert.querySelector('#custom-alert-close');
+                if (closeButton) {
+                    closeButton.addEventListener('click', () => {
+                        console.log("Custom alert close button clicked!");
+                        customAlert.classList.add('hidden');
+                        console.log("Custom alert hidden. Current classList:", customAlert.classList);
+                    });
+                } else {
+                    console.error("Custom alert close button not found within the modal structure.");
+                }
+
+                // Attacher l'écouteur pour le clic sur le fond de la modale
                 customAlert.addEventListener('click', (event) => {
-                    if (event.target === customAlert) {
+                    if (event.target === customAlert) { // Clic sur le fond de la modale
+                        console.log("Closing custom alert via backdrop click.");
                         customAlert.classList.add('hidden');
                     }
                 });
             }
+            console.log("Showing custom alert with message:", message); // Log pour le débogage
             document.getElementById('custom-alert-message').textContent = message;
             customAlert.classList.remove('hidden');
         }
