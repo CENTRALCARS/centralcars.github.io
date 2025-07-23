@@ -81,6 +81,23 @@
         .image-preview-item.drag-over {
             border-color: #3b82f6; /* blue-500 */
         }
+
+        /* Styles pour l'image de la modale de détails du véhicule */
+        .modal-image-container {
+            width: 100%;
+            max-height: 70vh; /* Ajuste la hauteur maximale pour ne pas prendre tout l'écran */
+            display: flex; /* Utilise flexbox pour centrer l'image */
+            align-items: center;
+            justify-content: center;
+            overflow: hidden; /* Cache les débordements si l'image est trop grande */
+        }
+        .modal-image-container img {
+            width: auto; /* Laisse la largeur s'adapter à l'image */
+            height: auto; /* Laisse la hauteur s'adapter à l'image */
+            max-width: 100%; /* S'assure que l'image ne dépasse pas la largeur du conteneur */
+            max-height: 100%; /* S'assure que l'image ne dépasse pas la hauteur du conteneur */
+            object-fit: contain; /* S'assure que l'image entière est visible */
+        }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800">
@@ -113,7 +130,7 @@
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mon profil</a>
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
                     <button id="admin-gerer-boutique-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gérer boutique</button>
-                    <button id="admin-generer-annonce-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Outil annonce</button>
+                    <button id="admin-generer-annonce-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Générer Annonce</button>
                     <button id="admin-acces-ants-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Accès ANTS</button>
                     <button id="logout-button-desktop" class="logout-button text-sm">Se déconnecter</button>
                 </div>
@@ -250,7 +267,7 @@
                                 <div class="space-y-6 text-lg">
                                     <p class="flex items-start">
                                         <i class="fas fa-map-marker-alt text-red-600 mt-1 mr-4 w-6 text-center"></i>
-                                        <span>CENTRAL CARS<br> 576 Rue Marcel Sembat<br>59690 Vieux-Condé, France</span>
+                                        <span>CENTRAL CARS<br>123 Rue de la République<br>59690 Vieux-Condé, France</span>
                                     </p>
                                     <p class="flex items-center">
                                         <i class="fas fa-phone text-red-600 mr-4 w-6 text-center"></i>
@@ -455,8 +472,8 @@
             <h2 class="text-2xl font-bold text-center mb-6">Ce véhicule vous intéresse ?</h2>
             <p class="text-center text-gray-700 mb-6">Contactez-nous pour plus d'informations ou pour prendre rendez-vous.</p>
             <div class="flex flex-col space-y-4">
-                <a id="contact-phone-link" href="tel:+33123456789" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-center hover:bg-blue-700 transition duration-300 flex items-center justify-center">
-                    <i class="fas fa-phone mr-3"></i> Appeler (01 23 45 67 89)
+                <a id="contact-phone-link" href="tel:+33698979463" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-center hover:bg-blue-700 transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-phone mr-3"></i> Appeler (06 98 97 94 63)
                 </a>
                 <a id="contact-email-link" href="mailto:contact@centralcars.fr" class="bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-center hover:bg-green-700 transition duration-300 flex items-center justify-center">
                     <i class="fas fa-envelope mr-3"></i> Envoyer un e-mail
@@ -529,7 +546,7 @@
         // L'erreur "Missing or insufficient permissions" indique que les règles de sécurité de votre base de données
         // Firebase ne permettent pas à l'utilisateur actuel d'effectuer l'opération demandée.
         //
-        // VOUS DEVEZ APPLIQUER CES RÈGLES DANS VOTRE CONSOLE FIREBASE :
+        // VOUS DEVEVEZ APPLIQUER CES RÈGLES DANS VOTRE CONSOLE FIREBASE :
         // 1. Allez sur https://console.firebase.google.com/
         // 2. Sélectionnez votre projet.
         // 3. Dans le menu de gauche, cliquez sur "Firestore Database".
@@ -617,7 +634,6 @@
                     // If 'vendu' is true, it means it's sold, so it should come after non-sold vehicles.
                     // If 'vendu' is false, it means it's not sold, so it should come before sold vehicles.
                     // We want false (0) to come before true (1). So, a.vendu - b.vendu will work.
-                    // If a.vendu is false (0) and b.vendu is true (1), 0 - 1 = -1 (a comes before b)
                     // If both are same, 0 - 0 = 0 or 1 - 1 = 0 (order doesn't change)
                     return (a.vendu || false) - (b.vendu || false);
                 });
@@ -674,9 +690,9 @@
             vehicleModalContent.innerHTML = `
                 <button id="close-vehicle-modal-button" class="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full w-8 h-8 flex items-center justify-center text-2xl hover:bg-opacity-75 z-20">&times;</button>
                 
-                <div class="w-full h-64 md:h-96 relative">
+                <div class="modal-image-container relative">
                     ${soldBadgeModal}
-                    <img id="modal-image" src="${images[0]}" alt="Image principale de ${vehicle.titreAnnonce || vehicle.nom}" class="w-full h-full object-cover rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/800x600/cccccc/ffffff?text=Image+Invalide';">
+                    <img id="modal-image" src="${images[0]}" alt="Image principale de ${vehicle.titreAnnonce || vehicle.nom}" class="rounded-t-lg" onerror="this.onerror=null;this.src='https://placehold.co/800x600/cccccc/ffffff?text=Image+Invalide';">
                     <div id="modal-image-prev" class="absolute left-0 top-1/2 -translate-y-1/2 p-2 m-2 bg-black bg-opacity-50 text-white rounded-full cursor-pointer hover:bg-opacity-75 ${images.length <= 1 ? 'hidden' : ''}"><i class="fas fa-chevron-left"></i></div>
                     <div id="modal-image-next" class="absolute right-0 top-1/2 -translate-y-1/2 p-2 m-2 bg-black bg-opacity-50 text-white rounded-full cursor-pointer hover:bg-opacity-75 ${images.length <= 1 ? 'hidden' : ''}"><i class="fas fa-chevron-right"></i></div>
                 </div>
@@ -1674,7 +1690,7 @@
         adminGenererAnnonceDesktop.addEventListener('click', (e) => {
             e.preventDefault();
             if (window.currentUserRole === 'admin') {
-                window.open('annonce.html', '_blank'); // Ouvre annonce.html dans un nouvel onglet
+                window.location.href = 'annonce.html'; // Ouvre annonce.html dans le même onglet
                 accountMenuDesktop.classList.add('hidden'); // Fermer le menu
             } else {
                 showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");
@@ -1683,7 +1699,7 @@
         adminGenererAnnonceMobile.addEventListener('click', (e) => {
             e.preventDefault();
             if (window.currentUserRole === 'admin') {
-                window.open('annonce.html', '_blank'); // Ouvre annonce.html dans un nouvel onglet
+                window.location.href = 'annonce.html'; // Ouvre annonce.html dans le même onglet
                 accountMenuMobile.classList.add('hidden'); // Fermer le menu
             } else {
                 showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");
@@ -1694,7 +1710,7 @@
         adminAccesAntsDesktop.addEventListener('click', (e) => {
             e.preventDefault();
             if (window.currentUserRole === 'admin') {
-                window.open('tools.html', '_blank'); // Ouvre tools.html dans un nouvel onglet
+                window.location.href = 'tools.html'; // Ouvre tools.html dans le même onglet
                 accountMenuDesktop.classList.add('hidden'); // Fermer le menu
             } else {
                 showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");
@@ -1703,7 +1719,7 @@
         adminAccesAntsMobile.addEventListener('click', (e) => {
             e.preventDefault();
             if (window.currentUserRole === 'admin') {
-                window.open('tools.html', '_blank'); // Ouvre tools.html dans un nouvel onglet
+                window.location.href = 'tools.html'; // Ouvre tools.html dans le même onglet
                 accountMenuMobile.classList.add('hidden'); // Fermer le menu
             } else {
                 showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");
