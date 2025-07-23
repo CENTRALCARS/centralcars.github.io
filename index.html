@@ -112,6 +112,7 @@
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mon profil</a>
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
                     <button id="admin-gerer-boutique-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gérer boutique</button>
+                    <button id="admin-generer-annonce-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Générer Annonce</button>
                     <button id="logout-button-desktop" class="logout-button text-sm">Se déconnecter</button>
                 </div>
             </div>
@@ -136,6 +137,7 @@
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mon profil</a>
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
                     <button id="admin-gerer-boutique-mobile" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gérer boutique</button>
+                    <button id="admin-generer-annonce-mobile" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Générer Annonce</button>
                     <button id="logout-button-mobile" class="logout-button text-sm">Se déconnecter</button>
                 </div>
             </div>
@@ -348,6 +350,14 @@
                             </div>
                         </div>
 
+                        <!-- Section Entretiens effectués -->
+                        <div class="border-t pt-4 mt-4">
+                            <h4 class="text-xl font-bold mb-4">Entretiens effectués</h4>
+                            <div id="vehicle-maintenances-checkboxes" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                <!-- Les entretiens seront générés ici par JavaScript -->
+                            </div>
+                        </div>
+
                         <!-- Champ "Vendu" -->
                         <div class="flex items-center mt-4">
                             <input type="checkbox" id="vehicle-vendu" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
@@ -515,7 +525,7 @@
             apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
             authDomain: "central-cars-a37ae.firebaseapp.com",
             projectId: "central-cars-a37ae",
-            storageBucket: "central-cars-a37ae.firebasestorage.app",
+            storageBucket: "central-cars-a37ae.firebaseapp.com",
             messagingSenderId: "297273470734",
             appId: "1:297273470734:web:7d35e6619b28dc569d715f",
             measurementId: "G-4LXQG2VWP2"
@@ -548,6 +558,17 @@
             if (vehicles.length === 0) {
                  vehicleList.innerHTML = `<p class="text-center col-span-full">Aucun véhicule disponible pour le moment.</p>`;
             } else {
+                // Sort vehicles: not sold (vendu: false) first, then sold (vendu: true)
+                vehicles.sort((a, b) => {
+                    // If 'vendu' is true, it means it's sold, so it should come after non-sold vehicles.
+                    // If 'vendu' is false, it means it's not sold, so it should come before sold vehicles.
+                    // We want false (0) to come before true (1). So, a.vendu - b.vendu will work.
+                    // If a.vendu is false (0) and b.vendu is true (1), 0 - 1 = -1 (a comes before b)
+                    // If a.vendu is true (1) and b.vendu is false (0), 1 - 0 = 1 (a comes after b)
+                    // If both are same, 0 - 0 = 0 or 1 - 1 = 0 (order doesn't change)
+                    return (a.vendu || false) - (b.vendu || false);
+                });
+
                 vehicles.forEach(vehicle => {
                     const card = document.createElement('div');
                     card.className = 'bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 relative'; // Added relative for badge positioning
@@ -630,6 +651,11 @@
                     <h3 class="text-xl font-bold mb-3 border-b pb-2">Équipements et options</h3>
                     <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-gray-700">
                         ${(vehicle.options && vehicle.options.length > 0) ? vehicle.options.map(opt => `<li><i class="fas fa-check-circle text-green-500 mr-2"></i>${opt}</li>`).join('') : '<li>Aucune option spécifiée.</li>'}
+                    </ul>
+
+                    <h3 class="text-xl font-bold mb-3 border-b pb-2 mt-6">Entretiens effectués</h3>
+                    <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-2 text-gray-700">
+                        ${(vehicle.maintenances && vehicle.maintenances.length > 0) ? vehicle.maintenances.map(maint => `<li><i class="fas fa-wrench text-blue-500 mr-2"></i>${maint}</li>`).join('') : '<li>Aucun entretien spécifié.</li>'}
                     </ul>
 
                     <div class="mt-8 pt-4 border-t border-gray-200 text-sm text-gray-700 leading-relaxed">
@@ -868,6 +894,8 @@
         const userEmailDisplayMobile = document.getElementById('user-email-display-mobile');
         const adminGererBoutiqueDesktop = document.getElementById('admin-gerer-boutique-desktop');
         const adminGererBoutiqueMobile = document.getElementById('admin-gerer-boutique-mobile');
+        const adminGenererAnnonceDesktop = document.getElementById('admin-generer-annonce-desktop'); // Nouveau bouton
+        const adminGenererAnnonceMobile = document.getElementById('admin-generer-annonce-mobile'); // Nouveau bouton
 
 
         function toggleAccountMenu(menuElement) {
@@ -963,9 +991,13 @@
                 if (userRole === 'admin') {
                     adminGererBoutiqueDesktop.classList.remove('hidden');
                     adminGererBoutiqueMobile.classList.remove('hidden');
+                    adminGenererAnnonceDesktop.classList.remove('hidden'); // Afficher le bouton "Générer Annonce"
+                    adminGenererAnnonceMobile.classList.remove('hidden'); // Afficher le bouton "Générer Annonce"
                 } else {
                     adminGererBoutiqueDesktop.classList.add('hidden');
                     adminGererBoutiqueMobile.classList.add('hidden');
+                    adminGenererAnnonceDesktop.classList.add('hidden'); // Cacher le bouton "Générer Annonce"
+                    adminGenererAnnonceMobile.classList.add('hidden'); // Cacher le bouton "Générer Annonce"
                 }
 
             } else {
@@ -979,6 +1011,9 @@
                 accountMenuMobile.classList.add('hidden'); // S'assurer que le menu est caché
                 adminGererBoutiqueDesktop.classList.add('hidden'); // Cacher le bouton "Gérer boutique"
                 adminGererBoutiqueMobile.classList.add('hidden'); // Cacher le bouton "Gérer boutique"
+                adminGenererAnnonceDesktop.classList.add('hidden'); // Cacher le bouton "Générer Annonce"
+                adminGenererAnnonceMobile.classList.add('hidden'); // Cacher le bouton "Générer Annonce"
+
 
                 window.currentUserRole = null; // Effacer le rôle
                 // Cacher le panneau d'administration si l'utilisateur se déconnecte
@@ -1111,6 +1146,7 @@
         const imageUploadSpinner = document.getElementById('image-upload-spinner');
         const vehicleImagesUrlsInput = document.getElementById('vehicle-images-urls'); // Champ caché pour les URLs Cloudinary
         const vehicleOptionsCheckboxesDiv = document.getElementById('vehicle-options-checkboxes');
+        const vehicleMaintenancesCheckboxesDiv = document.getElementById('vehicle-maintenances-checkboxes'); // Nouveau: entretiens
         const vehicleVenduCheckbox = document.getElementById('vehicle-vendu'); // Nouveau: case à cocher vendu
 
         const submitVehicleButton = document.getElementById('submit-vehicle-button');
@@ -1193,6 +1229,25 @@
             ]
         };
 
+        // Nouveau: Options d'entretien
+        const vehicleMaintenanceData = [
+            "Kit distribution + pompe à eau",
+            "Vidange moteur + filtre à huile",
+            "Disques et plaquettes de frein",
+            "Pneumatiques",
+            "Contrôle technique OK",
+            "Révision complète",
+            "Climatisation rechargée",
+            "Amortisseurs avant",
+            "Amortisseurs arrière",
+            "Batterie neuve",
+            "Bougies d'allumage",
+            "Filtre à air",
+            "Filtre à carburant",
+            "Filtre d'habitacle",
+            "Embrayage"
+        ];
+
         // Cloudinary configuration
         const CLOUDINARY_CLOUD_NAME = 'dxneu57c0';
         const CLOUDINARY_UPLOAD_PRESET = 'central_cars_unsigned_upload';
@@ -1269,6 +1324,22 @@
             }
         }
 
+        // Nouveau: Fonction pour générer les cases à cocher d'entretien
+        function generateMaintenancesCheckboxes() {
+            vehicleMaintenancesCheckboxesDiv.innerHTML = '';
+            vehicleMaintenanceData.forEach(maintText => {
+                const checkboxId = `maint-${maintText.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase()}`; // Sanitize ID
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'flex items-center mb-1';
+                checkboxDiv.innerHTML = `
+                    <input type="checkbox" id="${checkboxId}" name="vehicle-maintenance" value="${maintText}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="${checkboxId}" class="ml-2 text-gray-700 text-sm">${maintText}</label>
+                `;
+                vehicleMaintenancesCheckboxesDiv.appendChild(checkboxDiv);
+            });
+        }
+
+
         // Initialiser les listes et options au chargement
         document.addEventListener('DOMContentLoaded', () => {
             populateMarques();
@@ -1276,6 +1347,7 @@
             populateBoiteVitesse();
             populateCritAir();
             generateOptionsCheckboxes();
+            generateMaintenancesCheckboxes(); // Initialiser les entretiens
         });
 
         // Écouteur pour la sélection de la marque afin de mettre à jour les modèles
@@ -1488,6 +1560,27 @@
             }
         });
 
+        // Écouteurs d'événements pour le nouveau bouton "Générer Annonce"
+        adminGenererAnnonceDesktop.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.currentUserRole === 'admin') {
+                window.open('annonce.html', '_blank'); // Ouvre annonce.html dans un nouvel onglet
+                accountMenuDesktop.classList.add('hidden'); // Fermer le menu
+            } else {
+                showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");
+            }
+        });
+        adminGenererAnnonceMobile.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.currentUserRole === 'admin') {
+                window.open('annonce.html', '_blank'); // Ouvre annonce.html dans un nouvel onglet
+                accountMenuMobile.classList.add('hidden'); // Fermer le menu
+            } else {
+                showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");
+            }
+        });
+
+
         // Écouteur pour le nouveau bouton "Retour à l'accueil"
         backToHomeButton.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1519,6 +1612,8 @@
             const vehicleId = vehicleIdInput.value;
             const selectedOptions = Array.from(document.querySelectorAll('#vehicle-options-checkboxes input[name="vehicle-option"]:checked'))
                                         .map(checkbox => checkbox.value);
+            const selectedMaintenances = Array.from(document.querySelectorAll('#vehicle-maintenances-checkboxes input[name="vehicle-maintenance"]:checked'))
+                                                .map(checkbox => checkbox.value);
 
             const vehicleData = {
                 titreAnnonce: vehicleTitreAnnonceInput.value,
@@ -1539,6 +1634,7 @@
                 description: vehicleDescriptionInput.value,
                 images: uploadedImageUrls, // Utiliser les URLs de Cloudinary
                 options: selectedOptions,
+                maintenances: selectedMaintenances, // Nouveau: entretiens
                 vendu: vehicleVenduCheckbox.checked // Nouveau: statut vendu
             };
 
@@ -1570,6 +1666,10 @@
             uploadedImageUrls = []; // Reset uploaded image URLs
             // Désélectionner toutes les options
             document.querySelectorAll('#vehicle-options-checkboxes input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            // Désélectionner tous les entretiens
+            document.querySelectorAll('#vehicle-maintenances-checkboxes input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
             // Réinitialiser la case "Vendu"
@@ -1615,6 +1715,11 @@
                     // Gérer les options sélectionnées
                     document.querySelectorAll('#vehicle-options-checkboxes input[type="checkbox"]').forEach(checkbox => {
                         checkbox.checked = vehicleToEdit.options && vehicleToEdit.options.includes(checkbox.value);
+                    });
+
+                    // Gérer les entretiens sélectionnés
+                    document.querySelectorAll('#vehicle-maintenances-checkboxes input[type="checkbox"]').forEach(checkbox => {
+                        checkbox.checked = vehicleToEdit.maintenances && vehicleToEdit.maintenances.includes(checkbox.value);
                     });
 
                     // Gérer la case "Vendu"
