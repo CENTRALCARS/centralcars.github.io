@@ -114,6 +114,7 @@
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
                     <button id="admin-gerer-boutique-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gérer boutique</button>
                     <button id="admin-generer-annonce-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Générer Annonce</button>
+                    <button id="admin-acces-ants-desktop" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Accès ANTS</button>
                     <button id="logout-button-desktop" class="logout-button text-sm">Se déconnecter</button>
                 </div>
             </div>
@@ -139,6 +140,7 @@
                     <a href="#" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Mes favoris</a>
                     <button id="admin-gerer-boutique-mobile" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Gérer boutique</button>
                     <button id="admin-generer-annonce-mobile" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Générer Annonce</button>
+                    <button id="admin-acces-ants-mobile" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100 hidden">Accès ANTS</button>
                     <button id="logout-button-mobile" class="logout-button text-sm">Se déconnecter</button>
                 </div>
             </div>
@@ -995,6 +997,8 @@
         const adminGererBoutiqueMobile = document.getElementById('admin-gerer-boutique-mobile');
         const adminGenererAnnonceDesktop = document.getElementById('admin-generer-annonce-desktop'); // Nouveau bouton
         const adminGenererAnnonceMobile = document.getElementById('admin-generer-annonce-mobile'); // Nouveau bouton
+        const adminAccesAntsDesktop = document.getElementById('admin-acces-ants-desktop'); // Nouveau bouton ANTS
+        const adminAccesAntsMobile = document.getElementById('admin-acces-ants-mobile'); // Nouveau bouton ANTS
 
 
         function toggleAccountMenu(menuElement) {
@@ -1086,17 +1090,21 @@
                 userEmailDisplayDesktop.textContent = user.email;
                 userEmailDisplayMobile.textContent = user.email;
 
-                // Afficher le bouton "Gérer boutique" si l'utilisateur est admin
+                // Afficher les boutons d'administration si l'utilisateur est admin
                 if (userRole === 'admin') {
                     adminGererBoutiqueDesktop.classList.remove('hidden');
                     adminGererBoutiqueMobile.classList.remove('hidden');
-                    adminGenererAnnonceDesktop.classList.remove('hidden'); // Afficher le bouton "Générer Annonce"
-                    adminGenererAnnonceMobile.classList.remove('hidden'); // Afficher le bouton "Générer Annonce"
+                    adminGenererAnnonceDesktop.classList.remove('hidden');
+                    adminGenererAnnonceMobile.classList.remove('hidden');
+                    adminAccesAntsDesktop.classList.remove('hidden'); // Afficher le bouton ANTS
+                    adminAccesAntsMobile.classList.remove('hidden'); // Afficher le bouton ANTS
                 } else {
                     adminGererBoutiqueDesktop.classList.add('hidden');
                     adminGererBoutiqueMobile.classList.add('hidden');
-                    adminGenererAnnonceDesktop.classList.add('hidden'); // Cacher le bouton "Générer Annonce"
-                    adminGenererAnnonceMobile.classList.add('hidden'); // Cacher le bouton "Générer Annonce"
+                    adminGenererAnnonceDesktop.classList.add('hidden');
+                    adminGenererAnnonceMobile.classList.add('hidden');
+                    adminAccesAntsDesktop.classList.add('hidden'); // Cacher le bouton ANTS
+                    adminAccesAntsMobile.classList.add('hidden'); // Cacher le bouton ANTS
                 }
 
             } else {
@@ -1112,6 +1120,8 @@
                 adminGererBoutiqueMobile.classList.add('hidden'); // Cacher le bouton "Gérer boutique"
                 adminGenererAnnonceDesktop.classList.add('hidden'); // Cacher le bouton "Générer Annonce"
                 adminGenererAnnonceMobile.classList.add('hidden'); // Cacher le bouton "Générer Annonce"
+                adminAccesAntsDesktop.classList.add('hidden'); // Cacher le bouton ANTS
+                adminAccesAntsMobile.classList.add('hidden'); // Cacher le bouton ANTS
 
 
                 window.currentUserRole = null; // Effacer le rôle
@@ -1674,6 +1684,26 @@
             e.preventDefault();
             if (window.currentUserRole === 'admin') {
                 window.open('annonce.html', '_blank'); // Ouvre annonce.html dans un nouvel onglet
+                accountMenuMobile.classList.add('hidden'); // Fermer le menu
+            } else {
+                showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");
+            }
+        });
+
+        // Écouteurs d'événements pour le nouveau bouton "Accès ANTS"
+        adminAccesAntsDesktop.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.currentUserRole === 'admin') {
+                window.open('tools.html', '_blank'); // Ouvre tools.html dans un nouvel onglet
+                accountMenuDesktop.classList.add('hidden'); // Fermer le menu
+            } else {
+                showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");
+            }
+        });
+        adminAccesAntsMobile.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (window.currentUserRole === 'admin') {
+                window.open('tools.html', '_blank'); // Ouvre tools.html dans un nouvel onglet
                 accountMenuMobile.classList.add('hidden'); // Fermer le menu
             } else {
                 showCustomAlert("Vous n'avez pas les permissions pour accéder à cet outil.");

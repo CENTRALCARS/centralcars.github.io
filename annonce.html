@@ -6,553 +6,512 @@
     <title>Générateur d'Annonces Central Cars</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Google Font: Comic Neue for a cartoonish feel -->
-     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Text:ital@0;1&display=swap" rel="stylesheet">
+    <!-- Google Font: Inter for consistency with index.html -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        /* Base styles for body and container */
         body {
-            font-family: 'DM Serif Text', cursive; /* Applied Comic Neue font */
-            background-color: #f8fafc; /* Very light blue-gray background for a fresh feel */
-            color: #334155; /* Darker text color */
+            font-family: 'Inter', sans-serif; /* Applied Inter font */
         }
-        .container {
-            max-width: 900px;
-            @apply mx-auto bg-white p-6 sm:p-8 rounded-3xl shadow-2xl border border-gray-100; /* More rounded, deeper shadow, very subtle border */
+        /* Custom scrollbar for consistency */
+        ::-webkit-scrollbar {
+            width: 8px;
         }
-
-        /* Form elements styling */
-        .input-field, .select-field {
-            @apply w-full p-3 border border-gray-200 rounded-xl bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-4 focus:ring-red-300 focus:border-red-400 transition duration-300 ease-in-out; /* Softer border, subtle placeholder, stronger focus ring */
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
         }
-        .checkbox-label, .radio-label {
-            @apply flex items-center cursor-pointer text-gray-700 text-sm py-1.5; /* Slightly more padding for touch targets */
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
         }
-        .checkbox-input, .radio-input {
-            @apply mr-2 h-5 w-5 text-red-500 rounded-md border-gray-300 focus:ring-red-400 transition duration-200 ease-in-out; /* Slightly softer red, better border, smooth transition */
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
         }
-        .radio-input {
-            @apply rounded-full; /* Ensure radio buttons are round */
+        /* Message box for copy confirmation */
+        .copy-message {
+            @apply fixed bottom-4 right-4 bg-green-500 text-white px-6 py-3 rounded-xl shadow-lg transition-transform transform translate-y-full opacity-0;
         }
-
-        /* Button styling */
-        .btn {
-            @apply px-7 py-3 rounded-2xl font-bold shadow-lg transition duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-xl; /* More rounded, bold text, subtle lift on hover, deeper shadow */
-        }
-        .btn-primary {
-            @apply bg-red-600 text-white hover:bg-red-700;
-        }
-        .btn-secondary {
-            @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
-        }
-
-        /* Output area styling */
-        .output-area {
-            @apply w-full p-5 border border-gray-200 rounded-xl bg-gray-50 resize-y overflow-hidden shadow-inner text-gray-800 leading-relaxed text-base; /* More padding, softer border, slightly larger text, relaxed line height */
-            min-height: 300px; /* Increased min-height for better initial view */
-
-        }
-
-        /* Section headings */
-        h2 {
-            @apply text-2xl font-extrabold text-gray-800 mb-5 border-b-2 border-red-400 pb-3; /* Larger, bolder, more prominent red border */
-        }
-        h3 {
-            @apply text-xl font-semibold text-gray-700 mb-3 mt-5 border-b border-gray-200 pb-2; /* Larger sub-headings, slightly more padding */
-        }
-
-        /* Specific styling for checked state for better visibility */
-        .checkbox-input:checked + span, .radio-input:checked + span {
-            @apply font-semibold text-red-600; /* Bolder text for checked items */
+        .copy-message.show {
+            @apply translate-y-0 opacity-100;
         }
     </style>
 </head>
-<body class="p-4 sm:p-6 lg:p-8">
-    <div class="container">
-        <h1 class="text-3xl font-extrabold text-center text-gray-800 mb-8">Générateur d'Annonces Central Cars</h1>
+<body class="bg-gray-100 text-gray-800">
 
-        <form id="adForm" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-            <!-- Informations Générales -->
-            <div class="md:col-span-2 p-5 bg-white rounded-2xl shadow-md border border-gray-100">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Informations du Véhicule</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                        <label for="marque" class="block text-sm font-medium text-gray-700 mb-1">Marque :</label>
-                        <select id="marque" class="select-field" required>
-                            <option value="">Sélectionnez une marque</option>
-                            <option value="Audi">Audi</option>
-                            <option value="BMW">BMW</option>
-                            <option value="Citroën">Citroën</option>
-                            <option value="Dacia">Dacia</option>
-                            <option value="Fiat">Fiat</option>
-                            <option value="Ford">Ford</option>
-                            <option value="Honda">Honda</option>
-                            <option value="Hyundai">Hyundai</option>
-                            <option value="Kia">Kia</option>
-                            <option value="Lexus">Lexus</option>
-                            <option value="Mazda">Mazda</option>
-                            <option value="Mercedes-Benz">Mercedes-Benz</option>
-                            <option value="Mitsubishi">Mitsubishi</option>
-                            <option value="Nissan">Nissan</option>
-                            <option value="Opel">Opel</option>
-                            <option value="Peugeot">Peugeot</option>
-                            <option value="Renault">Renault</option>
-                            <option value="Seat">Seat</option>
-                            <option value="Skoda">Skoda</option>
-                            <option value="Subaru">Subaru</option>
-                            <option value="Suzuki">Suzuki</option>
-                            <option value="Tesla">Tesla</option>
-                            <option value="Toyota">Toyota</option>
-                            <option value="Volkswagen">Volkswagen</option>
-                            <option value="Volvo">Volvo</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                        <input type="text" id="customMarqueInput" class="input-field mt-2 hidden" placeholder="Autre marque">
-                    </div>
-                    <div>
-                        <label for="modele" class="block text-sm font-medium text-gray-700 mb-1">Modèle :</label>
-                        <select id="modele" class="select-field" required>
-                            <option value="">Sélectionnez une marque d'abord</option>
-                        </select>
-                        <input type="text" id="customModeleInput" class="input-field mt-2 hidden" placeholder="Autre modèle">
-                    </div>
-                    <div>
-                        <label for="miseEnCirculation" class="block text-sm font-medium text-gray-700 mb-1">Mise en circulation :</label>
-                        <input type="text" id="miseEnCirculation" class="input-field" placeholder="Ex: 01/2018" required>
-                    </div>
-                    <div>
-                        <label for="carburant" class="block text-sm font-medium text-gray-700 mb-1">Carburant :</label>
-                        <select id="carburant" class="select-field" required>
-                            <option value="">Sélectionnez un carburant</option>
-                            <option value="Essence">Essence</option>
-                            <option value="Diesel">Diesel</option>
-                            <option value="Hybride">Hybride</option>
-                            <option value="Électrique">Électrique</option>
-                            <option value="GPL">GPL</option>
-                            <option value="Éthanol">Éthanol</option>
-                            <option value="Autre">Autre</option>
-                        </select>
-                        <input type="text" id="customCarburantInput" class="input-field mt-2 hidden" placeholder="Autre carburant">
-                    </div>
-                    <div>
-                        <label for="boiteVitesse" class="block text-sm font-medium text-gray-700 mb-1">Boîte de vitesse :</label>
-                        <select id="boiteVitesse" class="select-field" required>
-                            <option value="Manuel">Manuelle</option>
-                            <option value="Automatique">Automatique</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label for="kilometrage" class="block text-sm font-medium text-gray-700 mb-1">Kilométrage :</label>
-                        <input type="number" id="kilometrage" class="input-field" placeholder="Ex: 85000" required>
-                    </div>
-                    <div>
-                        <label for="prix" class="block text-sm font-medium text-gray-700 mb-1">Prix (€ TTC) :</label>
-                        <input type="number" id="prix" class="input-field" placeholder="Ex: 12500" required>
-                    </div>
-                    <div class="sm:col-span-2">
-                        <label for="equivalent" class="block text-sm font-medium text-gray-700 mb-1">Equivalent (optionnel) :</label>
-                        <input type="text" id="equivalent" class="input-field" placeholder="Ex: Megane break, 207 SW">
+    <!-- Header (Consistent with index.html) -->
+    <header id="header" class="bg-white shadow-md sticky top-0 z-50">
+        <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
+            <a href="index.html" class="text-2xl font-bold text-gray-900">
+                <i class="fas fa-car-side text-red-600"></i> CENTRAL <span class="text-red-600">CARS</span>
+            </a>
+            <div class="hidden md:flex space-x-8 items-center relative">
+                <a href="index.html#accueil" class="text-gray-600 hover:text-red-600 transition duration-300">Accueil</a>
+                <a href="index.html#vehicules" class="text-gray-600 hover:text-red-600 transition duration-300">Nos Véhicules</a>
+                <a href="index.html#services" class="text-gray-600 hover:text-red-600 transition duration-300">Nos Services</a>
+                <a href="index.html#contact" class="text-gray-600 hover:text-red-600 transition duration-300">Contact</a>
+            </div>
+            <div class="md:hidden flex items-center space-x-4 relative">
+                <button id="mobile-menu-button" class="text-gray-600 hover:text-red-600 focus:outline-none">
+                    <i class="fas fa-bars text-2xl"></i>
+                </button>
+            </div>
+        </nav>
+        <!-- Mobile Menu (Consistent with index.html) -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white">
+            <a href="index.html#accueil" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Accueil</a>
+            <a href="index.html#vehicules" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Nos Véhicules</a>
+            <a href="index.html#services" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Nos Services</a>
+            <a href="index.html#contact" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Contact</a>
+        </div>
+    </header>
+
+    <div class="container mx-auto mt-8 mb-8 p-6 sm:p-8 rounded-lg shadow-lg bg-white max-w-4xl">
+        <h1 class="text-4xl font-bold text-center mb-8 text-gray-900">
+            <i class="fas fa-bullhorn mr-3 text-red-600"></i> Générateur d'Annonces
+        </h1>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Colonne de gauche : Formulaire -->
+            <div class="space-y-4">
+                <div>
+                    <label for="titre" class="block text-gray-700 font-semibold mb-2">Titre de l'annonce</label>
+                    <input type="text" id="titre" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Peugeot 208 1.2 PureTech 82ch Allure">
+                </div>
+                <div>
+                    <label for="marque" class="block text-gray-700 font-semibold mb-2">Marque</label>
+                    <select id="marque" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="">Sélectionner une marque</option>
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div>
+                    <label for="modele" class="block text-gray-700 font-semibold mb-2">Modèle</label>
+                    <select id="modele" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="">Sélectionner un modèle</option>
+                        <!-- Options will be populated by JS -->
+                    </select>
+                </div>
+                <div>
+                    <label for="anneeModele" class="block text-gray-700 font-semibold mb-2">Année du modèle</label>
+                    <input type="number" id="anneeModele" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 2018">
+                </div>
+                <div>
+                    <label for="dateCirculation" class="block text-gray-700 font-semibold mb-2">Date de première mise en circulation (MM/AAAA)</label>
+                    <input type="text" id="dateCirculation" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 03/2018" pattern="(0[1-9]|1[0-2])\/(19|20)\d{2}">
+                </div>
+                <div>
+                    <label for="kilometrage" class="block text-gray-700 font-semibold mb-2">Kilométrage</label>
+                    <input type="number" id="kilometrage" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 75000">
+                </div>
+                <div>
+                    <label for="carburant" class="block text-gray-700 font-semibold mb-2">Carburant</label>
+                    <select id="carburant" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="">Sélectionner un type de carburant</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="boiteVitesse" class="block text-gray-700 font-semibold mb-2">Boîte de vitesse</label>
+                    <select id="boiteVitesse" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="">Sélectionner un type de boîte</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="couleur" class="block text-gray-700 font-semibold mb-2">Couleur</label>
+                    <input type="text" id="couleur" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Gris Artense">
+                </div>
+                <div>
+                    <label for="nbPlaces" class="block text-gray-700 font-semibold mb-2">Nombre de places</label>
+                    <input type="number" id="nbPlaces" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 5">
+                </div>
+                <div>
+                    <label for="nbPortes" class="block text-gray-700 font-semibold mb-2">Nombre de portes</label>
+                    <input type="number" id="nbPortes" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 5">
+                </div>
+                <div>
+                    <label for="puissanceFiscale" class="block text-gray-700 font-semibold mb-2">Puissance fiscale (CV)</label>
+                    <input type="number" id="puissanceFiscale" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 4">
+                </div>
+                <div>
+                    <label for="puissanceDIN" class="block text-gray-700 font-semibold mb-2">Puissance DIN (ch)</label>
+                    <input type="number" id="puissanceDIN" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 82">
+                </div>
+                <div>
+                    <label for="critAir" class="block text-gray-700 font-semibold mb-2">Crit'Air</label>
+                    <select id="critAir" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                        <option value="">Sélectionner une vignette</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="prix" class="block text-gray-700 font-semibold mb-2">Prix (€)</label>
+                    <input type="number" id="prix" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" step="0.01" placeholder="Ex: 12500">
+                </div>
+                <div>
+                    <label for="description" class="block text-gray-700 font-semibold mb-2">Description / Commentaires</label>
+                    <textarea id="description" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-y" rows="4" placeholder="Ajoutez des détails supplémentaires sur le véhicule..."></textarea>
+                </div>
+                <div>
+                    <label for="equivalent" class="block text-gray-700 font-semibold mb-2">Équivalent (optionnel)</label>
+                    <input type="text" id="equivalent" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Clio, C3, Polo">
+                </div>
+
+                <div class="mt-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Options / Équipements</h3>
+                    <div id="optionsCheckboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <!-- Checkboxes will be generated here -->
                     </div>
                 </div>
+
+                <div class="mt-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Entretiens effectués</h3>
+                    <div id="maintenancesCheckboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <!-- Checkboxes will be generated here -->
+                    </div>
+                </div>
+
+                <button id="generateAdButton" class="w-full bg-red-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-red-700 transition duration-300 shadow-lg mt-6">Générer l'annonce</button>
             </div>
 
-            <!-- Entretiens Effectués -->
-            <div class="md:col-span-2 p-5 bg-white rounded-2xl shadow-md border border-gray-100">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Entretiens Effectués</h2>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3" id="maintenanceCheckboxes">
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Vidange moteur" class="checkbox-input"><span>Vidange moteur</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Filtre à huile" class="checkbox-input"><span>Filtre à huile</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Kit distribution" class="checkbox-input"><span>Kit distribution</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Filtre à air" class="checkbox-input"><span>Filtre à air</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Filtre à carburant" class="checkbox-input"><span>Filtre à carburant</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Filtre d'habitacle" class="checkbox-input"><span>Filtre d'habitacle</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Plaquettes de frein avant" class="checkbox-input"><span>Plaquettes de frein avant</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Plaquettes de frein arrière" class="checkbox-input"><span>Plaquettes de frein arrière</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Disques de frein avant" class="checkbox-input"><span>Disques de frein avant</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Disques de frein arrière" class="checkbox-input"><span>Disques de frein arrière</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Pneus avant" class="checkbox-input"><span>Pneus avant</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Pneus arrière" class="checkbox-input"><span>Pneus arrière</span></label>
-                    <label class="checkbox-label"><input type="checkbox" name="maintenance" value="Contrôle technique OK" class="checkbox-input"><span>Contrôle technique OK</span></label>
-                </div>
-                <!-- Custom Maintenance Input -->
-                <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="customMaintenanceInput" class="input-field flex-grow" placeholder="Ajouter un entretien personnalisé">
-                    <button type="button" id="addCustomMaintenanceBtn" class="btn btn-secondary whitespace-nowrap">Ajouter l'entretien</button>
-                </div>
+            <!-- Colonne de droite : Aperçu de l'annonce -->
+            <div>
+                <label for="adOutput" class="block text-gray-700 font-semibold mb-2">Aperçu de l'annonce</label>
+                <textarea id="adOutput" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-y h-96" readonly></textarea>
+                <button id="copyAdButton" class="w-full bg-gray-600 text-white font-bold py-3 px-6 rounded-lg hover:bg-gray-700 transition duration-300 mt-4">Copier l'annonce</button>
+                <div id="copyMessage" class="copy-message hidden">Copié !</div>
             </div>
-
-            <!-- Suivi du Véhicule -->
-            <div class="md:col-span-2 p-5 bg-white rounded-2xl shadow-md border border-gray-100">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Suivi du Véhicule</h2>
-                <div class="flex flex-col sm:flex-row gap-4">
-                    <label class="radio-label">
-                        <input type="radio" name="kilometerTracking" value="suivi_complet" class="radio-input" checked>
-                        <span>Vendu avec son suivi kilométrique complet</span>
-                    </label>
-                    <label class="radio-label">
-                        <input type="radio" name="kilometerTracking" value="carnet_inclus" class="radio-input">
-                        <span>Carnet d'entretiens inclus</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Équipements Extérieur/Intérieur -->
-            <div class="md:col-span-2 p-5 bg-white rounded-2xl shadow-md border border-gray-100">
-                <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Équipements Extérieur/Intérieur</h2>
-                <div id="featuresCheckboxes">
-                    <!-- Sécurité -->
-                    <h3 class="text-lg font-semibold text-gray-600 mb-3 mt-4 border-b border-gray-200 pb-1">Sécurité</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="ABS" class="checkbox-input"><span>ABS</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Airbags frontaux, latéraux" class="checkbox-input"><span>Airbags frontaux, latéraux</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="ISOFIX" class="checkbox-input"><span>ISOFIX</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Aide au démarrage en côte" class="checkbox-input"><span>Aide au démarrage en côte</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Frein de parking électrique" class="checkbox-input"><span>Frein de parking électrique</span></label>
-                    </div>
-
-                    <!-- Conduite et Assistance -->
-                    <h3 class="text-lg font-semibold text-gray-600 mb-3 mt-4 border-b border-gray-200 pb-1">Conduite et Assistance</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Limiteur de vitesse" class="checkbox-input"><span>Limiteur de vitesse</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Régulateur de vitesse" class="checkbox-input"><span>Régulateur de vitesse</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="GPS" class="checkbox-input"><span>GPS</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Caméra de recul" class="checkbox-input"><span>Caméra de recul</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Radar de recul avant et arrière" class="checkbox-input"><span>Radar de recul avant et arrière</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Ordinateur de bord" class="checkbox-input"><span>Ordinateur de bord</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Détecteur de pluie" class="checkbox-input"><span>Détecteur de pluie</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Allumage automatique des feux" class="checkbox-input"><span>Allumage automatique des feux</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Balais essuie-glace automatique" class="checkbox-input"><span>Balais essuie-glace automatique</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Start & Stop" class="checkbox-input"><span>Start & Stop</span></label>
-                    </div>
-
-                    <!-- Confort et Intérieur -->
-                    <h3 class="text-lg font-semibold text-gray-600 mb-3 mt-4 border-b border-gray-200 pb-1">Confort et Intérieur</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Climatisation" class="checkbox-input"><span>Climatisation</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Vitres électriques" class="checkbox-input"><span>Vitres électriques</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Rétroviseur électriques" class="checkbox-input"><span>Rétroviseur électriques</span></label>
-                        <label class="checkbox-label"><input type="checkbox" value="Volant réglable en hauteur et en profondeur" class="checkbox-input"><span>Volant réglable en hauteur et en profondeur</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Ouverture/fermeture centralisée" class="checkbox-input"><span>Ouverture/fermeture centralisée</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Sièges chauffants" class="checkbox-input"><span>Sièges chauffants</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Sellerie cuir" class="checkbox-input"><span>Sellerie cuir</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Ventilation banquette arrière" class="checkbox-input"><span>Ventilation banquette arrière</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Commande console centrale" class="checkbox-input"><span>Commande console centrale</span></label>
-                    </div>
-
-                    <!-- Multimédia et Connectivité -->
-                    <h3 class="text-lg font-semibold text-gray-600 mb-3 mt-4 border-b border-gray-200 pb-1">Multimédia et Connectivité</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Bluetooth" class="checkbox-input"><span>Bluetooth</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="USB" class="checkbox-input"><span>USB</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Prise Auxiliaire" class="checkbox-input"><span>Prise Auxiliaire</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Radio commande au volant" class="checkbox-input"><span>Radio commande au volant</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Allume cigare" class="checkbox-input"><span>Allume cigare</span></label>
-                    </div>
-
-                    <!-- Extérieur et Esthétique -->
-                    <h3 class="text-lg font-semibold text-gray-600 mb-3 mt-4 border-b border-gray-200 pb-1">Extérieur et Esthétique</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Jantes aluminium" class="checkbox-input"><span>Jantes aluminium</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Phares LED" class="checkbox-input"><span>Phares LED</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Phares antibrouillard arrière" class="checkbox-input"><span>Phares antibrouillard arrière</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Phares antibrouillard avant" class="checkbox-input"><span>Phares antibrouillard avant</span></label>
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Feu de brouillard arrière" class="checkbox-input"><span>Feu de brouillard arrière</span></label>
-                    </div>
-
-                    <!-- Autres -->
-                    <h3 class="text-lg font-semibold text-gray-600 mb-3 mt-4 border-b border-gray-200 pb-1">Autres</h3>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                        <label class="checkbox-label"><input type="checkbox" name="feature" value="Vendu avec deux clés" class="checkbox-input"><span>Vendu avec deux clés</span></label>
-                    </div>
-                </div>
-                <!-- Custom Feature Input -->
-                <div class="mt-4 flex flex-col sm:flex-row gap-2">
-                    <input type="text" id="customFeatureInput" class="input-field flex-grow" placeholder="Ajouter un équipement personnalisé">
-                    <button type="button" id="addCustomFeatureBtn" class="btn btn-secondary whitespace-nowrap">Ajouter l'équipement</button>
-                </div>
-            </div>
-
-            <div class="md:col-span-2 flex flex-col sm:flex-row justify-center gap-4 mt-6">
-                <button type="button" id="generateBtn" class="btn btn-primary">Générer l'annonce</button>
-                <button type="button" id="copyBtn" class="btn btn-secondary">Copier le texte</button>
-            </div>
-        </form>
-
-        <div class="mt-8 p-5 bg-white rounded-2xl shadow-md border border-gray-100">
-            <h2 class="text-xl font-semibold text-gray-700 mb-4 border-b pb-2">Texte de l'annonce généré</h2>
-            <textarea id="adOutput" class="output-area" readonly placeholder="Le texte de l'annonce apparaîtra ici..."></textarea>
-            <div id="copyMessage" class="mt-2 text-sm text-green-600 text-center hidden">Texte copié !</div>
         </div>
     </div>
 
+    <!-- Footer (Consistent with index.html) -->
+    <footer class="bg-gray-800 text-white py-8">
+        <div class="container mx-auto px-6 text-center">
+            <p>&copy; 2024 CENTRAL CARS. Tous droits réservés.</p>
+            <p class="text-sm text-gray-400 mt-2">Site conçu avec ❤️</p>
+        </div>
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const generateBtn = document.getElementById('generateBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const adOutput = document.getElementById('adOutput');
-            const copyMessage = document.getElementById('copyMessage');
+        // JavaScript for Hamburger Menu Toggle (Consistent with index.html)
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
 
-            const customMaintenanceInput = document.getElementById('customMaintenanceInput');
-            const addCustomMaintenanceBtn = document.getElementById('addCustomMaintenanceBtn');
-            const maintenanceCheckboxesDiv = document.getElementById('maintenanceCheckboxes');
+        if (mobileMenuButton && mobileMenu) {
+            mobileMenuButton.addEventListener('click', function() {
+                mobileMenu.classList.toggle('hidden');
+            });
+        }
 
-            const customFeatureInput = document.getElementById('customFeatureInput');
-            const addCustomFeatureBtn = document.getElementById('addCustomFeatureBtn');
-            const featuresCheckboxesDiv = document.getElementById('featuresCheckboxes');
+        // Data for dropdowns and checkboxes
+        const carData = {
+            "Renault": ["Clio", "Mégane", "Captur", "Kadjar", "Austral", "Arkana", "Twingo", "Zoe", "Scénic", "Talisman", "Espace", "Koleos", "Kangoo"],
+            "Peugeot": ["208", "308", "2008", "3008", "5008", "508", "108", "Rifter", "Partner", "Traveller", "Expert"],
+            "Citroën": ["C3", "C4", "C5 Aircross", "C3 Aircross", "Berlingo", "C1", "C4 Cactus", "C5 X", "Jumpy", "Spacetourer"],
+            "Volkswagen": ["Golf", "Polo", "Tiguan", "Passat", "T-Roc", "Arteon", "Up!", "ID.3", "ID.4", "ID.5", "ID.Buzz", "Touran", "Touareg", "Caddy"],
+            "Audi": ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q4 e-tron", "Q5", "Q7", "Q8", "e-tron", "TT", "R8"],
+            "BMW": ["Série 1", "Série 2", "Série 3", "Série 4", "Série 5", "Série 6", "Série 7", "Série 8", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "Z4", "i3", "i4", "iX", "iX3", "i5", "i7"],
+            "Mercedes-Benz": ["Classe A", "Classe B", "Classe C", "Classe E", "Classe S", "CLA", "CLS", "GLA", "GLC", "GLE", "GLS", "EQA", "EQB", "EQC", "EQE", "EQS", "AMG GT", "Citan", "Vito", "Sprinter"],
+            "Ford": ["Fiesta", "Focus", "Puma", "Kuga", "Mustang Mach-E", "Explorer", "Edge", "Mondeo", "Galaxy", "S-Max", "Ranger", "Transit Custom", "Tourneo Custom"],
+            "Toyota": ["Yaris", "Corolla", "C-HR", "RAV4", "Aygo", "Mirai", "Camry", "Prius", "Highlander", "Land Cruiser", "Hilux", "Proace"],
+            "Nissan": ["Qashqai", "Juke", "X-Trail", "Micra", "Leaf", "Ariya", "Navara", "Townstar"],
+            "Hyundai": ["i10", "i20", "i30", "Kona", "Tucson", "Santa Fe", "Bayon", "Ioniq 5", "Ioniq 6", "Nexo"],
+            "Kia": ["Picanto", "Rio", "Ceed", "Sportage", "Niro", "EV6", "Stonic", "Xceed", "Sorento", "Soul EV"],
+            "Opel": ["Corsa", "Astra", "Mokka", "Grandland", "Crossland", "Combo Life", "Zafira Life", "Vivaro"],
+            "Skoda": ["Fabia", "Octavia", "Superb", "Kamiq", "Karoq", "Kodiaq", "Enyaq iV", "Scala"],
+            "Seat": ["Ibiza", "Leon", "Ateca", "Arona", "Tarraco", "Toledo", "Alhambra"],
+            "Fiat": ["500", "Panda", "Tipo", "500X", "500e", "Ducato", "Talento"],
+            "Volvo": ["S60", "V60", "S90", "V90", "XC40", "XC60", "XC90", "C40 Recharge", "EX30", "EX90"],
+            "Tesla": ["Model 3", "Model Y", "Model S", "Model X", "Cybertruck"],
+            "Dacia": ["Sandero", "Duster", "Spring", "Jogger", "Lodgy", "Logan"],
+            "Mazda": ["Mazda2", "Mazda3", "Mazda6", "CX-30", "CX-5", "CX-60", "CX-80", "MX-30", "MX-5"],
+            "Honda": ["Civic", "CR-V", "Jazz", "HR-V", "e", "ZR-V"],
+            "Suzuki": ["Swift", "Vitara", "Ignis", "S-Cross", "Jimny", "Across"],
+            "Jeep": ["Renegade", "Compass", "Wrangler", "Grand Cherokee", "Avenger"],
+            "Land Rover": ["Range Rover Evoque", "Discovery Sport", "Defender", "Range Rover Sport", "Discovery", "Range Rover"],
+            "Porsche": ["911", "Cayenne", "Macan", "Panamera", "Taycan", "718 Boxster", "718 Cayman"],
+            "Alfa Romeo": ["Giulia", "Stelvio", "Tonale"],
+            "Lexus": ["IS", "ES", "LS", "RC", "LC", "UX", "NX", "RX", "RZ"],
+            "Mini": ["Mini 3 Portes", "Mini 5 Portes", "Countryman", "Clubman", "Cabrio", "Aceman"],
+            "Cupra": ["Formentor", "Born", "Leon", "Ateca", "Tavascan"],
+            "Polestar": ["Polestar 2", "Polestar 3", "Polestar 4"],
+            "MG": ["ZS EV", "MG4 EV", "HS", "MG5 EV", "Cyberster"]
+        };
 
-            // Dropdown elements and their custom input fields
-            const marqueSelect = document.getElementById('marque');
-            const customMarqueInput = document.getElementById('customMarqueInput');
-            const modeleSelect = document.getElementById('modele');
-            const customModeleInput = document.getElementById('customModeleInput');
-            const carburantSelect = document.getElementById('carburant');
-            const customCarburantInput = document.getElementById('customCarburantInput');
-            const boiteVitesseSelect = document.getElementById('boiteVitesse');
+        const carburants = ["Essence", "Diesel", "Électrique", "Hybride", "Hybride Rechargeable", "GPL", "E85"];
+        const boiteVitesse = ["Manuelle", "Automatique"];
+        const critAirOptions = ["0 (Vert)", "1", "2", "3", "4", "5", "Non classé"];
 
-            // Define car models based on brand (2000-2024, no specific versions)
-            const carModels = {
-                "Audi": ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q5", "Q7", "Q8", "TT", "R8", "e-tron"],
-                "BMW": ["Série 1", "Série 2", "Série 3", "Série 4", "Série 5", "Série 6", "Série 7", "Série 8", "X1", "X2", "X3", "X4", "X5", "X6", "X7", "Z4", "i3", "i4", "iX"],
-                "Citroën": ["C1", "C2", "C3", "C4", "C5", "C6", "C8", "C3 Aircross", "C4 Cactus", "C5 Aircross", "C4 X", "Berlingo", "Jumpy", "SpaceTourer"],
-                "Dacia": ["Logan", "Sandero", "Duster", "Lodgy", "Dokker", "Spring", "Jogger"],
-                "Fiat": ["Panda", "Punto", "Tipo", "500", "500L", "500X", "Doblo", "Talento"],
-                "Ford": ["Fiesta", "Focus", "Mondeo", "Kuga", "Puma", "EcoSport", "C-Max", "S-Max", "Galaxy", "Transit Connect", "Mustang", "Explorer", "Mach-E"],
-                "Honda": ["Civic", "CR-V", "HR-V", "Jazz", "Accord", "e"],
-                "Hyundai": ["i10", "i20", "i30", "i40", "Kona", "Tucson", "Santa Fe", "Ioniq", "Bayon", "Nexo", "Palisade"],
-                "Kia": ["Picanto", "Rio", "Ceed", "Sportage", "Stonic", "Sorento", "Niro", "EV6", "XCeed", "ProCeed"],
-                "Lexus": ["CT", "IS", "ES", "GS", "LS", "RC", "LC", "NX", "RX", "UX", "GX", "LX"],
-                "Mazda": ["Mazda2", "Mazda3", "Mazda6", "CX-3", "CX-5", "CX-30", "CX-50", "CX-60", "MX-5", "MX-30"],
-                "Mercedes-Benz": ["Classe A", "Classe B", "Classe C", "Classe E", "Classe S", "CLA", "CLS", "GLA", "GLB", "GLC", "GLE", "GLS", "EQA", "EQB", "EQC", "EQE", "EQS"],
-                "Mitsubishi": ["Space Star", "ASX", "Eclipse Cross", "Outlander", "Mirage"],
-                "Nissan": ["Micra", "Juke", "Qashqai", "X-Trail", "Leaf", "Navara", "Ariya", "Townstar"],
-                "Opel": ["Corsa", "Astra", "Mokka", "Crossland", "Grandland", "Insignia", "Zafira", "Combo Life", "Vivaro Life"],
-                "Peugeot": ["107", "108", "206", "207", "208", "307", "308", "407", "508", "2008", "3008", "5008", "RCZ", "Partner", "Rifter", "Traveller"],
-                "Renault": ["Clio", "Mégane", "Captur", "Kadjar", "Twingo", "Scénic", "Espace", "Laguna", "Talisman", "Arkana", "Austral", "Koleos", "Zoe", "Kangoo"],
-                "Seat": ["Ibiza", "Leon", "Arona", "Ateca", "Tarraco", "Mii"],
-                "Skoda": ["Fabia", "Octavia", "Superb", "Kodiaq", "Karoq", "Kamiq", "Enyaq", "Scala"],
-                "Subaru": ["Impreza", "Forester", "Outback", "XV", "Crosstrek", "Solterra"],
-                "Suzuki": ["Swift", "Vitara", "S-Cross", "Ignis", "Jimny", "Swace", "Across"],
-                "Tesla": ["Model S", "Model 3", "Model X", "Model Y", "Cybertruck"],
-                "Toyota": ["Yaris", "Corolla", "C-HR", "RAV4", "Aygo", "Prius", "Auris", "Camry", "Land Cruiser", "Hilux", "Mirai", "GR Yaris", "Supra"],
-                "Volkswagen": ["Golf", "Polo", "Passat", "Tiguan", "Touran", "Touareg", "Scirocco", "Up", "T-Roc", "T-Cross", "ID.3", "ID.4", "ID.5", "ID. Buzz"],
-                "Volvo": ["S60", "S90", "V40", "V60", "V90", "XC40", "XC60", "XC90", "C40", "EX30", "EX90"],
-                "Autre": [] // 'Autre' will always allow custom input
-            };
+        const vehicleOptionsData = {
+            "Sécurité": [
+                "ABS", "ESP", "Airbags frontaux", "Airbags latéraux", "Airbags rideaux",
+                "Aide au freinage d'urgence", "Contrôle de la pression des pneus",
+                "Fixations ISOFIX", "Détecteur d'angle mort", "Alerte de franchissement de ligne",
+                "Régulateur de vitesse adaptatif", "Caméra de recul", "Radars de stationnement avant",
+                "Radars de stationnement arrière", "Phares LED", "Feux de jour LED",
+                "Système de surveillance de la vigilance du conducteur", "Freinage automatique d'urgence"
+            ],
+            "Intérieur": [
+                "Climatisation manuelle", "Climatisation automatique bi-zone", "Sièges chauffants",
+                "Sièges en cuir", "Volant multifonction", "Volant chauffant", "Accoudoir central",
+                "Vitres électriques avant", "Vitres électriques arrière", "Rétroviseurs électriques",
+                "Écran tactile", "GPS", "Bluetooth", "Apple CarPlay", "Android Auto",
+                "Prise USB", "Prise 12V", "Toit ouvrant panoramique", "Instrumentation numérique",
+                "Éclairage d'ambiance", "Sellerie tissu", "Sellerie semi-cuir", "Sièges sport"
+            ],
+            "Extérieur": [
+                "Jantes alliage", "Peinture métallisée", "Phares antibrouillard", "Barres de toit",
+                "Attelage", "Vitres teintées", "Rétroviseurs rabattables électriquement",
+                "Capteur de pluie", "Capteur de luminosité", "Hayon électrique", "Phares Xénon",
+                "Toit ouvrant", "Becquet arrière", "Échappement sport"
+            ],
+            "Confort": [
+                "Démarrage sans clé", "Accès mains libres", "Aide au démarrage en côte",
+                "Frein de parking électrique", "Direction assistée", "Verrouillage centralisé à distance",
+                "Régulateur de vitesse", "Limiteur de vitesse", "Aide au stationnement", "Sièges réglables en hauteur"
+            ],
+            "Autres": [
+                "Carnet d'entretien", "Double des clés", "Non-fumeur", "Garantie constructeur",
+                "Roue de secours", "Kit de réparation pneus", "Pack sport", "Suspension sport"
+            ]
+        };
 
-            // Event listeners for buttons
-            generateBtn.addEventListener('click', generateAd);
-            copyBtn.addEventListener('click', copyAd);
+        const vehicleMaintenanceData = [
+            "Kit distribution + pompe à eau",
+            "Vidange moteur + filtre à huile",
+            "Disques et plaquettes de frein",
+            "Pneumatiques",
+            "Contrôle technique OK",
+            "Révision complète",
+            "Climatisation rechargée",
+            "Amortisseurs avant",
+            "Amortisseurs arrière",
+            "Batterie neuve",
+            "Bougies d'allumage",
+            "Filtre à air",
+            "Filtre à carburant",
+            "Filtre d'habitacle",
+            "Embrayage"
+        ];
 
-            // Event listeners for adding custom options
-            addCustomMaintenanceBtn.addEventListener('click', () => addCustomOption(customMaintenanceInput, maintenanceCheckboxesDiv, 'maintenance', '🔸'));
-            addCustomFeatureBtn.addEventListener('click', () => {
-                let targetGrid = featuresCheckboxesDiv.querySelector('.grid:last-of-type');
-                if (!targetGrid) {
-                    const autresCategoryDiv = document.createElement('div');
-                    autresCategoryDiv.innerHTML = `
-                        <h3 class="text-lg font-semibold text-gray-600 mb-3 mt-4 border-b border-gray-200 pb-1">Autres</h3>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+        // Get elements
+        const marqueSelect = document.getElementById('marque');
+        const modeleSelect = document.getElementById('modele');
+        const carburantSelect = document.getElementById('carburant');
+        const boiteVitesseSelect = document.getElementById('boiteVitesse');
+        const critAirSelect = document.getElementById('critAir');
+        const optionsCheckboxesDiv = document.getElementById('optionsCheckboxes');
+        const maintenancesCheckboxesDiv = document.getElementById('maintenancesCheckboxes');
+        const generateAdButton = document.getElementById('generateAdButton');
+        const adOutput = document.getElementById('adOutput');
+        const copyAdButton = document.getElementById('copyAdButton');
+        const copyMessage = document.getElementById('copyMessage');
+
+        // Populate dropdowns and checkboxes
+        function populateMarques() {
+            for (const marque in carData) {
+                const option = document.createElement('option');
+                option.value = marque;
+                option.textContent = marque;
+                marqueSelect.appendChild(option);
+            }
+        }
+
+        function populateModeles(selectedMarque) {
+            modeleSelect.innerHTML = '<option value="">Sélectionner un modèle</option>';
+            if (selectedMarque && carData[selectedMarque]) {
+                carData[selectedMarque].forEach(modele => {
+                    const option = document.createElement('option');
+                    option.value = modele;
+                    option.textContent = modele;
+                    modeleSelect.appendChild(option);
+                });
+            }
+        }
+
+        function populateCarburants() {
+            carburants.forEach(carburant => {
+                const option = document.createElement('option');
+                option.value = carburant;
+                option.textContent = carburant;
+                carburantSelect.appendChild(option);
+            });
+        }
+
+        function populateBoiteVitesse() {
+            boiteVitesse.forEach(boite => {
+                const option = document.createElement('option');
+                option.value = boite;
+                option.textContent = boite;
+                boiteVitesseSelect.appendChild(option);
+            });
+        }
+
+        function populateCritAir() {
+            critAirOptions.forEach(critair => {
+                const option = document.createElement('option');
+                option.value = critair;
+                option.textContent = critair;
+                critAirSelect.appendChild(option);
+            });
+        }
+
+        function generateOptionsCheckboxes() {
+            optionsCheckboxesDiv.innerHTML = '';
+            for (const category in vehicleOptionsData) {
+                const categoryDiv = document.createElement('div');
+                categoryDiv.className = 'col-span-1';
+                categoryDiv.innerHTML = `<h5 class="font-semibold text-gray-700 mb-2">${category}</h5>`;
+                
+                vehicleOptionsData[category].forEach(optionText => {
+                    const checkboxId = `option-${optionText.replace(/\s+/g, '-').toLowerCase()}`;
+                    const checkboxDiv = document.createElement('div');
+                    checkboxDiv.className = 'flex items-center mb-1';
+                    checkboxDiv.innerHTML = `
+                        <input type="checkbox" id="${checkboxId}" name="vehicle-option" value="${optionText}" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                        <label for="${checkboxId}" class="ml-2 text-gray-700 text-sm">${optionText}</label>
                     `;
-                    featuresCheckboxesDiv.appendChild(autresCategoryDiv);
-                    targetGrid = autresCategoryDiv.querySelector('.grid');
-                }
-                addCustomOption(customFeatureInput, targetGrid, 'feature', '✅');
+                    categoryDiv.appendChild(checkboxDiv);
+                });
+                optionsCheckboxesDiv.appendChild(categoryDiv);
+            }
+        }
+
+        function generateMaintenancesCheckboxes() {
+            maintenancesCheckboxesDiv.innerHTML = '';
+            vehicleMaintenanceData.forEach(maintText => {
+                const checkboxId = `maint-${maintText.replace(/\s+/g, '-').replace(/[^\w-]/g, '').toLowerCase()}`;
+                const checkboxDiv = document.createElement('div');
+                checkboxDiv.className = 'flex items-center mb-1';
+                checkboxDiv.innerHTML = `
+                    <input type="checkbox" id="${checkboxId}" name="vehicle-maintenance" value="${maintText}" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
+                    <label for="${checkboxId}" class="ml-2 text-gray-700 text-sm">${maintText}</label>
+                `;
+                maintenancesCheckboxesDiv.appendChild(checkboxDiv);
             });
+        }
 
-            // Event listeners for dropdowns to show/hide custom input
-            marqueSelect.addEventListener('change', () => {
-                toggleCustomInput(marqueSelect, customMarqueInput);
-                populateModelDropdown(); // Update models when brand changes
-            });
-            modeleSelect.addEventListener('change', () => toggleCustomInput(modeleSelect, customModeleInput));
-            carburantSelect.addEventListener('change', () => toggleCustomInput(carburantSelect, customCarburantInput));
-
-            /**
-             * Populates the model dropdown based on the selected brand.
-             */
-            function populateModelDropdown() {
-                const selectedMarque = marqueSelect.value;
-                modeleSelect.innerHTML = ''; // Clear existing options
-                customModeleInput.classList.add('hidden'); // Hide custom input by default
-                customModeleInput.removeAttribute('required');
-                customModeleInput.value = '';
-
-                if (selectedMarque) {
-                    const models = carModels[selectedMarque] || [];
-                    modeleSelect.add(new Option('Sélectionnez un modèle', '')); // Default prompt
-
-                    models.forEach(model => {
-                        modeleSelect.add(new Option(model, model));
-                    });
-                    modeleSelect.add(new Option('Autre', 'Autre')); // Always add 'Autre' option
-                } else {
-                    modeleSelect.add(new Option('Sélectionnez une marque d\'abord', ''));
-                }
-            }
-
-            /**
-             * Toggles the visibility of a custom input field based on select value.
-             * @param {HTMLSelectElement} selectElement - The select dropdown element.
-             * @param {HTMLInputElement} customInputElement - The custom text input element.
-             */
-            function toggleCustomInput(selectElement, customInputElement) {
-                if (selectElement.value === 'Autre') {
-                    customInputElement.classList.remove('hidden');
-                    customInputElement.setAttribute('required', 'true');
-                } else {
-                    customInputElement.classList.add('hidden');
-                    customInputElement.removeAttribute('required');
-                    customInputElement.value = ''; // Clear custom input when not 'Autre'
-                }
-            }
-
-            /**
-             * Adds a custom checkbox option to the specified container.
-             * @param {HTMLInputElement} inputElement - The input field where the custom text is entered.
-             * @param {HTMLElement} containerElement - The div where the new checkbox will be appended.
-             * @param {string} nameAttribute - The 'name' attribute for the new checkbox (e.g., 'maintenance', 'feature').
-             * @param {string} symbol - The symbol to prepend to the text (e.g., '🔸', '✅').
-             */
-            function addCustomOption(inputElement, containerElement, nameAttribute, symbol) {
-                const customText = inputElement.value.trim();
-                if (customText) {
-                    const label = document.createElement('label');
-                    label.className = 'checkbox-label';
-
-                    const input = document.createElement('input');
-                    input.type = 'checkbox';
-                    input.name = nameAttribute;
-                    input.value = customText;
-                    input.className = 'checkbox-input';
-                    input.checked = true;
-
-                    const span = document.createElement('span');
-                    span.textContent = customText;
-
-                    label.appendChild(input);
-                    label.appendChild(span);
-                    containerElement.appendChild(label);
-
-                    inputElement.value = '';
-                    generateAd();
-                }
-            }
-
-            /**
-             * Automatically adjusts the height of the textarea to fit its content.
-             */
-            function autoResizeTextarea() {
-                adOutput.style.height = 'auto';
-                adOutput.style.height = adOutput.scrollHeight + 'px';
-            }
-
-            /**
-             * Generates the car ad text based on form inputs.
-             */
-            function generateAd() {
-                // Get values from general information fields
-                const marque = marqueSelect.value === 'Autre' ? customMarqueInput.value : marqueSelect.value;
-                const modele = modeleSelect.value === 'Autre' ? customModeleInput.value : modeleSelect.value;
-                const miseEnCirculation = document.getElementById('miseEnCirculation').value;
-                const carburant = carburantSelect.value === 'Autre' ? customCarburantInput.value : carburantSelect.value;
-                const boiteVitesse = boiteVitesseSelect.value;
-                const kilometrage = document.getElementById('kilometrage').value;
-                const prix = document.getElementById('prix').value;
-                const equivalent = document.getElementById('equivalent').value;
-
-                // Get selected maintenance options
-                const selectedMaintenance = Array.from(document.querySelectorAll('input[name="maintenance"]:checked'))
-                                            .map(checkbox => `🔸 ${checkbox.value}`);
-
-                // Get selected kilometer tracking option
-                const kilometerTrackingOption = document.querySelector('input[name="kilometerTracking"]:checked').value;
-
-                // Get selected exterior/interior features
-                const selectedFeatures = Array.from(document.querySelectorAll('input[name="feature"]:checked'))
-                                            .map(checkbox => `✅ ${checkbox.value}`);
-
-                // Build the ad text string
-                let adText = `🟥🟦 CENTRAL CARS 🟥🟦\n\n`;
-                adText += `Marque : ${marque}\n`;
-                adText += `Modèle : ${modele}\n`;
-                adText += `Mise en circulation : ${miseEnCirculation}\n`;
-                adText += `Carburant : ${carburant}\n`;
-                adText += `Boîte de vitesse : ${boiteVitesse}\n`;
-                adText += `Kilométrage : ${kilometrage} KM REEL ET GARANTI\n\n`;
-
-                if (selectedMaintenance.length > 0) {
-                    adText += `🛠 ENTETIENS EFFECTUÉS DANS NOS ATELIERS : \n`;
-                    adText += selectedMaintenance.join('\n') + '\n\n';
-                } else {
-                    adText += `🛠 AUCUN ENTRETIEN RÉCENT SPÉCIFIÉ DANS NOS ATELIERS.\n\n`;
-                }
-
-                if (kilometerTrackingOption === 'suivi_complet') {
-                    adText += `📖 VENDU AVEC SON SUIVIS KILOMÉTRIQUE COMPLET 📖\n\n`;
-                } else {
-                    adText += `📖 CARNET D'ENTRETIENS INCLUS 📖\n\n`;
-                }
-
-                if (selectedFeatures.length > 0) {
-                    adText += `🔰 Extérieur/ Intérieur 🔰\n\n`;
-                    adText += selectedFeatures.join('\n') + '\n\n';
-                } else {
-                    adText += `🔰 AUCUN ÉQUIPEMENT SPÉCIFIÉ 🔰\n\n`;
-                }
-
-                adText += `Prix : ${prix} € TTC 💶\n`;
-  
-                if (prix) {
-                    adText += `Tarif hors carte grise.\n\n`;
-                } else {
-                    adText += `\n`;
-                }
-
-                adText += `🧑🏼‍🔧 Garantie moteur et boîte 6 mois (extension de garantie possible).\n\n`;
-
-                adText += `🇫🇷🇫🇷HABILITÉE SERVICE CARTE GRISE 🇫🇷🇫🇷\n\n`;
-                adText += `Habilité par le Agence Nationale des Titres Sécurisés.\n\n`;
-                adText += `Nous nous occupons de toutes les démarches administratives d'immatriculation !\n\n`;
-                adText += `Pour faciliter les démarches administratives pensez a vous munir des pièces suivantes lors de votre visite : \n`;
-                adText += `🔸Pièce d'identité en cours de validité.\n`;
-                adText += `🔸Permis de conduire en cours de validité.\n`;
-                adText += `🔸Justificatif de domicile moins de 3 mois (facture ou avis d'imposition).\n`;
-                adText += `🔸En cas d'hébergement : une attestation d'hébergement et la copie de la carte d'identité de l'hébergeur.\n\n`;
-
-                adText += `🟥🟦 CENTRAL CARS 🟥🟦\n\n`;
-                adText += `📫576 Rue Marcel Sembat \n`;
-                adText += `     59690 Vieux-condé\n\n`;
-
-                adText += `⏰HORAIRES D'OUVERTURE⏰\n`;
-                adText += `- Du lundi au vendredi : 09H00-12H00 / 14H00-17h30\n`;
-                adText += `- SAMEDI : 9h30 -12h 14h30 - 17H00\n\n`;
-
-                adText += `⚠ Merci de prendre rendez-vous par téléphone avant votre venue afin de mieux pouvoir vous accueillir et de vous assurez de la disponibilité du véhicule ⚠\n\n`;
-
-                if (equivalent) {
-                    adText += `Equivalent : ${equivalent}\n\n`;
-                }
-
-                adText += `*sous réserve d’erreurs lors de l’édition des annonce.`;
-
-                adOutput.value = adText;
-                autoResizeTextarea();
-            }
-
-            function copyAd() {
-                adOutput.select();
-                document.execCommand('copy');
-                copyMessage.classList.remove('hidden');
-                setTimeout(() => {
-                    copyMessage.classList.add('hidden');
-                }, 2000);
-            }
-
-            // Initial population of model dropdown and ad generation on load
-            populateModelDropdown();
-            generateAd();
+        // Event Listeners
+        marqueSelect.addEventListener('change', (event) => {
+            populateModeles(event.target.value);
         });
+
+        generateAdButton.addEventListener('click', generateAd);
+        copyAdButton.addEventListener('click', copyAd);
+
+        // Initial population on load
+        document.addEventListener('DOMContentLoaded', () => {
+            populateMarques();
+            populateCarburants();
+            populateBoiteVitesse();
+            populateCritAir();
+            generateOptionsCheckboxes();
+            generateMaintenancesCheckboxes();
+        });
+
+        function generateAd() {
+            const titre = document.getElementById('titre').value;
+            const marque = marqueSelect.value;
+            const modele = modeleSelect.value;
+            const anneeModele = document.getElementById('anneeModele').value;
+            const dateCirculation = document.getElementById('dateCirculation').value;
+            const kilometrage = document.getElementById('kilometrage').value;
+            const carburant = carburantSelect.value;
+            const boiteVitesse = boiteVitesseSelect.value;
+            const couleur = document.getElementById('couleur').value;
+            const nbPlaces = document.getElementById('nbPlaces').value;
+            const nbPortes = document.getElementById('nbPortes').value;
+            const puissanceFiscale = document.getElementById('puissanceFiscale').value;
+            const puissanceDIN = document.getElementById('puissanceDIN').value;
+            const critAir = critAirSelect.value;
+            const prix = document.getElementById('prix').value;
+            const description = document.getElementById('description').value;
+            const equivalent = document.getElementById('equivalent').value;
+
+            const selectedOptions = Array.from(document.querySelectorAll('input[name="vehicle-option"]:checked'))
+                                        .map(checkbox => checkbox.value);
+            const selectedMaintenances = Array.from(document.querySelectorAll('input[name="vehicle-maintenance"]:checked'))
+                                                .map(checkbox => checkbox.value);
+
+            let adText = `${titre}\n\n`;
+            adText += `✅ Marque: ${marque}\n`;
+            adText += `✅ Modèle: ${modele}\n`;
+            adText += `✅ Année Modèle: ${anneeModele}\n`;
+            adText += `✅ Date 1ère mise en circulation: ${dateCirculation}\n`;
+            adText += `✅ Kilométrage: ${kilometrage} km\n`;
+            adText += `✅ Carburant: ${carburant}\n`;
+            adText += `✅ Boîte de vitesse: ${boiteVitesse}\n`;
+            if (couleur) adText += `✅ Couleur: ${couleur}\n`;
+            if (nbPlaces) adText += `✅ Nombre de places: ${nbPlaces}\n`;
+            if (nbPortes) adText += `✅ Nombre de portes: ${nbPortes}\n`;
+            if (puissanceFiscale) adText += `✅ Puissance fiscale: ${puissanceFiscale} CV\n`;
+            if (puissanceDIN) adText += `✅ Puissance DIN: ${puissanceDIN} ch\n`;
+            if (critAir) adText += `✅ Crit'Air: ${critAir}\n`;
+            adText += `✅ Prix: ${prix} €\n\n`;
+
+            if (description) {
+                adText += `💬 Description: ${description}\n\n`;
+            }
+
+            if (selectedOptions.length > 0) {
+                adText += `⚙️ Équipements & Options:\n`;
+                selectedOptions.forEach(option => {
+                    adText += `   - ${option}\n`;
+                });
+                adText += `\n`;
+            }
+
+            if (selectedMaintenances.length > 0) {
+                adText += `🛠️ Entretiens effectués:\n`;
+                selectedMaintenances.forEach(maint => {
+                    adText += `   - ${maint}\n`;
+                });
+                adText += `\n`;
+            }
+
+            adText += `💰 Tarif hors carte grise.\n\n`;
+            adText += `🧑🏼‍🔧 Garantie moteur et boîte 6 mois (extension de garantie possible).\n\n`;
+            adText += `🇫🇷🇫🇷HABILITÉE SERVICE CARTE GRISE 🇫🇷🇫🇷\n`;
+            adText += `Habilité par le Agence Nationale des Titres Sécurisés.\n`;
+            adText += `Nous nous occupons de toutes les démarches administratives d'immatriculation !\n\n`;
+            adText += `📄 Pour faciliter les démarches administratives pensez a vous munir des pièces suivantes lors de votre visite : \n`;
+            adText += `🔸Pièce d'identité en cours de validité.\n`;
+            adText += `🔸Permis de conduire en cours de validité.\n`;
+            adText += `🔸Justificatif de domicile moins de 3 mois (facture ou avis d'imposition).\n`;
+            adText += `🔸En cas d'hébergement : une attestation d'hébergement et la copie de la carte d'identité de l'hébergeur.\n\n`;
+
+            adText += `🟥🟦 CENTRAL CARS 🟥🟦\n\n`;
+            adText += `📫576 Rue Marcel Sembat \n`;
+            adText += `     59690 Vieux-condé\n\n`;
+
+            adText += `⏰HORAIRES D'OUVERTURE⏰\n`;
+            adText += `- Du lundi au vendredi : 09H00-12H00 / 14H00-17h30\n`;
+            adText += `- SAMEDI : 9h30 -12h 14h30 - 17H00\n\n`;
+
+            adText += `⚠ Merci de prendre rendez-vous par téléphone avant votre venue afin de mieux pouvoir vous accueillir et de vous assurez de la disponibilité du véhicule ⚠\n\n`;
+
+            if (equivalent) {
+                adText += `Equivalent : ${equivalent}\n\n`;
+            }
+
+            adText += `*sous réserve d’erreurs lors de l’édition des annonce.`;
+
+            adOutput.value = adText;
+            autoResizeTextarea();
+        }
+
+        function copyAd() {
+            adOutput.select();
+            document.execCommand('copy');
+            copyMessage.classList.remove('hidden');
+            copyMessage.classList.add('show');
+            setTimeout(() => {
+                copyMessage.classList.remove('show');
+                copyMessage.classList.add('hidden');
+            }, 3000);
+        }
+
+        function autoResizeTextarea() {
+            adOutput.style.height = 'auto';
+            adOutput.style.height = adOutput.scrollHeight + 'px';
+        }
     </script>
 </body>
 </html>
