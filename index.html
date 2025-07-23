@@ -94,6 +94,7 @@
             <div class="hidden md:flex space-x-8 items-center relative">
                 <a href="#accueil" class="text-gray-600 hover:text-red-600 transition duration-300">Accueil</a>
                 <a href="#vehicules" class="text-gray-600 hover:text-red-600 transition duration-300">Nos Véhicules</a>
+                <a href="#services" class="text-gray-600 hover:text-red-600 transition duration-300">Nos Services</a>
                 <a href="#contact" class="text-gray-600 hover:text-red-600 transition duration-300">Contact</a>
                 
                 <!-- Bouton de connexion/inscription pour les grands écrans (non connecté) -->
@@ -146,6 +147,7 @@
         <div id="mobile-menu" class="hidden md:hidden bg-white">
             <a href="#accueil" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Accueil</a>
             <a href="#vehicules" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Nos Véhicules</a>
+            <a href="#services" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Nos Services</a>
             <a href="#contact" class="block py-2 px-4 text-sm text-gray-600 hover:bg-gray-100">Contact</a>
             <!-- Les options du menu mobile pourraient inclure la déconnexion ici aussi si le menu popover n'est pas utilisé -->
         </div>
@@ -180,14 +182,47 @@
                 </div>
             </section>
 
+            <!-- Section Nos Services -->
+            <section id="services" class="py-20 bg-gray-100">
+                <div class="container mx-auto px-6">
+                    <h2 class="text-3xl font-bold text-center mb-12">Nos Services</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <div class="bg-white p-8 rounded-lg shadow-lg">
+                            <h3 class="text-2xl font-bold mb-4 text-red-600"><i class="fas fa-wrench mr-3"></i>Entretiens et Mécanique</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700 text-lg">
+                                <li>Entretiens toutes marques (vidange, distribution, freinage, allumage, etc.)</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-lg shadow-lg">
+                            <h3 class="text-2xl font-bold mb-4 text-red-600"><i class="fas fa-cogs mr-3"></i>Géométrie et Équilibrage</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700 text-lg">
+                                <li>Géométrie/Équilibrage avec montage des pneus</li>
+                            </ul>
+                        </div>
+                        <div class="bg-white p-8 rounded-lg shadow-lg">
+                            <h3 class="text-2xl font-bold mb-4 text-red-600"><i class="fas fa-key mr-3"></i>Reproduction de Clés</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700 text-lg">
+                                <li>Reproduction de clé toutes marques (Taillage et reprogrammation)</li>
+                            </ul>
+                        </div>
+                        <div class="md:col-span-full bg-white p-8 rounded-lg shadow-lg">
+                            <h3 class="text-2xl font-bold mb-4 text-red-600"><i class="fas fa-file-alt mr-3"></i>Service Administratif (Carte Grise)</h3>
+                            <ul class="list-disc list-inside space-y-2 text-gray-700 text-lg">
+                                <li>Service administratif (carte grise, déclaration de cession, véhicule importé, etc...) habilité par le SIV.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- Section Contact -->
-            <section id="contact" class="py-20 bg-gray-100">
+            <section id="contact" class="py-20 bg-white">
                 <div class="container mx-auto px-6">
                     <h2 class="text-3xl font-bold text-center mb-12">Contactez-nous</h2>
                     <div class="flex flex-wrap -mx-4">
                         <!-- Formulaire de contact -->
                         <div class="w-full lg:w-1/2 px-4 mb-8 lg:mb-0">
-                            <div class="bg-white p-8 rounded-lg shadow-lg">
+                            <div class="bg-gray-100 p-8 rounded-lg shadow-lg">
                                 <h3 class="text-2xl font-bold mb-6">Envoyez-nous un message</h3>
                                 <form>
                                     <div class="mb-4">
@@ -208,7 +243,7 @@
                         </div>
                         <!-- Informations de contact -->
                         <div class="w-full lg:w-1/2 px-4">
-                            <div class="bg-white p-8 rounded-lg shadow-lg h-full">
+                            <div class="bg-gray-100 p-8 rounded-lg shadow-lg h-full">
                                 <h3 class="text-2xl font-bold mb-6">Nos Coordonnées</h3>
                                 <div class="space-y-6 text-lg">
                                     <p class="flex items-start">
@@ -218,7 +253,7 @@
                                     <p class="flex items-center">
                                         <i class="fas fa-phone text-red-600 mr-4 w-6 text-center"></i>
                                         <a href="tel:+33123456789" class="hover:text-red-600">01 23 45 67 89</a>
-                                    </p>
+                                     </p>
                                     <p class="flex items-center">
                                         <i class="fas fa-envelope text-red-600 mr-4 w-6 text-center"></i>
                                         <a href="mailto:contact@centralcars.fr" class="hover:text-red-600">contact@centralcars.fr</a>
@@ -411,6 +446,23 @@
         </div>
     </div>
 
+    <!-- Modale de contact pour le véhicule (nouveau) -->
+    <div id="vehicle-contact-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-[51] hidden">
+        <div id="vehicle-contact-modal-content" class="bg-white rounded-lg shadow-2xl w-11/12 md:w-1/2 lg:w-1/3 p-8 relative transform transition-all duration-300 scale-95 opacity-0">
+            <button id="close-vehicle-contact-modal-button" class="absolute top-4 right-4 text-gray-600 hover:text-gray-900 text-2xl">&times;</button>
+            <h2 class="text-2xl font-bold text-center mb-6">Ce véhicule vous intéresse ?</h2>
+            <p class="text-center text-gray-700 mb-6">Contactez-nous pour plus d'informations ou pour prendre rendez-vous.</p>
+            <div class="flex flex-col space-y-4">
+                <a id="contact-phone-link" href="tel:+33123456789" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-lg text-center hover:bg-blue-700 transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-phone mr-3"></i> Appeler (01 23 45 67 89)
+                </a>
+                <a id="contact-email-link" href="mailto:contact@centralcars.fr" class="bg-green-600 text-white font-bold py-3 px-6 rounded-lg text-center hover:bg-green-700 transition duration-300 flex items-center justify-center">
+                    <i class="fas fa-envelope mr-3"></i> Envoyer un e-mail
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Modale de connexion/inscription -->
     <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 hidden">
         <div class="bg-white rounded-lg shadow-2xl w-11/12 md:w-1/2 lg:w-1/3 p-8 relative transform transition-all duration-300 scale-95 opacity-0" id="auth-modal-content">
@@ -499,7 +551,7 @@
 
                     // Seuls les administrateurs peuvent créer, mettre à jour et supprimer des véhicules
                     // Pour vérifier le rôle, nous lisons le document 'user_data' de l'utilisateur connecté.
-                    allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/artifacts/$(appId)/users/$(request.auth.uid)/profile/user_data).data.role == 'admin';
+                    allow create, update, delete: if request.auth != null && get(/databases/$(database)/documents/artifacts/$(app.id)/users/$(request.auth.uid)/profile/user_data).data.role == 'admin';
                 }
             }
         }
@@ -564,7 +616,6 @@
                     // If 'vendu' is false, it means it's not sold, so it should come before sold vehicles.
                     // We want false (0) to come before true (1). So, a.vendu - b.vendu will work.
                     // If a.vendu is false (0) and b.vendu is true (1), 0 - 1 = -1 (a comes before b)
-                    // If a.vendu is true (1) and b.vendu is false (0), 1 - 0 = 1 (a comes after b)
                     // If both are same, 0 - 0 = 0 or 1 - 1 = 0 (order doesn't change)
                     return (a.vendu || false) - (b.vendu || false);
                 });
@@ -606,6 +657,8 @@
         // --- GESTION DE LA MODALE DE DÉTAILS DU VÉHICULE ---
         const vehicleModal = document.getElementById('vehicle-modal');
         const vehicleModalContent = document.getElementById('modal-content');
+        const contactPhone = '0123456789'; // Définir le numéro de téléphone ici
+        const contactEmail = 'contact@centralcars.fr'; // Définir l'adresse email ici
 
         function openVehicleModal(vehicle) {
             let currentImageIndex = 0;
@@ -682,7 +735,7 @@
                     </div>
 
                      <div class="mt-8 text-center">
-                        <a href="#contact" id="contact-us-button" class="bg-red-600 text-white font-bold py-3 px-8 rounded-full hover:bg-red-700 transition duration-300">Ce véhicule m'intéresse</a>
+                        <button id="contact-us-button" class="bg-red-600 text-white font-bold py-3 px-8 rounded-full hover:bg-red-700 transition duration-300">Ce véhicule m'intéresse</button>
                     </div>
                 </div>
             `;
@@ -716,7 +769,12 @@
 
             // --- Fermeture de la modale ---
             document.getElementById('close-vehicle-modal-button').addEventListener('click', closeVehicleModal);
-            document.getElementById('contact-us-button').addEventListener('click', closeVehicleModal);
+            
+            // Ouvrir la modale de contact lorsque le bouton "Ce véhicule m'intéresse" est cliqué
+            document.getElementById('contact-us-button').addEventListener('click', () => {
+                closeVehicleModal(); // Ferme la modale de détails du véhicule
+                openVehicleContactModal(); // Ouvre la nouvelle modale de contact
+            });
         }
 
         function closeVehicleModal() {
@@ -773,6 +831,47 @@
 
         // Démarrer l'écoute des données
         listenForVehicles();
+
+        // --- GESTION DE LA MODALE DE CONTACT DU VÉHICULE (NOUVEAU) ---
+        const vehicleContactModal = document.getElementById('vehicle-contact-modal');
+        const vehicleContactModalContent = document.getElementById('vehicle-contact-modal-content');
+        const closeVehicleContactModalButton = document.getElementById('close-vehicle-contact-modal-button');
+        const contactPhoneLink = document.getElementById('contact-phone-link');
+        const contactEmailLink = document.getElementById('contact-email-link');
+
+        function openVehicleContactModal() {
+            // Mettre à jour les liens avec les informations de contact définies
+            contactPhoneLink.href = `tel:${contactPhone}`;
+            contactPhoneLink.textContent = `Appeler (${contactPhone.replace(/(\d{2})(?=\d)/g, '$1 ').trim()})`; // Formatage du numéro
+            contactEmailLink.href = `mailto:${contactEmail}`;
+
+            document.body.classList.add('modal-open');
+            vehicleContactModal.classList.remove('hidden');
+            setTimeout(() => {
+                vehicleContactModalContent.classList.remove('scale-95', 'opacity-0');
+            }, 10);
+        }
+
+        function closeVehicleContactModal() {
+            vehicleContactModalContent.classList.add('scale-95', 'opacity-0');
+            setTimeout(() => {
+                vehicleContactModal.classList.add('hidden');
+                document.body.classList.remove('modal-open');
+            }, 300);
+        }
+
+        closeVehicleContactModalButton.addEventListener('click', closeVehicleContactModal);
+        vehicleContactModal.addEventListener('click', (event) => {
+            if (event.target === vehicleContactModal) {
+                closeVehicleContactModal();
+            }
+        });
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !vehicleContactModal.classList.contains('hidden')) {
+                closeVehicleContactModal();
+            }
+        });
+
 
         // --- GESTION DE LA MODALE DE CONNEXION/INSCRIPTION ---
         const authModal = document.getElementById('auth-modal');
@@ -1528,6 +1627,7 @@
             // Fermer toutes les modales ouvertes
             closeVehicleModal();
             closeAuthModal();
+            closeVehicleContactModal(); // Fermer la modale de contact si ouverte
             // Rafraîchir la liste des véhicules dans le panneau d'administration
             listenForAdminVehicles();
             // Réinitialiser le formulaire quand on ouvre le panneau d'admin
