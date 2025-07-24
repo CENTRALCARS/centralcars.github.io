@@ -142,10 +142,6 @@
                     </select>
                 </div>
                 <div>
-                    <label for="prix" class="block text-gray-700 font-semibold mb-2">Prix (€)</label>
-                    <input type="number" id="prix" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" step="0.01" placeholder="Ex: 12500">
-                </div>
-                <div>
                     <label for="description" class="block text-gray-700 font-semibold mb-2">Description / Commentaires</label>
                     <textarea id="description" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 resize-y" rows="4" placeholder="Ajoutez des détails supplémentaires sur le véhicule..."></textarea>
                 </div>
@@ -154,8 +150,19 @@
                     <input type="text" id="equivalent" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Clio, C3, Polo">
                 </div>
 
+                <!-- Prix moved up -->
+                <div class="mt-6">
+                    <label for="prix" class="block text-gray-700 font-semibold mb-2">Prix (€)</label>
+                    <input type="number" id="prix" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" step="0.01" placeholder="Ex: 12500">
+                </div>
+
                 <div class="mt-6">
                     <h3 class="text-xl font-bold text-gray-800 mb-3">Options / Équipements</h3>
+                    <!-- Manual Option Input -->
+                    <div class="flex gap-2 mb-4">
+                        <input type="text" id="manualOptionInput" class="flex-grow px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ajouter une option manuellement">
+                        <button id="addManualOptionButton" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition duration-300">Ajouter</button>
+                    </div>
                     <div id="optionsCheckboxes" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
                         <!-- Checkboxes will be generated here -->
                     </div>
@@ -303,6 +310,8 @@
         const adOutput = document.getElementById('adOutput');
         const copyAdButton = document.getElementById('copyAdButton');
         const copyMessage = document.getElementById('copyMessage');
+        const manualOptionInput = document.getElementById('manualOptionInput'); // New
+        const addManualOptionButton = document.getElementById('addManualOptionButton'); // New
 
         // Populate dropdowns and checkboxes
         function populateMarques() {
@@ -374,6 +383,28 @@
             }
         }
 
+        function addManualOption() {
+            const newOptionText = manualOptionInput.value.trim();
+            if (newOptionText) {
+                // Add to a new "Manuel" category or an existing "Autres"
+                const category = "Autres"; // Or create a new category like "Manuel"
+                if (!vehicleOptionsData[category]) {
+                    vehicleOptionsData[category] = [];
+                }
+                // Check if option already exists to avoid duplicates
+                if (!vehicleOptionsData[category].includes(newOptionText)) {
+                    vehicleOptionsData[category].push(newOptionText);
+                    generateOptionsCheckboxes(); // Regenerate all checkboxes to include the new option
+                    // Find and check the newly added option
+                    const newCheckbox = document.getElementById(`option-${newOptionText.replace(/\s+/g, '-').toLowerCase()}`);
+                    if (newCheckbox) {
+                        newCheckbox.checked = true;
+                    }
+                }
+                manualOptionInput.value = ''; // Clear input
+            }
+        }
+
         function generateMaintenancesCheckboxes() {
             maintenancesCheckboxesDiv.innerHTML = '';
             vehicleMaintenanceData.forEach(maintText => {
@@ -395,6 +426,13 @@
 
         generateAdButton.addEventListener('click', generateAd);
         copyAdButton.addEventListener('click', copyAd);
+        addManualOptionButton.addEventListener('click', addManualOption); // New event listener for manual option
+        manualOptionInput.addEventListener('keypress', (event) => { // Allow adding by pressing Enter
+            if (event.key === 'Enter') {
+                event.preventDefault(); // Prevent form submission
+                addManualOption();
+            }
+        });
 
         // Initial population on load
         document.addEventListener('DOMContentLoaded', () => {
@@ -444,8 +482,8 @@
             if (puissanceFiscale) adText += `✅ Puissance fiscale: ${puissanceFiscale} CV\n`;
             if (puissanceDIN) adText += `✅ Puissance DIN: ${puissanceDIN} ch\n`;
             if (critAir) adText += `✅ Crit'Air: ${critAir}\n`;
-            adText += `✅ Prix: ${prix} €\n\n`;
-
+            
+           
             if (description) {
                 adText += `💬 Description: ${description}\n\n`;
             }
@@ -466,6 +504,8 @@
                 adText += `\n`;
             }
 
+            // Price line with money emoji
+            adText += `💵 Prix: ${prix} €\n\n`;
             adText += `💰 Tarif hors carte grise.\n\n`;
             adText += `🧑🏼‍🔧 Garantie moteur et boîte 6 mois (extension de garantie possible).\n\n`;
             adText += `🇫🇷🇫🇷HABILITÉE SERVICE CARTE GRISE 🇫🇷🇫🇷\n`;
