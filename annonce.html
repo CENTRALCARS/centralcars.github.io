@@ -92,10 +92,6 @@
                     </select>
                 </div>
                 <div>
-                    <label for="anneeModele" class="block text-gray-700 font-semibold mb-2">Année du modèle</label>
-                    <input type="number" id="anneeModele" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 2018">
-                </div>
-                <div>
                     <label for="dateCirculation" class="block text-gray-700 font-semibold mb-2">Date de première mise en circulation (MM/AAAA)</label>
                     <input type="text" id="dateCirculation" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 03/2018" pattern="(0[1-9]|1[0-2])\/(19|20)\d{2}">
                 </div>
@@ -115,26 +111,7 @@
                         <option value="">Sélectionner un type de boîte</option>
                     </select>
                 </div>
-                <div>
-                    <label for="couleur" class="block text-gray-700 font-semibold mb-2">Couleur</label>
-                    <input type="text" id="couleur" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: Gris Artense">
-                </div>
-                <div>
-                    <label for="nbPlaces" class="block text-gray-700 font-semibold mb-2">Nombre de places</label>
-                    <input type="number" id="nbPlaces" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 5">
-                </div>
-                <div>
-                    <label for="nbPortes" class="block text-gray-700 font-semibold mb-2">Nombre de portes</label>
-                    <input type="number" id="nbPortes" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 5">
-                </div>
-                <div>
-                    <label for="puissanceFiscale" class="block text-gray-700 font-semibold mb-2">Puissance fiscale (CV)</label>
-                    <input type="number" id="puissanceFiscale" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 4">
-                </div>
-                <div>
-                    <label for="puissanceDIN" class="block text-gray-700 font-semibold mb-2">Puissance DIN (ch)</label>
-                    <input type="number" id="puissanceDIN" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 82">
-                </div>
+        
                 <div>
                     <label for="critAir" class="block text-gray-700 font-semibold mb-2">Crit'Air</label>
                     <select id="critAir" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
@@ -210,7 +187,7 @@
         // Data for dropdowns and checkboxes
         const carData = {
             "Renault": ["Clio", "Mégane", "Captur", "Kadjar", "Austral", "Arkana", "Twingo", "Zoe", "Scénic", "Talisman", "Espace", "Koleos", "Kangoo"],
-            "Peugeot": ["208", "308", "2008", "3008", "5008", "508", "108", "Rifter", "Partner", "Traveller", "Expert"],
+            "Peugeot": ["206", "207", "208", "306", "307", "308", "2008", "3008", "5008", "508","107", "108", "Rifter", "Partner", "Traveller", "Expert"],
             "Citroën": ["C3", "C4", "C5 Aircross", "C3 Aircross", "Berlingo", "C1", "C4 Cactus", "C5 X", "Jumpy", "Spacetourer"],
             "Volkswagen": ["Golf", "Polo", "Tiguan", "Passat", "T-Roc", "Arteon", "Up!", "ID.3", "ID.4", "ID.5", "ID.Buzz", "Touran", "Touareg", "Caddy"],
             "Audi": ["A1", "A3", "A4", "A5", "A6", "A7", "A8", "Q2", "Q3", "Q4 e-tron", "Q5", "Q7", "Q8", "e-tron", "TT", "R8"],
@@ -275,7 +252,7 @@
                 "Régulateur de vitesse", "Limiteur de vitesse", "Aide au stationnement", "Sièges réglables en hauteur"
             ],
             "Autres": [
-                "Carnet d'entretien", "Double des clés", "Non-fumeur", "Garantie constructeur",
+                "Carnet d'entretien","Suivis kilométrique inclus", "Double des clés", "Non-fumeur", "Garantie constructeur",
                 "Roue de secours", "Kit de réparation pneus", "Pack sport", "Suspension sport"
             ]
         };
@@ -333,24 +310,6 @@
                     modeleSelect.appendChild(option);
                 });
             }
-        }
-
-        function populateCarburants() {
-            carburants.forEach(carburant => {
-                const option = document.createElement('option');
-                option.value = carburant;
-                option.textContent = carburant;
-                carburantSelect.appendChild(option);
-            });
-        }
-
-        function populateBoiteVitesse() {
-            boiteVitesse.forEach(boite => {
-                const option = document.createElement('option');
-                option.value = boite;
-                option.textContent = boite;
-                boiteVitesseSelect.appendChild(option);
-            });
         }
 
         function populateCritAir() {
@@ -448,16 +407,10 @@
             const titre = document.getElementById('titre').value;
             const marque = marqueSelect.value;
             const modele = modeleSelect.value;
-            const anneeModele = document.getElementById('anneeModele').value;
             const dateCirculation = document.getElementById('dateCirculation').value;
             const kilometrage = document.getElementById('kilometrage').value;
             const carburant = carburantSelect.value;
             const boiteVitesse = boiteVitesseSelect.value;
-            const couleur = document.getElementById('couleur').value;
-            const nbPlaces = document.getElementById('nbPlaces').value;
-            const nbPortes = document.getElementById('nbPortes').value;
-            const puissanceFiscale = document.getElementById('puissanceFiscale').value;
-            const puissanceDIN = document.getElementById('puissanceDIN').value;
             const critAir = critAirSelect.value;
             const prix = document.getElementById('prix').value;
             const description = document.getElementById('description').value;
@@ -469,19 +422,15 @@
                                                 .map(checkbox => checkbox.value);
 
             let adText = `${titre}\n\n`;
-            adText += `✅ Marque: ${marque}\n`;
-            adText += `✅ Modèle: ${modele}\n`;
-            adText += `✅ Année Modèle: ${anneeModele}\n`;
-            adText += `✅ Date 1ère mise en circulation: ${dateCirculation}\n`;
-            adText += `✅ Kilométrage: ${kilometrage} km\n`;
-            adText += `✅ Carburant: ${carburant}\n`;
-            adText += `✅ Boîte de vitesse: ${boiteVitesse}\n`;
-            if (couleur) adText += `✅ Couleur: ${couleur}\n`;
-            if (nbPlaces) adText += `✅ Nombre de places: ${nbPlaces}\n`;
-            if (nbPortes) adText += `✅ Nombre de portes: ${nbPortes}\n`;
-            if (puissanceFiscale) adText += `✅ Puissance fiscale: ${puissanceFiscale} CV\n`;
-            if (puissanceDIN) adText += `✅ Puissance DIN: ${puissanceDIN} ch\n`;
-            if (critAir) adText += `✅ Crit'Air: ${critAir}\n`;
+            
+            adText = `🟥🟦 CENTRAL CARS 🟥🟦`;
+            adText += `🚘 Marque: ${marque}\n`;
+            adText += `🚙 Modèle: ${modele}\n`;
+            adText += `📅 Date 1ère mise en circulation: ${dateCirculation}\n`;
+            adText += `🛣 Kilométrage: ${kilometrage} km\n`;
+            adText += `⛽ Carburant: ${carburant}\n`;
+            adText += `🕹 Boîte de vitesse: ${boiteVitesse}\n`;
+            if (critAir) adText += `🍃Crit'Air: ${critAir}\n`;
             
            
             if (description) {
@@ -491,7 +440,7 @@
             if (selectedOptions.length > 0) {
                 adText += `⚙️ Équipements & Options:\n`;
                 selectedOptions.forEach(option => {
-                    adText += `   - ${option}\n`;
+                    adText += `✅ ${option}\n`;
                 });
                 adText += `\n`;
             }
