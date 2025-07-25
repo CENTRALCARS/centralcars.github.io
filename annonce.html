@@ -312,6 +312,28 @@
             }
         }
 
+        // Function to populate carburant dropdown
+        function populateCarburants() {
+            carburantSelect.innerHTML = '<option value="">Sélectionner un type de carburant</option>';
+            carburants.forEach(carburant => {
+                const option = document.createElement('option');
+                option.value = carburant;
+                option.textContent = carburant;
+                carburantSelect.appendChild(option);
+            });
+        }
+
+        // Function to populate boite de vitesse dropdown
+        function populateBoiteVitesse() {
+            boiteVitesseSelect.innerHTML = '<option value="">Sélectionner un type de boîte</option>';
+            boiteVitesse.forEach(boite => {
+                const option = document.createElement('option');
+                option.value = boite;
+                option.textContent = boite;
+                boiteVitesseSelect.appendChild(option);
+            });
+        }
+
         function populateCritAir() {
             critAirOptions.forEach(critair => {
                 const option = document.createElement('option');
@@ -396,8 +418,8 @@
         // Initial population on load
         document.addEventListener('DOMContentLoaded', () => {
             populateMarques();
-            populateCarburants();
-            populateBoiteVitesse();
+            populateCarburants(); // Call to populate carburant dropdown
+            populateBoiteVitesse(); // Call to populate boite de vitesse dropdown
             populateCritAir();
             generateOptionsCheckboxes();
             generateMaintenancesCheckboxes();
