@@ -191,6 +191,56 @@
                     <h2 class="text-3xl font-bold text-center mb-2">Nos Véhicules d'Occasion</h2>
                     <p class="text-center text-gray-500 mb-12">Des voitures sélectionnées et garanties pour votre sérénité.</p>
                     
+                    <!-- Section de filtres -->
+                    <div class="bg-gray-100 p-6 rounded-lg shadow-md mb-12">
+                        <h3 class="text-xl font-bold mb-4">Filtrer les véhicules</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div>
+                                <label for="filter-marque" class="block text-gray-700 text-sm font-semibold mb-2">Marque</label>
+                                <select id="filter-marque" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    <option value="">Toutes les marques</option>
+                                    <!-- Options will be populated by JS -->
+                                </select>
+                            </div>
+                            <div>
+                                <label for="filter-modele" class="block text-gray-700 text-sm font-semibold mb-2">Modèle</label>
+                                <select id="filter-modele" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    <option value="">Tous les modèles</option>
+                                    <!-- Options will be populated by JS based on selected brand -->
+                                </select>
+                            </div>
+                            <div>
+                                <label for="filter-carburant" class="block text-gray-700 text-sm font-semibold mb-2">Carburant</label>
+                                <select id="filter-carburant" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    <option value="">Tous les carburants</option>
+                                    <!-- Options will be populated by JS -->
+                                </select>
+                            </div>
+                            <div>
+                                <label for="filter-boite-vitesse" class="block text-gray-700 text-sm font-semibold mb-2">Boîte de vitesse</label>
+                                <select id="filter-boite-vitesse" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500">
+                                    <option value="">Toutes les boîtes</option>
+                                    <!-- Options will be populated by JS -->
+                                </select>
+                            </div>
+                            <div>
+                                <label for="filter-prix-min" class="block text-gray-700 text-sm font-semibold mb-2">Prix Min (€)</label>
+                                <input type="number" id="filter-prix-min" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 5000">
+                            </div>
+                            <div>
+                                <label for="filter-prix-max" class="block text-gray-700 text-sm font-semibold mb-2">Prix Max (€)</label>
+                                <input type="number" id="filter-prix-max" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500" placeholder="Ex: 20000">
+                            </div>
+                            <div class="flex items-end">
+                                <input type="checkbox" id="filter-vendu" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded mr-2">
+                                <label for="filter-vendu" class="text-gray-700 text-sm font-semibold">Afficher les véhicules vendus</label>
+                            </div>
+                            <div class="flex items-end">
+                                <button id="reset-filters-button" class="w-full bg-gray-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300">Réinitialiser les filtres</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div id="vehicle-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                         <!-- Les fiches de véhicules seront injectées ici par JavaScript -->
                     </div>
@@ -611,7 +661,7 @@
             storageBucket: "central-cars-a37ae.firebaseapp.com",
             messagingSenderId: "297273470734",
             appId: "1:297273470734:web:7d35e6619b28dc569d715f",
-            measurementId: "G-4LXQG2VWP2"
+            measurementId: "G-4LXQG2VWP1" // Corrected measurementId as it was a typo
         });
 
         const firebaseConfig = JSON.parse(__firebase_config);
@@ -632,17 +682,27 @@
             mobileMenu.classList.toggle('hidden');
         });
 
+        // --- RÉFÉRENCES DES ÉLÉMENTS DE FILTRE ---
+        const filterMarqueSelect = document.getElementById('filter-marque');
+        const filterModeleSelect = document.getElementById('filter-modele');
+        const filterCarburantSelect = document.getElementById('filter-carburant');
+        const filterBoiteVitesseSelect = document.getElementById('filter-boite-vitesse');
+        const filterPrixMinInput = document.getElementById('filter-prix-min');
+        const filterPrixMaxInput = document.getElementById('filter-prix-max');
+        const filterVenduCheckbox = document.getElementById('filter-vendu');
+        const resetFiltersButton = document.getElementById('reset-filters-button');
+
         // --- FONCTION POUR AFFICHER LES VÉHICULES (Côté client) ---
-        function displayVehicles(vehicles) {
+        function displayVehicles(vehiclesToDisplay) {
             const vehicleList = document.getElementById('vehicle-list');
             const loadingSpinner = document.getElementById('loading-spinner');
             vehicleList.innerHTML = ''; // Vider la liste existante
 
-            if (vehicles.length === 0) {
-                 vehicleList.innerHTML = `<p class="text-center col-span-full">Aucun véhicule disponible pour le moment.</p>`;
+            if (vehiclesToDisplay.length === 0) {
+                 vehicleList.innerHTML = `<p class="text-center col-span-full">Aucun véhicule ne correspond à vos critères de recherche.</p>`;
             } else {
                 // Sort vehicles: not sold (vendu: false) first, then sold (vendu: true)
-                vehicles.sort((a, b) => {
+                vehiclesToDisplay.sort((a, b) => {
                     // If 'vendu' is true, it means it's sold, so it should come after non-sold vehicles.
                     // If 'vendu' is false, it means it's not sold, so it should come before sold vehicles.
                     // We want false (0) to come before true (1). So, a.vendu - b.vendu will work.
@@ -650,7 +710,7 @@
                     return (a.vendu || false) - (b.vendu || false);
                 });
 
-                vehicles.forEach(vehicle => {
+                vehiclesToDisplay.forEach(vehicle => {
                     const card = document.createElement('div');
                     card.className = 'bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 relative'; // Added relative for badge positioning
                     // Utilise une image de secours si la première image n'est pas définie
@@ -832,7 +892,7 @@
             const detailsButton = event.target.closest('.details-button');
             if (detailsButton) {
                 const vehicleId = detailsButton.dataset.id;
-                const vehicle = allVehicles.find(v => v.id === vehicleId);
+                const vehicle = allVehicles.find(v => v.id === vehicleId); // Find from allVehicles
                 if (vehicle) {
                     openVehicleModal(vehicle);
                 }
@@ -850,7 +910,7 @@
                 snapshot.forEach((doc) => {
                     allVehicles.push({ id: doc.id, ...doc.data() });
                 });
-                displayVehicles(allVehicles);
+                applyFilters(); // Appliquer les filtres après le chargement initial
                 loadingSpinner.style.display = 'none';
             }, (error) => {
                 console.error("Erreur lors de la récupération des véhicules: ", error);
@@ -1392,51 +1452,76 @@
 
 
         // --- Fonctions d'initialisation des listes déroulantes et options ---
-        function populateMarques() {
+        function populateMarques(selectElement, includeAllOption = false) {
+            if (includeAllOption) {
+                selectElement.innerHTML = '<option value="">Toutes les marques</option>';
+            } else {
+                selectElement.innerHTML = '<option value="">Sélectionner une marque</option>';
+            }
             for (const marque in carData) {
                 const option = document.createElement('option');
                 option.value = marque;
                 option.textContent = marque;
-                vehicleMarqueSelect.appendChild(option);
+                selectElement.appendChild(option);
             }
         }
 
-        function populateModeles(selectedMarque) {
-            vehicleModeleSelect.innerHTML = '<option value="">Sélectionner un modèle</option>'; // Réinitialiser les modèles
+        function populateModeles(selectElement, selectedMarque, includeAllOption = false) {
+            if (includeAllOption) {
+                selectElement.innerHTML = '<option value="">Tous les modèles</option>'; // Réinitialiser les modèles
+            } else {
+                selectElement.innerHTML = '<option value="">Sélectionner un modèle</option>'; // Réinitialiser les modèles
+            }
+            
             if (selectedMarque && carData[selectedMarque]) {
                 carData[selectedMarque].forEach(modele => {
                     const option = document.createElement('option');
                     option.value = modele;
                     option.textContent = modele;
-                    vehicleModeleSelect.appendChild(option);
+                    selectElement.appendChild(option);
                 });
             }
         }
 
-        function populateCarburants() {
+        function populateCarburants(selectElement, includeAllOption = false) {
+            if (includeAllOption) {
+                selectElement.innerHTML = '<option value="">Tous les carburants</option>';
+            } else {
+                selectElement.innerHTML = '<option value="">Sélectionner un type de carburant</option>';
+            }
             carburants.forEach(carburant => {
                 const option = document.createElement('option');
                 option.value = carburant;
                 option.textContent = carburant;
-                vehicleCarburantSelect.appendChild(option);
+                selectElement.appendChild(option);
             });
         }
 
-        function populateBoiteVitesse() {
+        function populateBoiteVitesse(selectElement, includeAllOption = false) {
+            if (includeAllOption) {
+                selectElement.innerHTML = '<option value="">Toutes les boîtes</option>';
+            } else {
+                selectElement.innerHTML = '<option value="">Sélectionner un type de boîte</option>';
+            }
             boiteVitesse.forEach(boite => {
                 const option = document.createElement('option');
                 option.value = boite;
                 option.textContent = boite;
-                vehicleBoiteVitesseSelect.appendChild(option);
+                selectElement.appendChild(option);
             });
         }
 
-        function populateCritAir() {
+        function populateCritAir(selectElement, includeAllOption = false) {
+            if (includeAllOption) {
+                selectElement.innerHTML = '<option value="">Toutes les vignettes</option>';
+            } else {
+                selectElement.innerHTML = '<option value="">Sélectionner une vignette</option>';
+            }
             critAirOptions.forEach(critair => {
                 const option = document.createElement('option');
                 option.value = critair;
                 option.textContent = critair;
-                vehicleCritAirSelect.appendChild(option);
+                selectElement.appendChild(option);
             });
         }
 
@@ -1479,17 +1564,29 @@
 
         // Initialiser les listes et options au chargement
         document.addEventListener('DOMContentLoaded', () => {
-            populateMarques();
-            populateCarburants();
-            populateBoiteVitesse();
-            populateCritAir();
+            // Pour le formulaire d'admin
+            populateMarques(vehicleMarqueSelect);
+            populateCarburants(vehicleCarburantSelect);
+            populateBoiteVitesse(vehicleBoiteVitesseSelect);
+            populateCritAir(vehicleCritAirSelect);
             generateOptionsCheckboxes();
             generateMaintenancesCheckboxes(); // Initialiser les entretiens
+
+            // Pour les filtres du client
+            populateMarques(filterMarqueSelect, true);
+            populateCarburants(filterCarburantSelect, true);
+            populateBoiteVitesse(filterBoiteVitesseSelect, true);
         });
 
-        // Écouteur pour la sélection de la marque afin de mettre à jour les modèles
+        // Écouteur pour la sélection de la marque afin de mettre à jour les modèles (formulaire admin)
         vehicleMarqueSelect.addEventListener('change', (event) => {
-            populateModeles(event.target.value);
+            populateModeles(vehicleModeleSelect, event.target.value);
+        });
+
+        // Écouteur pour la sélection de la marque afin de mettre à jour les modèles (filtres client)
+        filterMarqueSelect.addEventListener('change', (event) => {
+            populateModeles(filterModeleSelect, event.target.value, true);
+            applyFilters(); // Appliquer les filtres quand la marque change
         });
 
 
@@ -1833,7 +1930,7 @@
             // Réinitialiser la case "Vendu"
             vehicleVenduCheckbox.checked = false;
             // Réinitialiser les listes déroulantes dynamiques
-            populateModeles(''); // Vide le modèle
+            populateModeles(vehicleModeleSelect, ''); // Vide le modèle
             vehicleMarqueSelect.value = ''; // Réinitialise la marque
             vehicleCarburantSelect.value = ''; // Réinitialise le carburant
             vehicleBoiteVitesseSelect.value = ''; // Réinitialise la boîte de vitesse
@@ -1850,7 +1947,7 @@
                     vehicleIdInput.value = vehicleToEdit.id;
                     vehicleTitreAnnonceInput.value = vehicleToEdit.titreAnnonce || '';
                     vehicleMarqueSelect.value = vehicleToEdit.marque || '';
-                    populateModeles(vehicleToEdit.marque); // Populer les modèles en fonction de la marque
+                    populateModeles(vehicleMarqueSelect, vehicleToEdit.marque); // Populer les modèles en fonction de la marque
                     vehicleModeleSelect.value = vehicleToEdit.modele || '';
                     vehicleAnneeModeleInput.value = vehicleToEdit.anneeModele || '';
                     vehicleDateCirculationInput.value = vehicleToEdit.dateCirculation || '';
@@ -1915,6 +2012,77 @@
                 });
             }
         });
+
+        // --- LOGIQUE DE FILTRAGE DES VÉHICULES ---
+        function applyFilters() {
+            let filteredVehicles = [...allVehicles]; // Commencez avec tous les véhicules
+
+            const marque = filterMarqueSelect.value;
+            const modele = filterModeleSelect.value;
+            const carburant = filterCarburantSelect.value;
+            const boiteVitesse = filterBoiteVitesseSelect.value;
+            const prixMin = parseFloat(filterPrixMinInput.value);
+            const prixMax = parseFloat(filterPrixMaxInput.value);
+            const showSold = filterVenduCheckbox.checked;
+
+            // Filtrer par marque
+            if (marque) {
+                filteredVehicles = filteredVehicles.filter(v => v.marque === marque);
+            }
+
+            // Filtrer par modèle
+            if (modele) {
+                filteredVehicles = filteredVehicles.filter(v => v.modele === modele);
+            }
+
+            // Filtrer par carburant
+            if (carburant) {
+                filteredVehicles = filteredVehicles.filter(v => v.carburant === carburant);
+            }
+
+            // Filtrer par boîte de vitesse
+            if (boiteVitesse) {
+                filteredVehicles = filteredVehicles.filter(v => v.boiteVitesse === boiteVitesse);
+            }
+
+            // Filtrer par prix minimum
+            if (!isNaN(prixMin)) {
+                filteredVehicles = filteredVehicles.filter(v => v.prix >= prixMin);
+            }
+
+            // Filtrer par prix maximum
+            if (!isNaN(prixMax)) {
+                filteredVehicles = filteredVehicles.filter(v => v.prix <= prixMax);
+            }
+
+            // Filtrer par statut "vendu"
+            if (!showSold) {
+                filteredVehicles = filteredVehicles.filter(v => !v.vendu);
+            }
+
+            displayVehicles(filteredVehicles); // Afficher les véhicules filtrés
+        }
+
+        // --- ÉCOUTEURS D'ÉVÉNEMENTS POUR LES FILTRES ---
+        filterMarqueSelect.addEventListener('change', applyFilters);
+        filterModeleSelect.addEventListener('change', applyFilters);
+        filterCarburantSelect.addEventListener('change', applyFilters);
+        filterBoiteVitesseSelect.addEventListener('change', applyFilters);
+        filterPrixMinInput.addEventListener('input', applyFilters); // Utiliser 'input' pour une réaction plus rapide
+        filterPrixMaxInput.addEventListener('input', applyFilters);
+        filterVenduCheckbox.addEventListener('change', applyFilters);
+
+        resetFiltersButton.addEventListener('click', () => {
+            filterMarqueSelect.value = '';
+            populateModeles(filterModeleSelect, '', true); // Réinitialiser les modèles aussi
+            filterCarburantSelect.value = '';
+            filterBoiteVitesseSelect.value = '';
+            filterPrixMinInput.value = '';
+            filterPrixMaxInput.value = '';
+            filterVenduCheckbox.checked = false;
+            applyFilters(); // Appliquer les filtres réinitialisés
+        });
+
     </script>
 </body>
 </html>
