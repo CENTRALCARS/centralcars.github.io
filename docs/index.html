@@ -2254,7 +2254,7 @@
         const companyInfo = {
             name: "CENTRAL CARS",
             siret: "78992754800022",
-            address: "123 Rue de la République, 59690 Vieux-Condé, France",
+            address: "576 Rue Marcel Sembat, 59690 Vieux-Condé, France",
             phone: "06 98 97 94 63",
             email: "contact@centralcars.fr"
         };
@@ -2278,7 +2278,7 @@
             "Alternateur",
             "Démarreur",
             "Climatisation rechargée",
-            "Contrôle technique"
+            "Geometrie"
         ];
 
         let manualRepairs = []; // Pour stocker les réparations ajoutées manuellement
@@ -2441,7 +2441,7 @@
             doc.text(`Email: ${companyInfo.email}`, margin, yOffset);
 
             yOffset = headerHeight + 10; // Réinitialiser yOffset après l'en-tête
-
+            yOffset += 15;
             // Titre du rapport
             doc.setFontSize(18);
             doc.setTextColor(0, 0, 0); // Noir
