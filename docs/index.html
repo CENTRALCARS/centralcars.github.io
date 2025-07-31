@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CENTRAL CARS - Véhicules d'occasion à Vieux-Condé</title>
+    <link rel="icon" type="image/png" href="img/logo_a.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -474,10 +475,16 @@
                             </div>
                         </div>
 
-                        <!-- Champ "Vendu" -->
-                        <div class="flex items-center mt-4">
-                            <input type="checkbox" id="vehicle-vendu" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
-                            <label for="vehicle-vendu" class="ml-2 block text-gray-700 font-semibold">Véhicule vendu</label>
+                        <!-- Champ "Vendu" et "Cacher l'annonce" -->
+                        <div class="flex flex-wrap gap-4 mt-4">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="vehicle-vendu" class="h-4 w-4 text-red-600 focus:ring-red-500 border-gray-300 rounded">
+                                <label for="vehicle-vendu" class="ml-2 block text-gray-700 font-semibold">Véhicule vendu</label>
+                            </div>
+                            <div class="flex items-center">
+                                <input type="checkbox" id="vehicle-hidden" class="h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded">
+                                <label for="vehicle-hidden" class="ml-2 block text-gray-700 font-semibold">Cacher l'annonce</label>
+                            </div>
                         </div>
 
                         <!-- Section Images -->
@@ -648,7 +655,7 @@
 
         // --- IMPORTS ET CONFIGURATION FIREBASE ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getFirestore, collection, onSnapshot, doc, setDoc, addDoc, deleteDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, onSnapshot, doc, setDoc, addDoc, deleteDoc, getDoc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 
@@ -698,11 +705,14 @@
             const loadingSpinner = document.getElementById('loading-spinner');
             vehicleList.innerHTML = ''; // Vider la liste existante
 
-            if (vehiclesToDisplay.length === 0) {
+            // Filter out hidden vehicles for the client view
+            let visibleVehicles = vehiclesToDisplay.filter(v => !v.hidden);
+
+            if (visibleVehicles.length === 0) {
                  vehicleList.innerHTML = `<p class="text-center col-span-full">Aucun véhicule ne correspond à vos critères de recherche.</p>`;
             } else {
                 // Sort vehicles: not sold (vendu: false) first, then sold (vendu: true)
-                vehiclesToDisplay.sort((a, b) => {
+                visibleVehicles.sort((a, b) => {
                     // If 'vendu' is true, it means it's sold, so it should come after non-sold vehicles.
                     // If 'vendu' is false, it means it's not sold, so it should come before sold vehicles.
                     // We want false (0) to come before true (1). So, a.vendu - b.vendu will work.
@@ -710,7 +720,7 @@
                     return (a.vendu || false) - (b.vendu || false);
                 });
 
-                vehiclesToDisplay.forEach(vehicle => {
+                visibleVehicles.forEach(vehicle => {
                     const card = document.createElement('div');
                     card.className = 'bg-white rounded-lg shadow-lg overflow-hidden transform hover:-translate-y-2 transition-transform duration-300 relative'; // Added relative for badge positioning
                     // Utilise une image de secours si la première image n'est pas définie
@@ -1345,6 +1355,7 @@
         const vehicleOptionsCheckboxesDiv = document.getElementById('vehicle-options-checkboxes');
         const vehicleMaintenancesCheckboxesDiv = document.getElementById('vehicle-maintenances-checkboxes'); // Nouveau: entretiens
         const vehicleVenduCheckbox = document.getElementById('vehicle-vendu'); // Nouveau: case à cocher vendu
+        const vehicleHiddenCheckbox = document.getElementById('vehicle-hidden'); // NOUVEAU: case à cocher hidden
 
         const submitVehicleButton = document.getElementById('submit-vehicle-button');
         const cancelEditButton = document.getElementById('cancel-edit-button');
@@ -1740,6 +1751,10 @@
                             <h4 class="text-xl font-bold mb-2">${vehicle.titreAnnonce || vehicle.nom || 'N/A'}</h4>
                             <p class="text-gray-600 text-sm mb-2">${vehicle.marque || 'N/A'} - ${vehicle.modele || 'N/A'}</p>
                             <p class="text-2xl font-bold text-red-600 mb-4">${vehicle.prix ? vehicle.prix.toLocaleString('fr-FR') : 'N/A'} €</p>
+                            <div class="flex items-center mb-4">
+                                <input type="checkbox" id="admin-hide-${vehicle.id}" data-id="${vehicle.id}" class="admin-hide-checkbox h-4 w-4 text-gray-600 focus:ring-gray-500 border-gray-300 rounded" ${vehicle.hidden ? 'checked' : ''}>
+                                <label for="admin-hide-${vehicle.id}" class="ml-2 block text-gray-700 text-sm">Cacher l'annonce</label>
+                            </div>
                             <div class="flex space-x-2">
                                 <button data-id="${vehicle.id}" class="edit-vehicle-button flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition duration-300">Modifier</button>
                                 <button data-id="${vehicle.id}" class="delete-vehicle-button flex-1 bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition duration-300">Supprimer</button>
@@ -1747,6 +1762,21 @@
                         </div>
                     `;
                     adminVehicleList.appendChild(card);
+                });
+
+                // Add event listeners for the new hide checkboxes
+                document.querySelectorAll('.admin-hide-checkbox').forEach(checkbox => {
+                    checkbox.addEventListener('change', async (event) => {
+                        const vehicleId = event.target.dataset.id;
+                        const isHidden = event.target.checked;
+                        try {
+                            await updateDoc(doc(db, "vehicules", vehicleId), { hidden: isHidden });
+                            showCustomAlert(`Annonce ${isHidden ? 'cachée' : 'affichée'} avec succès !`);
+                        } catch (error) {
+                            console.error("Erreur lors de la mise à jour du statut 'hidden':", error);
+                            showCustomAlert("Erreur lors de la mise à jour de la visibilité de l'annonce.");
+                        }
+                    });
                 });
             }
             adminLoadingSpinner.style.display = 'none';
@@ -1890,7 +1920,8 @@
                 images: uploadedImageUrls, // Utiliser les URLs de Cloudinary
                 options: selectedOptions,
                 maintenances: selectedMaintenances, // Nouveau: entretiens
-                vendu: vehicleVenduCheckbox.checked // Nouveau: statut vendu
+                vendu: vehicleVenduCheckbox.checked, // Nouveau: statut vendu
+                hidden: vehicleHiddenCheckbox.checked // NOUVEAU: statut caché
             };
 
             try {
@@ -1929,6 +1960,8 @@
             });
             // Réinitialiser la case "Vendu"
             vehicleVenduCheckbox.checked = false;
+            // NOUVEAU: Réinitialiser la case "Cacher l'annonce"
+            vehicleHiddenCheckbox.checked = false;
             // Réinitialiser les listes déroulantes dynamiques
             populateModeles(vehicleModeleSelect, ''); // Vide le modèle
             vehicleMarqueSelect.value = ''; // Réinitialise la marque
@@ -1947,8 +1980,10 @@
                     vehicleIdInput.value = vehicleToEdit.id;
                     vehicleTitreAnnonceInput.value = vehicleToEdit.titreAnnonce || '';
                     vehicleMarqueSelect.value = vehicleToEdit.marque || '';
-                    populateModeles(vehicleMarqueSelect, vehicleToEdit.marque); // Populer les modèles en fonction de la marque
+                    // Populer les modèles en fonction de la marque, puis définir le modèle
+                    populateModeles(vehicleModeleSelect, vehicleToEdit.marque); 
                     vehicleModeleSelect.value = vehicleToEdit.modele || '';
+
                     vehicleAnneeModeleInput.value = vehicleToEdit.anneeModele || '';
                     vehicleDateCirculationInput.value = vehicleToEdit.dateCirculation || '';
                     vehicleKilometrageInput.value = vehicleToEdit.kilometrage || '';
@@ -1979,6 +2014,8 @@
 
                     // Gérer la case "Vendu"
                     vehicleVenduCheckbox.checked = vehicleToEdit.vendu || false;
+                    // NOUVEAU: Gérer la case "Cacher l'annonce"
+                    vehicleHiddenCheckbox.checked = vehicleToEdit.hidden || false;
 
                     submitVehicleButton.textContent = 'Modifier le véhicule';
                     vehicleFormTitle.textContent = 'Modifier le véhicule existant';
