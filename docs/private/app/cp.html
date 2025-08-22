@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recherche de Code Postal</title>
+    <!-- Tailwind CSS for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Use Inter font from Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar to match the original design */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="w-full max-w-lg p-8 bg-white rounded-2xl shadow-xl border border-gray-200">
+            <h1 class="text-3xl font-bold text-center mb-6">
+                <i class="fas fa-search text-red-600"></i> Trouver un <span class="text-red-600">Code Postal</span>
+            </h1>
+            <p class="text-center text-gray-500 mb-6">
+                Entrez le nom d'une ville française pour trouver son code postal.
+            </p>
+
+            <div class="space-y-4">
+                <input type="text" id="city-input" placeholder="Ex: Paris"
+                       class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 bg-gray-50 text-gray-800">
+                
+                <button id="search-button"
+                        class="w-full px-6 py-3 bg-red-600 text-white font-semibold rounded-lg hover:bg-red-700 transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2">
+                    Rechercher
+                </button>
+            </div>
+
+            <div id="loading-spinner" class="mt-6 flex justify-center hidden">
+                <div class="animate-spin rounded-full h-8 w-8 border-4 border-t-red-500 border-gray-300"></div>
+            </div>
+
+            <div id="results-container" class="mt-6">
+                <!-- Results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get references to DOM elements
+        const cityInput = document.getElementById('city-input');
+        const searchButton = document.getElementById('search-button');
+        const resultsContainer = document.getElementById('results-container');
+        const loadingSpinner = document.getElementById('loading-spinner');
+
+        /**
+         * Clears the results container.
+         */
+        function clearResults() {
+            resultsContainer.innerHTML = '';
+        }
+
+        /**
+         * Displays a message in the results container.
+         * @param {string} message - The message to display.
+         * @param {string} type - The type of message ('success', 'error', 'info').
+         */
+        function displayMessage(message, type) {
+            clearResults();
+            const messageElement = document.createElement('div');
+            let bgColor = '';
+            let textColor = '';
+            let borderColor = '';
+
+            // Set colors based on message type
+            if (type === 'success') {
+                bgColor = 'bg-green-100';
+                textColor = 'text-green-800';
+                borderColor = 'border-green-400';
+            } else if (type === 'error') {
+                bgColor = 'bg-red-100';
+                textColor = 'text-red-800';
+                borderColor = 'border-red-400';
+            } else { // info
+                bgColor = 'bg-blue-100';
+                textColor = 'text-blue-800';
+                borderColor = 'border-blue-400';
+            }
+
+            messageElement.className = `p-4 rounded-xl border-l-4 font-medium ${bgColor} ${textColor} ${borderColor}`;
+            messageElement.textContent = message;
+            resultsContainer.appendChild(messageElement);
+        }
+
+        /**
+         * Searches for the postal code of a city using the French government's address API.
+         * @param {string} query - The city name to search for.
+         */
+        async function searchPostalCode(query) {
+            // Validate input
+            if (!query) {
+                displayMessage("Veuillez entrer le nom d'une ville.", 'error');
+                return;
+            }
+
+            // Show loading spinner and disable button
+            loadingSpinner.classList.remove('hidden');
+            searchButton.disabled = true;
+            searchButton.textContent = 'Recherche...';
+            clearResults();
+
+            try {
+                // Construct the API URL
+                const apiUrl = `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(query)}&limit=10`;
+
+                // Fetch data from the API
+                const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Erreur de réseau ou de serveur.');
+                }
+                const data = await response.json();
+
+                // Check if any results were found
+                if (data.features.length > 0) {
+                    const firstResult = data.features[0];
+                    const properties = firstResult.properties;
+                    
+                    // Display the first result
+                    const resultElement = document.createElement('div');
+                    resultElement.className = 'bg-gray-100 p-6 rounded-lg shadow-inner';
+                    resultElement.innerHTML = `
+                        <p class="font-bold text-lg mb-2 text-red-600">
+                            <i class="fas fa-check-circle mr-2"></i> Résultat trouvé :
+                        </p>
+                        <p class="text-gray-700"><strong>Ville :</strong> ${properties.city}</p>
+                        <p class="text-gray-700"><strong>Code postal :</strong> ${properties.postcode}</p>
+                    `;
+                    resultsContainer.appendChild(resultElement);
+
+                    // Check for suggestions if the first result is not a perfect match
+                    if (properties.type !== 'municipality' && data.features.length > 1) {
+                        const suggestionsList = document.createElement('ul');
+                        suggestionsList.className = 'mt-4 space-y-2';
+                        
+                        const suggestionsTitle = document.createElement('p');
+                        suggestionsTitle.className = 'font-semibold text-gray-600';
+                        suggestionsTitle.textContent = 'Peut-être cherchiez-vous :';
+                        resultsContainer.appendChild(suggestionsTitle);
+
+                        // Loop through suggestions (starting from the second result)
+                        for (let i = 1; i < data.features.length; i++) {
+                            const suggestion = data.features[i].properties;
+                            const listItem = document.createElement('li');
+                            listItem.className = 'p-3 bg-white rounded-lg cursor-pointer hover:bg-gray-50 transition-colors border border-gray-200';
+                            listItem.innerHTML = `${suggestion.city} (${suggestion.postcode})`;
+                            listItem.onclick = () => {
+                                cityInput.value = suggestion.city;
+                                searchPostalCode(suggestion.city);
+                            };
+                            suggestionsList.appendChild(listItem);
+                        }
+                        resultsContainer.appendChild(suggestionsList);
+                    }
+
+                } else {
+                    displayMessage('Aucun résultat trouvé pour cette ville. Vérifiez l\'orthographe et réessayez.', 'info');
+                }
+
+            } catch (error) {
+                // Log the error for debugging
+                console.error("Erreur lors de la recherche :", error);
+                displayMessage('Une erreur est survenue lors de la recherche. Veuillez réessayer.', 'error');
+            } finally {
+                // Hide loading spinner and re-enable button
+                loadingSpinner.classList.add('hidden');
+                searchButton.disabled = false;
+                searchButton.textContent = 'Rechercher';
+            }
+        }
+
+        // Add event listeners
+        searchButton.addEventListener('click', () => {
+            searchPostalCode(cityInput.value.trim());
+        });
+
+        cityInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                searchPostalCode(cityInput.value.trim());
+            }
+        });
+    </script>
+</body>
+</html>

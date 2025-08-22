@@ -1,0 +1,1282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gestion Stock Véhicules</title>
+  <!-- Import de Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Import de Heroicons -->
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+    body { font-family: 'Inter', sans-serif; }
+    /* Styles pour l'impression des CERFA */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      .printable-area, .printable-area * {
+        visibility: visible;
+      }
+      .printable-area {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        padding: 2cm;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gray-100 font-sans text-gray-800 min-h-screen flex flex-col">
+
+  <!-- En-tête de la navigation -->
+  <header class="bg-white shadow-md p-4 sticky top-0 z-10">
+    <nav class="container mx-auto flex flex-wrap justify-between items-center">
+      <div class="text-2xl font-bold text-blue-600">
+        Gestion Stock Véhicules
+      </div>
+      <div class="flex flex-wrap space-x-2 sm:space-x-4 mt-2 sm:mt-0">
+        <button id="nav-stock" class="px-4 py-2 rounded-full font-medium transition-colors bg-blue-600 text-white hover:bg-blue-700">Stock</button>
+        <button id="nav-achat" class="px-4 py-2 rounded-full font-medium transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300">Achat</button>
+        <button id="nav-ventes" class="px-4 py-2 rounded-full font-medium transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300">Ventes</button>
+        <button id="nav-clients" class="px-4 py-2 rounded-full font-medium transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300">Clients</button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Conteneur principal de l'application -->
+  <main id="app-container" class="container mx-auto p-8 flex-grow">
+    <!-- Le contenu de l'application sera injecté ici -->
+  </main>
+
+  <!-- Modal de confirmation -->
+  <div id="confirmation-modal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50 hidden">
+    <div class="relative bg-white p-8 rounded-lg shadow-xl max-w-sm w-full mx-4">
+      <h3 class="text-xl font-bold mb-4">Confirmation</h3>
+      <p id="modal-message" class="mb-6 text-gray-700">Êtes-vous sûr de vouloir continuer ?</p>
+      <div class="flex justify-end space-x-4">
+        <button id="modal-cancel" class="bg-gray-300 text-gray-800 px-4 py-2 rounded-full font-semibold hover:bg-gray-400 transition-colors">Annuler</button>
+        <button id="modal-confirm" class="bg-red-500 text-white px-4 py-2 rounded-full font-semibold hover:bg-red-600 transition-colors">Confirmer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pied de page -->
+  <footer class="bg-gray-800 text-white p-4 text-center">
+    <p class="text-sm">Votre identifiant d'utilisateur : <span id="user-id-display" class="font-mono text-xs">Chargement...</span></p>
+    <p class="text-xs text-gray-400 mt-1">Utilisez cet ID pour la collaboration si nécessaire.</p>
+  </footer>
+
+  <!-- Code JavaScript de l'application -->
+  <script type="module">
+    // Importation des modules Firebase nécessaires
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, addDoc, updateDoc, onSnapshot, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Variables globales pour gérer l'état de l'application
+    let db;
+    let auth;
+    let isAuthReady = false;
+    let userId = null;
+    let vehicles = [];
+    let clients = [];
+    let transactions = [];
+    let currentView = 'stock';
+    let selectedVehicleForSale = null;
+    let selectedTransaction = null;
+    let acquisitionFormState = {
+      vendeurType: 'particulier',
+      vendeurNom: '', vendeurPrenom: '', vendeurRaisonSociale: '',
+      vendeurAdresse: '', vendeurCodePostal: '', vendeurVille: '',
+      vendeurTelephone: '', vendeurEmail: '', vendeurSiret: '',
+      marque: '', modele: '', vin: '', immatriculation: '',
+      dateMiseEnCirculation: '', kilometrage: '', energie: '',
+      typeVehicule: '', version: '', boiteVitesse: '', numeroAncienneCG: '',
+      prixAchat: '', dateAcquisition: new Date().toISOString().split('T')[0],
+      acquisitionTVA: false, montantTVA: '0.00',
+    };
+    let ventaFormState = {
+      prixVente: '',
+      clientId: '',
+      newClient: {
+        nom: '', prenom: '', dateNaissance: '', lieuNaissance: '',
+        nationalite: 'Française', adresse: '', codePostal: '',
+        ville: '', telephone: '', email: ''
+      },
+      venduDansEtat: true,
+    };
+
+    // Récupération des configurations Firebase du runtime
+    const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+    // Références DOM
+    const appContainer = document.getElementById('app-container');
+    const userIdDisplay = document.getElementById('user-id-display');
+    const navButtons = {
+      stock: document.getElementById('nav-stock'),
+      achat: document.getElementById('nav-achat'),
+      ventes: document.getElementById('nav-ventes'),
+      clients: document.getElementById('nav-clients')
+    };
+    const confirmationModal = document.getElementById('confirmation-modal');
+    const modalMessage = document.getElementById('modal-message');
+    const modalCancelBtn = document.getElementById('modal-cancel');
+    const modalConfirmBtn = document.getElementById('modal-confirm');
+
+    /**
+     * Initialise Firebase et écoute les changements d'état d'authentification.
+     */
+    async function initializeFirebase() {
+      try {
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+
+        onAuthStateChanged(auth, async (user) => {
+          if (user) {
+            userId = user.uid;
+            userIdDisplay.textContent = userId;
+            isAuthReady = true;
+            setupFirestoreListeners();
+            setView('stock');
+          } else {
+            // Tentative de connexion anonyme si le token n'est pas disponible
+            if (!initialAuthToken) {
+              await signInAnonymously(auth);
+            }
+          }
+        });
+
+        // Connexion avec le token si disponible
+        if (initialAuthToken) {
+          await signInWithCustomToken(auth, initialAuthToken);
+        }
+
+      } catch (error) {
+        console.error("Erreur d'initialisation de Firebase:", error);
+        userIdDisplay.textContent = "Erreur de connexion";
+      }
+    }
+
+    /**
+     * Met en place les écouteurs de données en temps réel de Firestore.
+     */
+    function setupFirestoreListeners() {
+      if (!isAuthReady || !db || !userId) {
+        console.log("Firestore n'est pas prêt.");
+        return;
+      }
+
+      const vehicleCollectionPath = `/artifacts/${appId}/users/${userId}/vehicles`;
+      onSnapshot(collection(db, vehicleCollectionPath), (snapshot) => {
+        vehicles = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (currentView === 'stock') renderStock();
+      }, (error) => {
+        console.error("Erreur de récupération des véhicules:", error);
+      });
+
+      const clientCollectionPath = `/artifacts/${appId}/users/${userId}/clients`;
+      onSnapshot(collection(db, clientCollectionPath), (snapshot) => {
+        clients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (currentView === 'clients' || currentView === 'achat' || currentView === 'venteFormulaire') {
+          updateView(); // Met à jour la vue pour refléter les nouveaux clients
+        }
+      }, (error) => {
+        console.error("Erreur de récupération des clients:", error);
+      });
+
+      const transactionCollectionPath = `/artifacts/${appId}/users/${userId}/transactions`;
+      onSnapshot(collection(db, transactionCollectionPath), (snapshot) => {
+        transactions = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        if (currentView === 'ventes') renderVentes();
+        if (currentView === 'venteDetail' && selectedTransaction) {
+          const updatedTransaction = transactions.find(t => t.id === selectedTransaction.id);
+          if (updatedTransaction) selectedTransaction = updatedTransaction;
+          renderVenteDetail();
+        }
+      }, (error) => {
+        console.error("Erreur de récupération des transactions:", error);
+      });
+    }
+
+    /**
+     * Change la vue de l'application et met à jour les boutons de navigation.
+     * @param {string} viewName Le nom de la vue à afficher.
+     */
+    function setView(viewName) {
+      currentView = viewName;
+      document.querySelectorAll('nav button').forEach(btn => {
+        btn.classList.remove('bg-blue-600', 'text-white');
+        btn.classList.add('bg-gray-200', 'text-gray-800');
+        if (btn.id === `nav-${viewName}` || (viewName === 'venteDetail' && btn.id === 'nav-ventes') || (viewName === 'venteFormulaire' && btn.id === 'nav-ventes')) {
+          btn.classList.remove('bg-gray-200', 'text-gray-800');
+          btn.classList.add('bg-blue-600', 'text-white');
+        }
+      });
+      updateView();
+    }
+
+    /**
+     * Met à jour le contenu de l'application en fonction de la vue actuelle.
+     */
+    function updateView() {
+      switch (currentView) {
+        case 'stock': renderStock(); break;
+        case 'achat': renderAcquisition(); break;
+        case 'ventes': renderVentes(); break;
+        case 'venteFormulaire': renderVenteFormulaire(); break;
+        case 'venteDetail': renderVenteDetail(); break;
+        case 'clients': renderClients(); break;
+      }
+    }
+
+    /**
+     * Réinitialise les formulaires d'acquisition et de vente.
+     */
+    function resetForms() {
+      acquisitionFormState = {
+        vendeurType: 'particulier',
+        vendeurNom: '', vendeurPrenom: '', vendeurRaisonSociale: '',
+        vendeurAdresse: '', vendeurCodePostal: '', vendeurVille: '',
+        vendeurTelephone: '', vendeurEmail: '', vendeurSiret: '',
+        marque: '', modele: '', vin: '', immatriculation: '',
+        dateMiseEnCirculation: '', kilometrage: '', energie: '',
+        typeVehicule: '', version: '', boiteVitesse: '', numeroAncienneCG: '',
+        prixAchat: '', dateAcquisition: new Date().toISOString().split('T')[0],
+        acquisitionTVA: false, montantTVA: '0.00',
+      };
+      ventaFormState = {
+        prixVente: '',
+        clientId: '',
+        newClient: {
+          nom: '', prenom: '', dateNaissance: '', lieuNaissance: '',
+          nationalite: 'Française', adresse: '', codePostal: '',
+          ville: '', telephone: '', email: ''
+        },
+        venduDansEtat: true,
+      };
+      selectedVehicleForSale = null;
+    }
+
+    /**
+     * Affiche une modale de confirmation.
+     * @param {string} message Le message à afficher.
+     * @param {Function} onConfirm La fonction à appeler en cas de confirmation.
+     */
+    function showConfirmationModal(message, onConfirm) {
+      modalMessage.textContent = message;
+      confirmationModal.classList.remove('hidden');
+
+      const handleConfirm = () => {
+        onConfirm();
+        confirmationModal.classList.add('hidden');
+        modalConfirmBtn.removeEventListener('click', handleConfirm);
+      };
+      const handleCancel = () => {
+        confirmationModal.classList.add('hidden');
+        modalConfirmBtn.removeEventListener('click', handleConfirm);
+      };
+
+      modalConfirmBtn.addEventListener('click', handleConfirm, { once: true });
+      modalCancelBtn.addEventListener('click', handleCancel, { once: true });
+    }
+
+    /**
+     * Génère le contenu HTML pour les différents CERFA.
+     * @param {object} data Les données à utiliser pour remplir le CERFA.
+     * @param {string} cerfaType Le numéro du CERFA (ex: '15776').
+     * @returns {string} Le contenu HTML du document pré-rempli.
+     */
+    function generateCerfa(data, cerfaType) {
+      const today = new Date().toLocaleDateString('fr-FR');
+      const { transaction, vehicle, client, fournisseur } = data;
+
+      const commonVehicleInfo = `
+        <h3 class="font-semibold text-lg border-b pb-1">Informations du Véhicule</h3>
+        <p><strong>Marque:</strong> ${vehicle?.marque || ''}</p>
+        <p><strong>Modèle:</strong> ${vehicle?.modele || ''}</p>
+        <p><strong>Version:</strong> ${vehicle?.version || ''}</p>
+        <p><strong>Numéro de série (VIN):</strong> ${vehicle?.vin || ''}</p>
+        <p><strong>Numéro d'immatriculation:</strong> ${vehicle?.immatriculation || 'N/A'}</p>
+        <p><strong>Date de 1ère mise en circulation:</strong> ${vehicle?.dateMiseEnCirculation || ''}</p>
+        <p><strong>Kilométrage:</strong> ${vehicle?.kilometrage || ''} km</p>
+        <p><strong>Énergie:</strong> ${vehicle?.energie || ''}</p>
+      `;
+
+      const companyInfo = {
+        raisonSociale: "Votre Nom d'Entreprise",
+        siret: "Votre SIRET",
+        adresse: "Votre Adresse d'Entreprise",
+        codePostal: "Votre Code Postal",
+        ville: "Votre Ville",
+      };
+
+      switch (cerfaType) {
+        case '15776':
+          return `
+            <div class="printable-area p-6 rounded-lg shadow-xl border border-gray-200 bg-white">
+              <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">DÉCLARATION DE CESSION D'UN VÉHICULE - CERFA N°15776*01</h2>
+              <p class="text-sm text-center mb-6">À renseigner et imprimer en 2 exemplaires (pour le cédant et pour l'acquéreur)</p>
+              
+              <div class="mb-6 p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">INFORMATIONS SUR LE VÉHICULE</h3>
+                <p><strong>Numéro d'immatriculation :</strong> ${vehicle?.immatriculation || ''}</p>
+                <p><strong>Numéro d'identification du véhicule (VIN) :</strong> ${vehicle?.vin || ''}</p>
+                <p><strong>Date de 1ère immatriculation :</strong> ${vehicle?.dateMiseEnCirculation || ''}</p>
+                <p><strong>Marque :</strong> ${vehicle?.marque || ''}</p>
+                <p><strong>Type-variante-version :</strong> ${vehicle?.version || ''}</p>
+                <p><strong>Genre national :</strong> [VP / CTTE]</p>
+                <p><strong>Dénomination commerciale :</strong> ${vehicle?.modele || ''}</p>
+                <p><strong>Kilométrage total parcouru :</strong> ${vehicle?.kilometrage || ''} km</p>
+              </div>
+
+              <div class="mb-6 p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">LE CÉDANT (VENDEUR)</h3>
+                <p><strong>Personne morale (Société) :</strong> ${companyInfo.raisonSociale}</p>
+                <p><strong>Numéro SIREN :</strong> ${companyInfo.siret}</p>
+                <p><strong>Adresse :</strong> ${companyInfo.adresse}</p>
+                <p><strong>Code postal / Ville :</strong> ${companyInfo.codePostal} ${companyInfo.ville}</p>
+              </div>
+
+              <div class="mb-6 p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">L'ACQUÉREUR (ACHETEUR)</h3>
+                <p><strong>Nom de naissance / Raison sociale :</strong> ${client?.nom || ''}</p>
+                <p><strong>Prénom :</strong> ${client?.prenom || ''}</p>
+                <p><strong>Adresse :</strong> ${client?.adresse || ''}</p>
+                <p><strong>Code postal / Ville :</strong> ${client?.codePostal || ''} ${client?.ville || ''}</p>
+              </div>
+
+              <div class="p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">CONDITIONS DE LA CESSION</h3>
+                <p><strong>Cession pour :</strong> Vente</p>
+                <p><strong>Date de la cession :</strong> ${new Date(transaction?.dateTransaction?.seconds * 1000).toLocaleDateString('fr-FR') || ''}</p>
+                <p><strong>Heure de la cession :</strong> ${new Date(transaction?.dateTransaction?.seconds * 1000).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }) || ''}</p>
+              </div>
+
+              <div class="text-center mt-8">
+                <p class="font-bold">Fait à __________ le ${today}</p>
+                <div class="flex justify-around mt-6">
+                  <div class="text-center">
+                    <p class="font-semibold">Signature du Cédant</p>
+                    <div class="border-b border-gray-400 w-40 h-10 mt-2"></div>
+                  </div>
+                  <div class="text-center">
+                    <p class="font-semibold">Signature de l'Acquéreur</p>
+                    <div class="border-b border-gray-400 w-40 h-10 mt-2"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `;
+        case '13750':
+          return `
+            <div class="printable-area p-6 rounded-lg shadow-xl border border-gray-200 bg-white">
+              <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">DEMANDE DE CERTIFICAT D'IMMATRICULATION - CERFA N°13750*05</h2>
+              <p class="text-sm text-center mb-6">Document pré-rempli pour la demande d'immatriculation du véhicule</p>
+
+              <div class="mb-6 p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">DEMANDEUR</h3>
+                <p><strong>Nom / Raison sociale :</strong> ${client?.nom || ''}</p>
+                <p><strong>Prénom :</strong> ${client?.prenom || ''}</p>
+                <p><strong>Date de naissance :</strong> ${client?.dateNaissance || ''}</p>
+                <p><strong>Lieu de naissance :</strong> ${client?.lieuNaissance || ''}</p>
+                <p><strong>Adresse :</strong> ${client?.adresse || ''}</p>
+                <p><strong>Code postal / Ville :</strong> ${client?.codePostal || ''} ${client?.ville || ''}</p>
+              </div>
+
+              <div class="mb-6 p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">INFORMATIONS SUR LE VÉHICULE</h3>
+                ${commonVehicleInfo}
+              </div>
+
+              <div class="text-center mt-8">
+                <p class="font-bold">Date : ${today}</p>
+                <div class="mt-6">
+                  <p class="font-semibold">Signature du demandeur</p>
+                  <div class="border-b border-gray-400 w-40 h-10 mt-2 mx-auto"></div>
+                </div>
+              </div>
+            </div>
+          `;
+        case '13757':
+          return `
+            <div class="printable-area p-6 rounded-lg shadow-xl border border-gray-200 bg-white">
+              <h2 class="text-2xl font-bold mb-4 text-center text-blue-800">DÉCLARATION D'ACHAT D'UN VÉHICULE D'OCCASION - CERFA N°13757*03</h2>
+              <p class="text-sm text-center mb-6">Document pré-rempli pour la déclaration d'achat à un particulier ou un professionnel</p>
+
+              <div class="mb-6 p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">L'ACQUÉREUR (VOUS)</h3>
+                <p><strong>Raison Sociale :</strong> ${companyInfo.raisonSociale}</p>
+                <p><strong>Numéro SIREN :</strong> ${companyInfo.siret}</p>
+                <p><strong>Adresse :</strong> ${companyInfo.adresse}</p>
+                <p><strong>Code postal / Ville :</strong> ${companyInfo.codePostal} ${companyInfo.ville}</p>
+              </div>
+              
+              <div class="mb-6 p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">LE CÉDANT (FOURNISSEUR)</h3>
+                <p><strong>Type :</strong> ${fournisseur?.vendeurType || ''}</p>
+                <p><strong>Nom / Raison sociale :</strong> ${fournisseur?.vendeurNom || fournisseur?.vendeurRaisonSociale || ''} ${fournisseur?.vendeurPrenom || ''}</p>
+                <p><strong>Adresse :</strong> ${fournisseur?.vendeurAdresse || ''}</p>
+                <p><strong>Code postal / Ville :</strong> ${fournisseur?.vendeurCodePostal || ''} ${fournisseur?.vendeurVille || ''}</p>
+              </div>
+
+              <div class="mb-6 p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">INFORMATIONS SUR LE VÉHICULE</h3>
+                ${commonVehicleInfo}
+              </div>
+
+              <div class="p-4 bg-gray-100 rounded-lg border-l-4 border-blue-500">
+                <h3 class="font-bold text-lg mb-2 text-blue-700">DÉTAILS DE LA TRANSACTION</h3>
+                <p><strong>Date de l'achat :</strong> ${vehicle?.dateAcquisition || ''}</p>
+                <p><strong>Heure de l'achat :</strong> [Heure de l'achat]</p>
+                <p><strong>Numéro de l'ancienne carte grise :</strong> ${vehicle?.numeroAncienneCG || ''}</p>
+              </div>
+              
+              <div class="text-center mt-8">
+                <p class="font-bold">Fait à __________ le ${today}</p>
+                <div class="mt-6">
+                  <p class="font-semibold">Signature de l'acquéreur</p>
+                  <div class="border-b border-gray-400 w-40 h-10 mt-2 mx-auto"></div>
+                </div>
+              </div>
+            </div>
+          `;
+        default:
+          return `<p>Type de CERFA non reconnu.</p>`;
+      }
+    }
+
+    /**
+     * Génère le contenu HTML d'une facture.
+     * @param {object} transaction Les données de la transaction.
+     * @returns {string} Le contenu HTML de la facture.
+     */
+    function generateInvoice(transaction) {
+      const vehicle = transaction.vehicle;
+      const client = transaction.client;
+      const total = parseFloat(transaction.prixVente);
+      const entretiens = (vehicle.entretiens || []).map(e => `<li>${e.description} (${e.date})</li>`).join('');
+
+      return `
+        <div class="printable-area bg-white p-6 rounded-lg shadow-xl">
+          <h2 class="text-3xl font-bold mb-4 text-center">FACTURE</h2>
+          <div class="flex justify-between mb-8">
+            <div>
+              <p class="font-semibold">À l'attention de:</p>
+              <p>${client?.nom} ${client?.prenom}</p>
+              <p>${client?.adresse}</p>
+              <p>${client?.codePostal} ${client?.ville}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-semibold">Facture n°: TR-${transaction.id.substring(0, 8).toUpperCase()}</p>
+              <p>Date: ${new Date(transaction.dateTransaction?.seconds * 1000).toLocaleDateString('fr-FR')}</p>
+            </div>
+          </div>
+          <div class="bg-gray-100 p-4 rounded-lg mb-6">
+            <h3 class="font-semibold text-lg mb-2">Détails du véhicule</h3>
+            <p><strong>Marque:</strong> ${vehicle?.marque}</p>
+            <p><strong>Modèle:</strong> ${vehicle?.modele}</p>
+            <p><strong>Année:</strong> ${new Date(vehicle?.dateMiseEnCirculation).getFullYear()}</p>
+            <p><strong>VIN:</strong> ${vehicle?.vin}</p>
+            <p><strong>Immatriculation:</strong> ${vehicle?.immatriculation || 'N/A'}</p>
+          </div>
+          <table class="w-full mb-6 text-left border-collapse">
+            <thead>
+              <tr class="border-b-2 border-gray-300">
+                <th class="p-2">Description</th>
+                <th class="p-2 text-right">Montant</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-b border-gray-200">
+                <td class="p-2">Vente de véhicule ${vehicle?.marque} ${vehicle?.modele}</td>
+                <td class="p-2 text-right">${total.toFixed(2)} €</td>
+              </tr>
+            </tbody>
+          </table>
+          ${entretiens.length > 0 ? `
+            <div class="bg-gray-100 p-4 rounded-lg mb-6">
+              <h3 class="font-semibold text-lg mb-2">Entretiens effectués</h3>
+              <ul class="list-disc list-inside">${entretiens}</ul>
+            </div>` : ''}
+          <div class="text-right font-bold text-xl">
+            Total à payer: ${total.toFixed(2)} €
+          </div>
+        </div>
+      `;
+    }
+
+    /**
+     * Retourne la classe CSS pour la couleur de statut.
+     * @param {string} status Le statut de la transaction.
+     * @returns {string} La classe CSS correspondante.
+     */
+    function getStatusColor(status) {
+      switch (status) {
+        case 'commandé': return 'bg-blue-200 text-blue-800';
+        case 'prêt': return 'bg-yellow-200 text-yellow-800';
+        case 'finalisé': return 'bg-green-200 text-green-800';
+        case 'annulée': return 'bg-red-200 text-red-800';
+        default: return 'bg-gray-200 text-gray-800';
+      }
+    }
+
+    // --- Fonctions de rendu pour chaque vue ---
+
+    function renderStock() {
+      const stockVehicles = vehicles.filter(v => v.statut === 'en-stock');
+      appContainer.innerHTML = `
+        <div>
+          <h2 class="text-3xl font-bold mb-6">Stock de Véhicules</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${stockVehicles.length > 0 ? stockVehicles.map(v => `
+              <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-xl font-bold mb-2">${v.marque} ${v.modele}</h3>
+                <p class="text-gray-600 mb-4">VIN: ${v.vin}</p>
+                <p class="text-sm text-gray-500 mb-2">Immatriculation: ${v.immatriculation || 'N/A'}</p>
+                <p class="text-sm text-gray-500 mb-2">Provenance: ${v.provenance || 'N/A'}</p>
+                <div class="flex justify-between items-center mt-4 space-x-2">
+                  <button data-vehicle-id="${v.id}" class="add-entretien-btn bg-blue-500 text-white px-4 py-2 rounded-full hover:bg-blue-600 transition-colors text-sm flex-grow">
+                    Ajouter entretien
+                  </button>
+                  <button data-vehicle-id="${v.id}" class="sell-vehicle-btn bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors text-sm flex-grow">
+                    Vendre
+                  </button>
+                </div>
+              </div>
+            `).join('') : `
+              <p class="col-span-full text-center text-gray-500 text-lg mt-8">Aucun véhicule en stock.</p>
+            `}
+          </div>
+        </div>
+      `;
+
+      appContainer.querySelectorAll('.add-entretien-btn').forEach(btn => {
+        btn.addEventListener('click', () => addEntretien(btn.dataset.vehicleId));
+      });
+      appContainer.querySelectorAll('.sell-vehicle-btn').forEach(btn => {
+        btn.addEventListener('click', () => startSellVehicle(btn.dataset.vehicleId));
+      });
+    }
+
+    function renderAcquisition() {
+      const fournisseur = acquisitionFormState.vendeurType === 'particulier' ? acquisitionFormState.vendeurNom : acquisitionFormState.vendeurRaisonSociale;
+      appContainer.innerHTML = `
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl mx-auto">
+          <h2 class="text-3xl font-bold mb-6 text-center">Formulaire d'acquisition</h2>
+          <form id="acquisition-form" class="space-y-8">
+            <!-- Section 1: Informations du Vendeur -->
+            <div class="border border-gray-200 p-6 rounded-xl shadow-inner">
+              <h3 class="flex items-center text-xl font-bold mb-4 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2"><path fill-rule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24-.047-.367-.116-.72-.218-1.066A6.685 6.685 0 0012 11.25a6.685 6.685 0 00-3.238 1.075c-.102.346-.17.699-.218 1.066.015.747.033 1.494.056 2.24a.75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067z" clip-rule="evenodd" /></svg>
+                Informations du Vendeur
+              </h3>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Statut du vendeur</label>
+                <select id="vendeurType" name="vendeurType" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="particulier" ${acquisitionFormState.vendeurType === 'particulier' ? 'selected' : ''}>Particulier</option>
+                  <option value="professionnel" ${acquisitionFormState.vendeurType === 'professionnel' ? 'selected' : ''}>Professionnel</option>
+                </select>
+              </div>
+              <div id="vendeur-fields">
+                ${acquisitionFormState.vendeurType === 'particulier' ? `
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <label class="block text-gray-700 font-semibold mb-2">Nom</label>
+                      <input type="text" name="vendeurNom" value="${acquisitionFormState.vendeurNom}" class="w-full px-4 py-2 border rounded-lg" required />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 font-semibold mb-2">Prénom</label>
+                      <input type="text" name="vendeurPrenom" value="${acquisitionFormState.vendeurPrenom}" class="w-full px-4 py-2 border rounded-lg" required />
+                    </div>
+                  </div>
+                ` : `
+                  <div class="space-y-4">
+                    <div>
+                      <label class="block text-gray-700 font-semibold mb-2">Raison Sociale</label>
+                      <input type="text" name="vendeurRaisonSociale" value="${acquisitionFormState.vendeurRaisonSociale}" class="w-full px-4 py-2 border rounded-lg" required />
+                    </div>
+                    <div>
+                      <label class="block text-gray-700 font-semibold mb-2">N° SIRET</label>
+                      <input type="text" name="vendeurSiret" value="${acquisitionFormState.vendeurSiret}" class="w-full px-4 py-2 border rounded-lg" />
+                    </div>
+                  </div>
+                `}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Adresse</label>
+                    <input type="text" name="vendeurAdresse" value="${acquisitionFormState.vendeurAdresse}" class="w-full px-4 py-2 border rounded-lg" />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Code Postal</label>
+                    <input type="text" name="vendeurCodePostal" value="${acquisitionFormState.vendeurCodePostal}" class="w-full px-4 py-2 border rounded-lg" />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Ville</label>
+                    <input type="text" name="vendeurVille" value="${acquisitionFormState.vendeurVille}" class="w-full px-4 py-2 border rounded-lg" />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Téléphone</label>
+                    <input type="tel" name="vendeurTelephone" value="${acquisitionFormState.vendeurTelephone}" class="w-full px-4 py-2 border rounded-lg" />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <input type="email" name="vendeurEmail" value="${acquisitionFormState.vendeurEmail}" class="w-full px-4 py-2 border rounded-lg" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 2: Informations du Véhicule -->
+            <div class="border border-gray-200 p-6 rounded-xl shadow-inner">
+              <h3 class="flex items-center text-xl font-bold mb-4 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2"><path d="M4.5 9.75a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H5.25a.75.75 0 01-.75-.75zM4.5 13.5a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H5.25a.75.75 0 01-.75-.75zM4.5 17.25a.75.75 0 01.75-.75h14.5a.75.75 0 010 1.5H5.25a.75.75 0 01-.75-.75z" /><path fill-rule="evenodd" d="M2.25 5.25a3 3 0 013-3h13.5a3 3 0 013 3v13.5a3 3 0 01-3 3H5.25a3 3 0 01-3-3V5.25zm1.5 0c0-.138.112-.25.25-.25h13.5c.138 0 .25.112.25.25v13.5c0 .138-.112.25-.25.25H5.25c-.138 0-.25-.112-.25-.25V5.25z" clip-rule="evenodd" /></svg>
+                Informations sur le Véhicule
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Marque</label>
+                  <input type="text" name="marque" value="${acquisitionFormState.marque}" class="w-full px-4 py-2 border rounded-lg" required />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Modèle</label>
+                  <input type="text" name="modele" value="${acquisitionFormState.modele}" class="w-full px-4 py-2 border rounded-lg" required />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Version</label>
+                  <input type="text" name="version" value="${acquisitionFormState.version}" class="w-full px-4 py-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">N° d'immatriculation</label>
+                  <input type="text" name="immatriculation" value="${acquisitionFormState.immatriculation}" class="w-full px-4 py-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Date de 1ère Mise en Circulation</label>
+                  <input type="date" name="dateMiseEnCirculation" value="${acquisitionFormState.dateMiseEnCirculation}" class="w-full px-4 py-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Kilométrage (km)</label>
+                  <input type="number" name="kilometrage" value="${acquisitionFormState.kilometrage}" class="w-full px-4 py-2 border rounded-lg" />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">VIN</label>
+                  <input type="text" name="vin" value="${acquisitionFormState.vin}" class="w-full px-4 py-2 border rounded-lg" required />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Énergie</label>
+                  <select name="energie" class="w-full px-4 py-2 border rounded-lg">
+                    <option value="" ${!acquisitionFormState.energie ? 'selected' : ''}>-- Sélectionner --</option>
+                    <option value="Essence" ${acquisitionFormState.energie === 'Essence' ? 'selected' : ''}>Essence</option>
+                    <option value="Diesel" ${acquisitionFormState.energie === 'Diesel' ? 'selected' : ''}>Diesel</option>
+                    <option value="Électrique" ${acquisitionFormState.energie === 'Électrique' ? 'selected' : ''}>Électrique</option>
+                    <option value="Hybride" ${acquisitionFormState.energie === 'Hybride' ? 'selected' : ''}>Hybride</option>
+                    <option value="Autres" ${acquisitionFormState.energie === 'Autres' ? 'selected' : ''}>Autres</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Boîte de vitesse</label>
+                  <select name="boiteVitesse" class="w-full px-4 py-2 border rounded-lg">
+                    <option value="" ${!acquisitionFormState.boiteVitesse ? 'selected' : ''}>-- Sélectionner --</option>
+                    <option value="Manuelle" ${acquisitionFormState.boiteVitesse === 'Manuelle' ? 'selected' : ''}>Manuelle</option>
+                    <option value="Automatique" ${acquisitionFormState.boiteVitesse === 'Automatique' ? 'selected' : ''}>Automatique</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">N° de l'ancienne carte grise</label>
+                  <input type="text" name="numeroAncienneCG" value="${acquisitionFormState.numeroAncienneCG}" class="w-full px-4 py-2 border rounded-lg" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Section 3: Détails de la transaction -->
+            <div class="border border-gray-200 p-6 rounded-xl shadow-inner">
+              <h3 class="flex items-center text-xl font-bold mb-4 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2"><path d="M11.25 4.5v7.5h7.5A.75.75 0 0019.5 12a13.75 13.75 0 01-15 0c-.414-.09-.75-.494-.75-.958V4.5a.75.75 0 011.5 0zm-1.5 0a.75.75 0 01.75-.75h7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V4.5zM2.25 12.75a.75.75 0 01.75-.75h7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-.75.75H3a.75.75 0 01-.75-.75v-3.75zM12 4.5v7.5h7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75v-3.75a.75.75 0 01.75-.75z" /></svg>
+                Détails de la Transaction
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Prix d'acquisition (€)</label>
+                  <input type="number" name="prixAchat" value="${acquisitionFormState.prixAchat}" class="w-full px-4 py-2 border rounded-lg" required />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Date d'acquisition</label>
+                  <input type="date" name="dateAcquisition" value="${acquisitionFormState.dateAcquisition}" class="w-full px-4 py-2 border rounded-lg" />
+                </div>
+                <div class="flex items-end md:col-span-2">
+                  <label class="flex items-center text-gray-700 font-semibold mb-2 cursor-pointer">
+                    <input type="checkbox" name="acquisitionTVA" ${acquisitionFormState.acquisitionTVA ? 'checked' : ''} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                    <span class="ml-2">Acquisition avec TVA</span>
+                  </label>
+                </div>
+                <div id="tva-field" class="${acquisitionFormState.acquisitionTVA ? 'md:col-span-2' : 'hidden md:col-span-2'}">
+                  <label class="block text-gray-700 font-semibold mb-2">Montant de la TVA (€)</label>
+                  <input type="number" name="montantTVA" value="${acquisitionFormState.montantTVA}" readonly class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed" />
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-8 flex justify-between space-x-4">
+              <button type="submit" class="w-full font-bold py-4 px-4 rounded-full shadow-lg transition-colors text-lg bg-blue-600 hover:bg-blue-700 text-white">
+                Enregistrer l'acquisition
+              </button>
+              <button type="button" id="generate-cerfa-achat" class="w-full font-bold py-4 px-4 rounded-full shadow-lg transition-colors text-lg bg-gray-600 hover:bg-gray-700 text-white">
+                Générer CERFA 13757*03
+              </button>
+            </div>
+          </form>
+        </div>
+      `;
+
+      // Ajout des listeners pour le formulaire d'acquisition
+      const form = document.getElementById('acquisition-form');
+      form.addEventListener('input', (e) => {
+        const { name, value, type, checked } = e.target;
+        let newValue = type === 'checkbox' ? checked : value;
+        acquisitionFormState[name] = newValue;
+
+        if (name === 'prixAchat' || name === 'acquisitionTVA') {
+          const price = parseFloat(acquisitionFormState.prixAchat);
+          if (acquisitionFormState.acquisitionTVA && !isNaN(price)) {
+            acquisitionFormState.montantTVA = (price * 0.20).toFixed(2);
+          } else {
+            acquisitionFormState.montantTVA = '0.00';
+          }
+          document.querySelector('input[name="montantTVA"]').value = acquisitionFormState.montantTVA;
+          document.getElementById('tva-field').classList.toggle('hidden', !acquisitionFormState.acquisitionTVA);
+        }
+        if (name === 'vendeurType') {
+          renderAcquisition(); // Re-render pour changer les champs du vendeur
+        }
+      });
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await processAcquisition();
+      });
+
+      document.getElementById('generate-cerfa-achat').addEventListener('click', () => {
+        const cerfaHtml = generateCerfa({
+          vehicle: acquisitionFormState,
+          fournisseur: acquisitionFormState
+        }, '13757');
+        window.open(`data:text/html;charset=utf-8,${encodeURIComponent(cerfaHtml)}`);
+      });
+    }
+
+    async function processAcquisition() {
+      const {
+        vendeurType, vendeurNom, vendeurPrenom, vendeurRaisonSociale, ...vehicleAndTransactionData
+      } = acquisitionFormState;
+
+      if (!vehicleAndTransactionData.marque || !vehicleAndTransactionData.modele || !vehicleAndTransactionData.vin || !vehicleAndTransactionData.prixAchat) {
+        alert("Veuillez remplir au moins les champs Marque, Modèle, VIN et Prix d'achat.");
+        return;
+      }
+
+      let newClient = {
+        type: vendeurType,
+        nom: vendeurNom,
+        prenom: vendeurPrenom,
+        raisonSociale: vendeurRaisonSociale,
+        adresse: acquisitionFormState.vendeurAdresse,
+        codePostal: acquisitionFormState.vendeurCodePostal,
+        ville: acquisitionFormState.vendeurVille,
+        telephone: acquisitionFormState.vendeurTelephone,
+        email: acquisitionFormState.vendeurEmail,
+        siret: acquisitionFormState.vendeurSiret,
+      };
+
+      try {
+        const clientCollectionPath = `/artifacts/${appId}/users/${userId}/clients`;
+        const clientDocRef = await addDoc(collection(db, clientCollectionPath), newClient);
+
+        const vehicleCollectionPath = `/artifacts/${appId}/users/${userId}/vehicles`;
+        await addDoc(collection(db, vehicleCollectionPath), {
+          ...vehicleAndTransactionData,
+          prixAchat: parseFloat(vehicleAndTransactionData.prixAchat),
+          montantTVA: parseFloat(vehicleAndTransactionData.montantTVA),
+          provenance: vendeurType,
+          fournisseurId: clientDocRef.id,
+          statut: 'en-stock',
+          entretiens: [],
+        });
+
+        alert(`Acquisition du véhicule "${acquisitionFormState.marque} ${acquisitionFormState.modele}" enregistrée !`);
+        resetForms();
+        setView('stock');
+      } catch (e) {
+        console.error("Erreur lors de l'acquisition :", e);
+        alert("Une erreur est survenue lors de l'opération d'acquisition.");
+      }
+    }
+
+
+    function renderVentes() {
+      appContainer.innerHTML = `
+        <div>
+          <h2 class="text-3xl font-bold mb-6">Gestion des ventes</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${transactions.length > 0 ? transactions.map(t => {
+              const transactionClient = clients.find(c => c.id === t.client.id) || t.client;
+              return `
+                <div data-transaction-id="${t.id}" class="vente-item bg-white p-6 rounded-xl shadow-md border border-gray-200 cursor-pointer hover:shadow-lg transition-shadow">
+                  <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full mb-2 ${getStatusColor(t.statutVente)}">
+                    ${t.statutVente.charAt(0).toUpperCase() + t.statutVente.slice(1)}
+                  </span>
+                  <h3 class="text-xl font-bold mb-2">${t.vehicle?.marque} ${t.vehicle?.modele}</h3>
+                  <p class="text-gray-600 mb-2">Client: ${transactionClient?.nom} ${transactionClient?.prenom}</p>
+                  <p class="text-gray-500 text-sm">Prix: ${t.prixVente} €</p>
+                  <p class="text-gray-500 text-sm">Date: ${new Date(t.dateTransaction?.seconds * 1000).toLocaleDateString('fr-FR')}</p>
+                </div>
+              `;
+            }).join('') : `
+              <p class="col-span-full text-center text-gray-500 text-lg mt-8">Aucune vente enregistrée.</p>
+            `}
+          </div>
+        </div>
+      `;
+      appContainer.querySelectorAll('.vente-item').forEach(item => {
+        item.addEventListener('click', () => {
+          selectedTransaction = transactions.find(t => t.id === item.dataset.transactionId);
+          setView('venteDetail');
+        });
+      });
+    }
+
+    function renderVenteDetail() {
+      if (!selectedTransaction) {
+        appContainer.innerHTML = `<div class="text-center text-gray-500 text-lg mt-8">Transaction non trouvée.</div>`;
+        return;
+      }
+      const vehicle = vehicles.find(v => v.id === selectedTransaction.vehicle.id) || selectedTransaction.vehicle;
+      const client = clients.find(c => c.id === selectedTransaction.client.id) || selectedTransaction.client;
+
+      appContainer.innerHTML = `
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl mx-auto relative">
+          <h2 class="text-3xl font-bold mb-4">Dossier de vente</h2>
+          <div class="flex justify-between items-center mb-6">
+            <h3 class="text-xl font-semibold">${vehicle?.marque} ${vehicle?.modele}</h3>
+            <div class="flex items-center space-x-2">
+              <span class="font-medium">Statut:</span>
+              <span class="px-4 py-2 rounded-full font-bold ${getStatusColor(selectedTransaction.statutVente)}">
+                ${selectedTransaction.statutVente.charAt(0).toUpperCase() + selectedTransaction.statutVente.slice(1)}
+              </span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+            <div class="border border-gray-200 p-6 rounded-xl shadow-inner">
+              <h4 class="flex items-center text-lg font-bold mb-4 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 mr-2"><path d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24-.047-.367-.116-.72-.218-1.066A6.685 6.685 0 0012 11.25a6.685 6.685 0 00-3.238 1.075c-.102.346-.17.699-.218 1.066.015.747.033 1.494.056 2.24a.75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24z" clip-rule="evenodd" /></svg>
+                Client
+              </h4>
+              <p><strong>Nom:</strong> ${client?.nom} ${client?.prenom}</p>
+              <p><strong>Né(e) le:</strong> ${client?.dateNaissance || 'N/A'}</p>
+              <p><strong>Téléphone:</strong> ${client?.telephone || 'N/A'}</p>
+              <p><strong>Email:</strong> ${client?.email || 'N/A'}</p>
+              <p><strong>Adresse:</strong> ${client?.adresse}, ${client?.codePostal} ${client?.ville}</p>
+            </div>
+
+            <div class="border border-gray-200 p-6 rounded-xl shadow-inner">
+              <h4 class="flex items-center text-lg font-bold mb-4 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-5 w-5 mr-2"><path d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24-.047-.367-.116-.72-.218-1.066A6.685 6.685 0 0012 11.25a6.685 6.685 0 00-3.238 1.075c-.102.346-.17.699-.218 1.066.015.747.033 1.494.056 2.24a.75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24z" clip-rule="evenodd" /></svg>
+                Véhicule
+              </h4>
+              <p><strong>Prix de vente:</strong> ${selectedTransaction.prixVente} €</p>
+              <p><strong>Date de commande:</strong> ${new Date(selectedTransaction.dateTransaction?.seconds * 1000).toLocaleDateString('fr-FR')}</p>
+              <p><strong>Kilométrage:</strong> ${vehicle?.kilometrage} km</p>
+              <p><strong>Immatriculation:</strong> ${vehicle?.immatriculation}</p>
+              <p><strong>Ancienne CG:</strong> ${vehicle?.numeroAncienneCG || 'N/A'}</p>
+            </div>
+          </div>
+
+          <div class="mb-8">
+            <h4 class="text-xl font-bold mb-4">Actions</h4>
+            <div class="flex space-x-2 flex-wrap">
+              ${selectedTransaction.statutVente !== 'finalisé' && selectedTransaction.statutVente !== 'annulée' ? `
+                <button id="update-pret-btn" class="bg-yellow-500 text-white px-4 py-2 rounded-full hover:bg-yellow-600 transition-colors my-1">Marquer comme "Véhicule prêt"</button>
+                <button id="update-finalise-btn" class="bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600 transition-colors my-1">Marquer comme "Finalisé"</button>
+                <button id="cancel-sale-btn" class="bg-red-500 text-white px-4 py-2 rounded-full hover:bg-red-600 transition-colors my-1">Annuler la vente</button>
+              ` : ''}
+            </div>
+          </div>
+
+          <div class="mb-8">
+            <h4 class="text-xl font-bold mb-4">Documents</h4>
+            <div class="flex space-x-4 mb-4 flex-wrap">
+              <button data-doc-type="facture" class="doc-type-btn px-6 py-3 rounded-full font-semibold transition-colors bg-blue-600 text-white">Facture</button>
+              <button data-doc-type="cerfa-15776" class="doc-type-btn px-6 py-3 rounded-full font-semibold transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300">CERFA 15776*01</button>
+              <button data-doc-type="cerfa-13750" class="doc-type-btn px-6 py-3 rounded-full font-semibold transition-colors bg-gray-200 text-gray-800 hover:bg-gray-300">CERFA 13750*05</button>
+            </div>
+            <div class="bg-gray-50 p-6 rounded-xl border border-gray-200 overflow-auto max-h-96" id="document-preview-container">
+              <!-- Aperçu du document -->
+            </div>
+            <div class="flex justify-center space-x-4 mt-6">
+              <button id="print-doc-btn" class="bg-gray-800 text-white px-6 py-3 rounded-full font-semibold hover:bg-gray-900 transition-colors">Ouvrir en PDF</button>
+              <button id="send-signature-btn" class="bg-purple-600 text-white px-6 py-3 rounded-full font-semibold hover:bg-purple-700 transition-colors">Envoyer pour signature électronique</button>
+            </div>
+          </div>
+        </div>
+      `;
+      // Ajout des listeners pour la page de détail de vente
+      const docPreviewContainer = document.getElementById('document-preview-container');
+      const docButtons = appContainer.querySelectorAll('.doc-type-btn');
+
+      let currentDocumentType = 'facture';
+      const renderDocument = () => {
+        const docHtml = currentDocumentType === 'facture'
+          ? generateInvoice({ vehicle, client, ...selectedTransaction })
+          : generateCerfa({ transaction: selectedTransaction, vehicle, client }, currentDocumentType.split('-')[1]);
+        docPreviewContainer.innerHTML = docHtml;
+      };
+
+      docButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          docButtons.forEach(b => b.classList.replace('bg-blue-600', 'bg-gray-200'));
+          docButtons.forEach(b => b.classList.replace('text-white', 'text-gray-800'));
+          btn.classList.replace('bg-gray-200', 'bg-blue-600');
+          btn.classList.replace('text-gray-800', 'text-white');
+          currentDocumentType = btn.dataset.docType;
+          renderDocument();
+        });
+      });
+
+      renderDocument();
+
+      const printBtn = document.getElementById('print-doc-btn');
+      if (printBtn) {
+        printBtn.addEventListener('click', () => {
+          const docHtml = currentDocumentType === 'facture'
+            ? generateInvoice({ vehicle, client, ...selectedTransaction })
+            : generateCerfa({ transaction: selectedTransaction, vehicle, client }, currentDocumentType.split('-')[1]);
+          window.open(`data:text/html;charset=utf-8,${encodeURIComponent(docHtml)}`);
+        });
+      }
+
+      const sendSignatureBtn = document.getElementById('send-signature-btn');
+      if (sendSignatureBtn) {
+        sendSignatureBtn.addEventListener('click', () => {
+          if (client && (client.email || client.telephone)) {
+            alert(`Simulation : Envoi d'une demande de signature électronique par ${client.email ? 'e-mail' : 'SMS'}.`);
+          } else {
+            alert("Impossible d'envoyer la signature. Les informations de contact du client sont manquantes.");
+          }
+        });
+      }
+
+      const updatePretBtn = document.getElementById('update-pret-btn');
+      if (updatePretBtn) {
+        updatePretBtn.addEventListener('click', () => updateVenteStatus(selectedTransaction.id, 'prêt'));
+      }
+      const updateFinaliseBtn = document.getElementById('update-finalise-btn');
+      if (updateFinaliseBtn) {
+        updateFinaliseBtn.addEventListener('click', () => updateVenteStatus(selectedTransaction.id, 'finalisé'));
+      }
+      const cancelSaleBtn = document.getElementById('cancel-sale-btn');
+      if (cancelSaleBtn) {
+        cancelSaleBtn.addEventListener('click', () => {
+          showConfirmationModal("Êtes-vous sûr de vouloir annuler cette vente ? Le véhicule sera remis en stock.", async () => {
+            await cancelSale();
+          });
+        });
+      }
+    }
+
+    function renderVenteFormulaire() {
+      if (!selectedVehicleForSale) {
+        appContainer.innerHTML = `<div class="text-center text-gray-500 text-lg mt-8">Véhicule à vendre non sélectionné.</div>`;
+        return;
+      }
+
+      appContainer.innerHTML = `
+        <div class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-4xl mx-auto">
+          <h2 class="text-3xl font-bold mb-6 text-center">Fiche de vente</h2>
+          <form id="vente-form" class="space-y-8">
+            <!-- Section Véhicule -->
+            <div class="border border-gray-200 p-6 rounded-xl shadow-inner">
+              <h3 class="flex items-center text-xl font-bold mb-4 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2"><path d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24-.047-.367-.116-.72-.218-1.066A6.685 6.685 0 0012 11.25a6.685 6.685 0 00-3.238 1.075c-.102.346-.17.699-.218 1.066.015.747.033 1.494.056 2.24a.75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24z" clip-rule="evenodd" /></svg>
+                Informations sur le véhicule
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <p><strong>Marque:</strong> ${selectedVehicleForSale.marque}</p>
+                <p><strong>Modèle:</strong> ${selectedVehicleForSale.modele}</p>
+                <p><strong>Immatriculation:</strong> ${selectedVehicleForSale.immatriculation}</p>
+                <p><strong>Kilométrage:</strong> ${selectedVehicleForSale.kilometrage} km</p>
+                <p><strong>VIN:</strong> ${selectedVehicleForSale.vin}</p>
+                <p><strong>Ancienne CG:</strong> ${selectedVehicleForSale.numeroAncienneCG || 'N/A'}</p>
+              </div>
+              <div class="mt-4">
+                <label class="block text-gray-700 font-semibold mb-2">Prix de vente (€)</label>
+                <input type="number" name="prixVente" value="${ventaFormState.prixVente}" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" required />
+              </div>
+            </div>
+
+            <!-- Section Client -->
+            <div class="border border-gray-200 p-6 rounded-xl shadow-inner">
+              <h3 class="flex items-center text-xl font-bold mb-4 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2"><path d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24-.047-.367-.116-.72-.218-1.066A6.685 6.685 0 0012 11.25a6.685 6.685 0 00-3.238 1.075c-.102.346-.17.699-.218 1.066.015.747.033 1.494.056 2.24a.75.75 0 01-.008.067l-.025.011a13.568 13.568 0 01-1.393.266c-.633.153-1.077.306-1.127.356a1.5 1.5 0 01-2.115 0c-.05-.05-.494-.203-1.127-.356a13.568 13.568 0 01-1.393-.266l-.025-.011a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24a.75.75 0 01-.008-.067c.023-.746.041-1.493.056-2.24z" clip-rule="evenodd" /></svg>
+                Informations sur le Cessionnaire
+              </h3>
+              <div class="mb-4">
+                <label class="block text-gray-700 font-semibold mb-2">Client existant</label>
+                <select id="select-client" name="clientId" class="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <option value="">-- Choisir un client --</option>
+                  ${clients.map(c => `<option value="${c.id}" ${ventaFormState.clientId === c.id ? 'selected' : ''}>${c.nom} ${c.prenom}</option>`).join('')}
+                </select>
+              </div>
+              <div id="new-client-fields" class="${ventaFormState.clientId ? 'hidden' : ''}">
+                <h4 class="font-semibold text-gray-700 mt-4 mb-2">Nouveau client</h4>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Nom</label>
+                    <input type="text" name="nom" value="${ventaFormState.newClient.nom}" class="w-full px-4 py-2 border rounded-lg" required />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Prénom</label>
+                    <input type="text" name="prenom" value="${ventaFormState.newClient.prenom}" class="w-full px-4 py-2 border rounded-lg" required />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Date de naissance</label>
+                    <input type="date" name="dateNaissance" value="${ventaFormState.newClient.dateNaissance}" class="w-full px-4 py-2 border rounded-lg" required />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Lieu de naissance</label>
+                    <input type="text" name="lieuNaissance" value="${ventaFormState.newClient.lieuNaissance}" class="w-full px-4 py-2 border rounded-lg" required />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Nationalité</label>
+                    <input type="text" name="nationalite" value="${ventaFormState.newClient.nationalite}" class="w-full px-4 py-2 border rounded-lg" />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Adresse</label>
+                    <input type="text" name="adresse" value="${ventaFormState.newClient.adresse}" class="w-full px-4 py-2 border rounded-lg" required />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Code Postal</label>
+                    <input type="text" name="codePostal" value="${ventaFormState.newClient.codePostal}" class="w-full px-4 py-2 border rounded-lg" required />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Ville</label>
+                    <input type="text" name="ville" value="${ventaFormState.newClient.ville}" class="w-full px-4 py-2 border rounded-lg" required />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Téléphone</label>
+                    <input type="tel" name="telephone" value="${ventaFormState.newClient.telephone}" class="w-full px-4 py-2 border rounded-lg" />
+                  </div>
+                  <div>
+                    <label class="block text-gray-700 font-semibold mb-2">Email</label>
+                    <input type="email" name="email" value="${ventaFormState.newClient.email}" class="w-full px-4 py-2 border rounded-lg" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section de la vente -->
+            <div class="border border-gray-200 p-6 rounded-xl shadow-inner">
+              <h3 class="flex items-center text-xl font-bold mb-4 text-blue-600">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6 mr-2"><path d="M11.25 4.5v7.5h7.5A.75.75 0 0019.5 12a13.75 13.75 0 01-15 0c-.414-.09-.75-.494-.75-.958V4.5a.75.75 0 011.5 0zm-1.5 0a.75.75 0 01.75-.75h7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75V4.5zM2.25 12.75a.75.75 0 01.75-.75h7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-.75.75H3a.75.75 0 01-.75-.75v-3.75zM12 4.5v7.5h7.5a.75.75 0 01.75.75v3.75a.75.75 0 01-.75.75h-7.5a.75.75 0 01-.75-.75v-3.75a.75.75 0 01.75-.75z" /></svg>
+                Déclaration de Cession
+              </h3>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Date de la cession</label>
+                  <input type="date" name="dateCession" value="${new Date().toISOString().split('T')[0]}" readonly class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed" />
+                </div>
+                <div>
+                  <label class="block text-gray-700 font-semibold mb-2">Heure de la cession</label>
+                  <input type="time" name="heureCession" value="${new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}" readonly class="w-full px-4 py-2 border rounded-lg bg-gray-100 cursor-not-allowed" />
+                </div>
+              </div>
+              <div class="flex items-center mt-4">
+                <input type="checkbox" id="venduDansEtat" name="venduDansEtat" ${ventaFormState.venduDansEtat ? 'checked' : ''} class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
+                <label for="venduDansEtat" class="ml-2 text-gray-700">Véhicule vendu "dans l'état"</label>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full font-bold py-4 px-4 rounded-full shadow-lg transition-colors text-lg bg-green-600 hover:bg-green-700 text-white">
+              Commander le véhicule
+            </button>
+          </form>
+        </div>
+      `;
+
+      // Ajout des listeners pour le formulaire de vente
+      const form = document.getElementById('vente-form');
+      const newClientFields = document.getElementById('new-client-fields');
+      const selectClient = document.getElementById('select-client');
+
+      selectClient.addEventListener('change', (e) => {
+        ventaFormState.clientId = e.target.value;
+        if (e.target.value) {
+          newClientFields.classList.add('hidden');
+          const inputs = newClientFields.querySelectorAll('input');
+          inputs.forEach(input => input.removeAttribute('required'));
+        } else {
+          newClientFields.classList.remove('hidden');
+          const inputs = newClientFields.querySelectorAll('input');
+          inputs.forEach(input => input.setAttribute('required', 'true'));
+        }
+      });
+      form.addEventListener('input', (e) => {
+        const { name, value, type, checked } = e.target;
+        if (e.target.closest('#new-client-fields')) {
+          ventaFormState.newClient[name] = value;
+        } else {
+          ventaFormState[name] = type === 'checkbox' ? checked : value;
+        }
+      });
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        await processVente();
+      });
+    }
+
+    async function processVente() {
+      if (!selectedVehicleForSale || !ventaFormState.prixVente) {
+        alert("Veuillez remplir toutes les informations requises.");
+        return;
+      }
+      if (!ventaFormState.clientId && (!ventaFormState.newClient.nom || !ventaFormState.newClient.prenom)) {
+        alert("Veuillez choisir un client existant ou ajouter un nouveau client.");
+        return;
+      }
+
+      let clientToUseId = ventaFormState.clientId;
+      let clientData = {};
+
+      try {
+        if (!clientToUseId) {
+          const clientCollectionPath = `/artifacts/${appId}/users/${userId}/clients`;
+          const newClientDocRef = await addDoc(collection(db, clientCollectionPath), ventaFormState.newClient);
+          clientToUseId = newClientDocRef.id;
+          clientData = ventaFormState.newClient;
+        } else {
+          clientData = clients.find(c => c.id === clientToUseId);
+        }
+
+        const transactionCollectionPath = `/artifacts/${appId}/users/${userId}/transactions`;
+        const newTransaction = {
+          vehicle: selectedVehicleForSale,
+          client: { id: clientToUseId, ...clientData },
+          prixVente: parseFloat(ventaFormState.prixVente),
+          dateTransaction: new Date(),
+          venduDansEtat: ventaFormState.venduDansEtat,
+          statutVente: 'commandé',
+        };
+
+        const docRef = await addDoc(collection(db, transactionCollectionPath), newTransaction);
+        const vehicleDocPath = `/artifacts/${appId}/users/${userId}/vehicles/${selectedVehicleForSale.id}`;
+        await updateDoc(doc(db, vehicleDocPath), { statut: 'vendu' });
+
+        alert(`Vente du véhicule "${selectedVehicleForSale.marque} ${selectedVehicleForSale.modele}" enregistrée avec succès !`);
+        resetForms();
+        selectedTransaction = { id: docRef.id, ...newTransaction };
+        setView('venteDetail');
+      } catch (e) {
+        console.error("Erreur lors de la vente:", e);
+        alert("Une erreur est survenue lors de l'opération de vente.");
+      }
+    }
+
+
+    async function updateVenteStatus(transactionId, newStatus) {
+      try {
+        const transactionDocRef = doc(db, `/artifacts/${appId}/users/${userId}/transactions/${transactionId}`);
+        await updateDoc(transactionDocRef, { statutVente: newStatus });
+        alert(`Statut de la vente mis à jour: ${newStatus}`);
+      } catch (e) {
+        console.error("Erreur lors de la mise à jour du statut:", e);
+        alert("Une erreur est survenue lors de la mise à jour du statut.");
+      }
+    }
+
+    async function cancelSale() {
+      if (!selectedTransaction) return;
+
+      try {
+        const transactionDocRef = doc(db, `/artifacts/${appId}/users/${userId}/transactions/${selectedTransaction.id}`);
+        await updateDoc(transactionDocRef, { statutVente: 'annulée' });
+
+        const vehicleId = selectedTransaction.vehicle.id;
+        const vehicleDocRef = doc(db, `/artifacts/${appId}/users/${userId}/vehicles/${vehicleId}`);
+        await updateDoc(vehicleDocRef, { statut: 'en-stock' });
+
+        alert(`La vente a été annulée. Le véhicule est de retour en stock.`);
+        const updatedTransaction = { ...selectedTransaction, statutVente: 'annulée' };
+        selectedTransaction = updatedTransaction;
+        renderVenteDetail();
+      } catch (e) {
+        console.error("Erreur lors de l'annulation de la vente:", e);
+        alert("Une erreur est survenue lors de l'annulation de la vente.");
+      }
+    }
+
+    function startSellVehicle(vehicleId) {
+      selectedVehicleForSale = vehicles.find(v => v.id === vehicleId);
+      setView('venteFormulaire');
+    }
+
+    async function addEntretien(vehicleId) {
+      const entretienDescription = prompt("Description de l'entretien (ex: vidange, changement de pneus) :");
+      if (entretienDescription) {
+        try {
+          const vehicleDocRef = doc(db, `/artifacts/${appId}/users/${userId}/vehicles/${vehicleId}`);
+          const currentVehicle = vehicles.find(v => v.id === vehicleId);
+          if (currentVehicle) {
+            const updatedEntretiens = [...(currentVehicle.entretiens || []), {
+              description: entretienDescription,
+              date: new Date().toISOString().split('T')[0]
+            }];
+            await updateDoc(vehicleDocRef, { entretiens: updatedEntretiens });
+            alert("Entretien ajouté avec succès !");
+          }
+        } catch (e) {
+          console.error("Erreur d'ajout d'entretien:", e);
+          alert("Une erreur est survenue lors de l'ajout de l'entretien.");
+        }
+      }
+    }
+
+    function renderClients() {
+      appContainer.innerHTML = `
+        <div>
+          <h2 class="text-3xl font-bold mb-6">Gestion des clients</h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            ${clients.length > 0 ? clients.map(c => `
+              <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
+                <h3 class="text-xl font-bold mb-2">${c.nom} ${c.prenom}</h3>
+                <p><strong>Téléphone:</strong> ${c.telephone || 'N/A'}</p>
+                <p><strong>Email:</strong> ${c.email || 'N/A'}</p>
+                <p><strong>Adresse:</strong> ${c.adresse}, ${c.codePostal} ${c.ville}</p>
+                ${c.dateNaissance ? `<p><strong>Né(e) le:</strong> ${c.dateNaissance}</p>` : ''}
+              </div>
+            `).join('') : `
+              <p class="col-span-full text-center text-gray-500 text-lg mt-8">Aucun client enregistré.</p>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    // Ajout des écouteurs d'événements aux boutons de navigation
+    navButtons.stock.addEventListener('click', () => setView('stock'));
+    navButtons.achat.addEventListener('click', () => { resetForms(); setView('achat'); });
+    navButtons.ventes.addEventListener('click', () => setView('ventes'));
+    navButtons.clients.addEventListener('click', () => setView('clients'));
+
+    // Initialise l'application au chargement complet de la page
+    document.addEventListener('DOMContentLoaded', initializeFirebase);
+  </script>
+</body>
+</html>
