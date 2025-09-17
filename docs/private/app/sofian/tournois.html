@@ -192,9 +192,9 @@
                             <p class="font-semibold">${team1Names}</p>
                         </div>
                         <div class="md:col-span-1 flex justify-center items-center space-x-2">
-                            <input type="number" min="0" class="score-input w-12 text-center bg-slate-100 rounded-md p-2 font-bold" data-match-id="${match.id}" data-team="1" value="${match.score1 !== null ? match.score1 : ''}">
+                            <input type="number" min="0" class="score-input w-12 text-center bg-slate-100 rounded-md p-2 font-bold" data-match-id="${match.id}" data-team="1" value="${match.score1 !== null ? match.score1 : 0}">
                             <span class="font-bold text-slate-400">-</span>
-                            <input type="number" min="0" class="score-input w-12 text-center bg-slate-100 rounded-md p-2 font-bold" data-match-id="${match.id}" data-team="2" value="${match.score2 !== null ? match.score2 : ''}">
+                            <input type="number" min="0" class="score-input w-12 text-center bg-slate-100 rounded-md p-2 font-bold" data-match-id="${match.id}" data-team="2" value="${match.score2 !== null ? match.score2 : 0}">
                         </div>
                         <div class="md:col-span-5 text-center md:text-right">
                             <p class="font-semibold">${team2Names}</p>
@@ -212,7 +212,7 @@
         async function handleScoreChange(event) {
             const matchId = event.target.dataset.matchId;
             const team = parseInt(event.target.dataset.team);
-            const score = event.target.value === '' ? null : parseInt(event.target.value);
+            const score = event.target.value === '0' ? null : parseInt(event.target.value);
 
             const matchRef = doc(window.db, `artifacts/${appId}/public/data/matches`, matchId);
 
