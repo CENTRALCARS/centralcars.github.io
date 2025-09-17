@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestion de Tournoi Padel</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 350px;
+            max-height: 400px;
+        }
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, onSnapshot, collection, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        // Hardcoded players and their unique IDs
+        const hardcodedPlayers = [
+            { id: 'player_hedi', name: 'HEDI' },
+            { id: 'player_yassine', name: 'YASSINE' },
+            { id: 'player_sammy', name: 'SAMMY' },
+            { id: 'player_yazid', name: 'YAZID' },
+            { id: 'player_houcem', name: 'HOUCEM' },
+            { id: 'player_sofian', name: 'SOFIAN' },
+            { id: 'player_mourad', name: 'MOURAD' },
+            { id: 'player_lafleche', name: 'LAFLECHE' }
+        ];
+
+        // Hardcoded matches for the tournament
+        const hardcodedMatches = [
+            { id: 'match_01', round: 1, court: 1, team1: ['player_hedi', 'player_yassine'], team2: ['player_sammy', 'player_yazid'], score1: null, score2: null },
+            { id: 'match_02', round: 1, court: 2, team1: ['player_houcem', 'player_sofian'], team2: ['player_mourad', 'player_lafleche'], score1: null, score2: null },
+            { id: 'match_03', round: 2, court: 1, team1: ['player_hedi', 'player_sammy'], team2: ['player_yassine', 'player_yazid'], score1: null, score2: null },
+            { id: 'match_04', round: 2, court: 2, team1: ['player_houcem', 'player_mourad'], team2: ['player_sofian', 'player_lafleche'], score1: null, score2: null },
+            { id: 'match_05', round: 3, court: 1, team1: ['player_hedi', 'player_yazid'], team2: ['player_yassine', 'player_sammy'], score1: null, score2: null },
+            { id: 'match_06', round: 3, court: 2, team1: ['player_houcem', 'player_lafleche'], team2: ['player_sofian', 'player_mourad'], score1: null, score2: null },
+            { id: 'match_07', round: 4, court: 1, team1: ['player_hedi', 'player_houcem'], team2: ['player_yassine', 'player_sofian'], score1: null, score2: null },
+            { id: 'match_08', round: 4, court: 2, team1: ['player_sammy', 'player_mourad'], team2: ['player_yazid', 'player_lafleche'], score1: null, score2: null },
+            { id: 'match_09', round: 5, court: 1, team1: ['player_hedi', 'player_sofian'], team2: ['player_yassine', 'player_houcem'], score1: null, score2: null },
+            { id: 'match_10', round: 5, court: 2, team1: ['player_sammy', 'player_lafleche'], team2: ['player_yazid', 'player_mourad'], score1: null, score2: null },
+            { id: 'match_11', round: 6, court: 1, team1: ['player_hedi', 'player_mourad'], team2: ['player_yassine', 'player_lafleche'], score1: null, score2: null },
+            { id: 'match_12', round: 6, court: 2, team1: ['player_sammy', 'player_houcem'], team2: ['player_yazid', 'player_sofian'], score1: null, score2: null }
+        ];
+
+        // Global variables for application state
+        window.matches = [];
+        window.players = hardcodedPlayers;
+        let rankingChart;
+
+        async function initApp() {
+            try {
+                const app = initializeApp(firebaseConfig);
+                window.db = getFirestore(app);
+                window.auth = getAuth(app);
+                
+                // Sign in with the provided token or anonymously if no token is available
+                if (initialAuthToken) {
+                    await signInWithCustomToken(window.auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(window.auth);
+                }
+
+                document.getElementById('user-id').textContent = window.auth.currentUser.uid;
+                
+                // Once authenticated, start the real-time listeners for the scores
+                setupRealtimeListeners();
+            } catch (error) {
+                console.error("Erreur d'initialisation de Firebase ou d'authentification:", error);
+                document.body.innerHTML = '<div class="text-center p-8 text-red-500">Erreur de connexion à la base de données. Veuillez recharger la page.</div>';
+            }
+        }
+
+        function setupRealtimeListeners() {
+            const userId = window.auth.currentUser?.uid;
+            if (!userId) {
+                console.error("Utilisateur non authentifié.");
+                return;
+            }
+
+            // Path to the shared public data (only matches are stored here now)
+            const matchesColRef = collection(window.db, `artifacts/${appId}/public/data/matches`);
+
+            // Real-time listener for matches scores
+            onSnapshot(matchesColRef, (snapshot) => {
+                const newScores = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                // Merge scores with hardcoded match data
+                window.matches = hardcodedMatches.map(hardcodedMatch => {
+                    const foundScore = newScores.find(scoreDoc => scoreDoc.id === hardcodedMatch.id);
+                    return {
+                        ...hardcodedMatch,
+                        score1: foundScore?.score1 || null,
+                        score2: foundScore?.score2 || null
+                    };
+                });
+                
+                renderMatchList();
+                calculateRankings();
+            });
+        }
+        
+        function getPlayerName(id) {
+            const player = window.players.find(p => p.id === id);
+            return player ? player.name : `Joueur`;
+        }
+        
+        function renderMatchList() {
+            const matchListElement = document.getElementById('match-list');
+            matchListElement.innerHTML = '';
+            
+            const sortedMatches = [...window.matches].sort((a, b) => a.round - b.round || a.court - b.court);
+            
+            let currentRound = 0;
+
+            if (sortedMatches.length === 0) {
+                matchListElement.innerHTML = '<p class="text-slate-400">Aucun match n\'est prévu pour le moment. Veuillez recharger la page.</p>';
+                return;
+            }
+
+            sortedMatches.forEach((match) => {
+                if (match.round !== currentRound) {
+                    currentRound = match.round;
+                    const roundHeader = document.createElement('h3');
+                    roundHeader.className = 'text-xl font-bold text-sky-600 mt-6 border-b-2 border-sky-200 pb-2';
+                    roundHeader.textContent = `Round ${currentRound}`;
+                    matchListElement.appendChild(roundHeader);
+                }
+
+                const team1Names = `${getPlayerName(match.team1[0])} et ${getPlayerName(match.team1[1])}`;
+                const team2Names = `${getPlayerName(match.team2[0])} et ${getPlayerName(match.team2[1])}`;
+
+                const card = document.createElement('div');
+                card.className = 'bg-white p-5 rounded-xl shadow-md transition hover:shadow-lg';
+                card.innerHTML = `
+                    <div class="flex justify-between items-center">
+                        <p class="text-sm text-slate-500">Terrain ${match.court}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-11 gap-4 items-center mt-3">
+                        <div class="md:col-span-5 text-center md:text-left">
+                            <p class="font-semibold">${team1Names}</p>
+                        </div>
+                        <div class="md:col-span-1 flex justify-center items-center space-x-2">
+                            <input type="number" min="0" class="score-input w-12 text-center bg-slate-100 rounded-md p-2 font-bold" data-match-id="${match.id}" data-team="1" value="${match.score1 !== null ? match.score1 : ''}">
+                            <span class="font-bold text-slate-400">-</span>
+                            <input type="number" min="0" class="score-input w-12 text-center bg-slate-100 rounded-md p-2 font-bold" data-match-id="${match.id}" data-team="2" value="${match.score2 !== null ? match.score2 : ''}">
+                        </div>
+                        <div class="md:col-span-5 text-center md:text-right">
+                            <p class="font-semibold">${team2Names}</p>
+                        </div>
+                    </div>
+                `;
+                matchListElement.appendChild(card);
+            });
+
+            document.querySelectorAll('.score-input').forEach(input => {
+                input.addEventListener('input', handleScoreChange);
+            });
+        }
+
+        async function handleScoreChange(event) {
+            const matchId = event.target.dataset.matchId;
+            const team = parseInt(event.target.dataset.team);
+            const score = event.target.value === '' ? null : parseInt(event.target.value);
+
+            const matchRef = doc(window.db, `artifacts/${appId}/public/data/matches`, matchId);
+
+            const updateData = {};
+            if (team === 1) {
+                updateData.score1 = score;
+            } else {
+                updateData.score2 = score;
+            }
+
+            try {
+                await runTransaction(window.db, async (transaction) => {
+                    transaction.set(matchRef, updateData, { merge: true });
+                });
+            } catch (error) {
+                console.error("Erreur lors de la mise à jour du score:", error);
+            }
+        }
+
+        function calculateRankings() {
+            // Reset player points
+            window.players.forEach(player => {
+                player.points = 0;
+                player.gamesWon = 0;
+                player.gamesLost = 0;
+            });
+
+            window.matches.forEach(match => {
+                if (match.score1 !== null && match.score2 !== null) {
+                    const score1 = match.score1;
+                    const score2 = match.score2;
+                    const team1Won = score1 > score2;
+                    
+                    const team1Players = match.team1;
+                    const team2Players = match.team2;
+                    
+                    team1Players.forEach(playerId => {
+                        const player = window.players.find(p => p.id === playerId);
+                        if(player) {
+                            if(team1Won) player.points += 1;
+                            player.gamesWon += score1;
+                            player.gamesLost += score2;
+                        }
+                    });
+
+                    team2Players.forEach(playerId => {
+                        const player = window.players.find(p => p.id === playerId);
+                        if(player) {
+                            if(!team1Won) player.points += 1;
+                            player.gamesWon += score2;
+                            player.gamesLost += score1;
+                        }
+                    });
+                }
+            });
+            
+            window.players.sort((a, b) => {
+                if (b.points !== a.points) {
+                    return b.points - a.points;
+                }
+                const diffA = a.gamesWon - a.gamesLost;
+                const diffB = b.gamesWon - b.gamesLost;
+                if (diffB !== diffA) {
+                    return diffB - diffA;
+                }
+                return b.gamesWon - a.gamesWon;
+            });
+
+            renderRankingTable();
+            updateChart();
+        }
+
+        function renderRankingTable() {
+            const tableBody = document.getElementById('ranking-table');
+            tableBody.innerHTML = '';
+            if (window.players.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5" class="p-4 text-center text-slate-400">Aucun joueur pour le classement.</td></tr>';
+                return;
+            }
+            window.players.forEach((player, index) => {
+                const row = document.createElement('tr');
+                const diff = player.gamesWon - player.gamesLost;
+                const diffClass = diff > 0 ? 'text-green-600' : diff < 0 ? 'text-red-600' : 'text-slate-500';
+                const diffSign = diff > 0 ? '+' : '';
+
+                row.className = 'border-b border-slate-100 last:border-b-0';
+                row.innerHTML = `
+                    <td class="p-2 font-bold text-slate-500">${index + 1}</td>
+                    <td class="p-2 font-semibold">${player.name}</td>
+                    <td class="p-2 text-center font-bold text-sky-600">${player.points}</td>
+                    <td class="p-2 text-center font-semibold ${diffClass}">${diffSign}${diff}</td>
+                    <td class="p-2 text-center text-slate-500">${player.gamesWon}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+        
+        function initializeChart() {
+            const ctx = document.getElementById('rankingChart').getContext('2d');
+            rankingChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Points',
+                        data: [],
+                        backgroundColor: 'rgba(56, 189, 248, 0.6)',
+                        borderColor: 'rgba(14, 165, 233, 1)',
+                        borderWidth: 1,
+                        borderRadius: 5,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: 'y',
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: {
+                                stepSize: 1
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        
+        function updateChart() {
+            const sortedPlayers = [...window.players].sort((a, b) => b.points - a.points);
+            rankingChart.data.labels = sortedPlayers.map(p => p.name);
+            rankingChart.data.datasets[0].data = sortedPlayers.map(p => p.points);
+            rankingChart.update();
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+            initializeChart();
+        });
+    </script>
+
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-bold text-slate-900">Tournoi de Padel</h1>
+            <p class="text-slate-500 mt-2">
+                Entrez les scores des matchs pour voir le classement en direct.
+                <br>
+                Votre ID utilisateur pour la base de données est : <span class="font-bold text-sky-600" id="user-id"></span>
+            </p>
+        </header>
+        
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <section class="lg:col-span-2">
+                <div id="message-box" class="opacity-0"></div>
+                
+                <!-- Match List Section -->
+                <h2 class="text-2xl font-bold mb-6 text-slate-900">Feuille de Matchs</h2>
+                <div id="match-list" class="space-y-6">
+                    <p class="text-slate-400">Chargement des matchs...</p>
+                </div>
+            </section>
+
+            <aside class="lg:col-span-1">
+                <div class="sticky top-8">
+                    <div class="bg-white p-6 rounded-2xl shadow-lg">
+                        <h2 class="text-2xl font-bold mb-4 text-slate-900">Classement</h2>
+                        <table class="w-full text-left">
+                            <thead>
+                                <tr class="border-b border-slate-200">
+                                    <th class="p-2">#</th>
+                                    <th class="p-2">Joueur</th>
+                                    <th class="p-2 text-center">Pts</th>
+                                    <th class="p-2 text-center">Diff.</th>
+                                    <th class="p-2 text-center">Gagnés</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ranking-table">
+                                <tr><td colspan="5" class="p-4 text-center text-slate-400">Chargement du classement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl shadow-lg mt-8">
+                        <h2 class="text-2xl font-bold mb-4 text-slate-900">Points des Joueurs</h2>
+                        <div class="chart-container">
+                            <canvas id="rankingChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+        </main>
+    </div>
+</body>
+</html>
