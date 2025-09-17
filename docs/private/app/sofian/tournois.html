@@ -34,12 +34,26 @@
     <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, onSnapshot, collection, getDocs, runTransaction } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        setLogLevel('debug');
 
         // Global variables provided by the environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'central-cars-a37ae';
+        
+        // REMPLACER CES INFORMATIONS AVEC VOTRE PROPRE CONFIGURATION FIREBASE
+        const firebaseConfig = {
+            apiKey: "AIzaSyC1RQ5m7_utiAEsvyobIuuwxzAzBLx27Sw",
+            authDomain: "central-cars-a37ae.firebaseapp.com",
+            projectId: "central-cars-a37ae",
+            storageBucket: "central-cars-a37ae.firebaseapp.com",
+            messagingSenderId: "297273470734",
+            appId: "1:297273470734:web:7d35e6619b28dc569d715f",
+            measurementId: "G-4LXQG2VWP1"
+        };
+        
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         // Hardcoded players and their unique IDs
@@ -77,11 +91,17 @@
 
         async function initApp() {
             try {
+                if (!firebaseConfig || !firebaseConfig.apiKey || firebaseConfig.apiKey.includes("VOTRE")) {
+                    console.error("Firebase config is missing or incomplete. Please update the firebaseConfig object with your project credentials.");
+                    document.body.innerHTML = '<div class="text-center p-8 text-red-500">Erreur de connexion : La configuration de la base de données est manquante. Veuillez mettre à jour la configuration dans le code.</div>';
+                    return;
+                }
+                
                 const app = initializeApp(firebaseConfig);
                 window.db = getFirestore(app);
                 window.auth = getAuth(app);
                 
-                // Sign in with the provided token or anonymously if no token is available
+                // Use the custom token if available, otherwise sign in anonymously
                 if (initialAuthToken) {
                     await signInWithCustomToken(window.auth, initialAuthToken);
                 } else {
@@ -94,7 +114,11 @@
                 setupRealtimeListeners();
             } catch (error) {
                 console.error("Erreur d'initialisation de Firebase ou d'authentification:", error);
-                document.body.innerHTML = '<div class="text-center p-8 text-red-500">Erreur de connexion à la base de données. Veuillez recharger la page.</div>';
+                let errorMessage = "Erreur de connexion à la base de données. Veuillez recharger la page.";
+                if (error.code === 'auth/custom-token-mismatch') {
+                    errorMessage = "Erreur d'authentification : Le jeton de connexion n'est pas valide. Veuillez recharger la page.";
+                }
+                document.body.innerHTML = `<div class="text-center p-8 text-red-500">${errorMessage}</div>`;
             }
         }
 
